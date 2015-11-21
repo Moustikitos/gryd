@@ -44,3 +44,4 @@ Temporary Items
 *.c
 *.h
 *.xcf
+*.pyc

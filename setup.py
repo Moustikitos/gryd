@@ -31,14 +31,14 @@ if "sdist" not in sys.argv:
 
 
 f = open("Gryd/VERSION", "r")
-long_description = open("./Gryd/rest/pypi.rst", "r")
+long_description = open("./rst/pypi.rst", "r")
 kw.update(**{
 	"version": f.read().strip(),
 	"name": "Gryd",
 	"keywords": ["epsg", "utm", "mgrs", "bng", "ing", "map", "interpolation", "projection", "great", "circle"],
 	"author": "THOORENS Bruno",
 	"author_email": "bruno.thoorens@free.fr",
-	"home_page": "http://bruno.thoorens.free.fr",
+	"url": "http://bruno.thoorens.free.fr",
 	"description": "Efficient great circle computation and projection library for x86 or x64 platform on Windows or Ubuntu.",
 	"long_description": long_description.read(),
 	"packages": ["Gryd"],
@@ -53,6 +53,7 @@ kw.update(**{
 		'License :: OSI Approved :: BSD License',
 		'Operating System :: Microsoft :: Windows',
 		'Operating System :: POSIX :: Linux',
+		'Programming Language :: C',
 		'Programming Language :: Python :: 2',
 		'Programming Language :: Python :: 3',
 		'Topic :: Scientific/Engineering :: GIS',

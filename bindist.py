@@ -29,7 +29,7 @@ class wheel(bdist_wheel.bdist_wheel):
 
 	def initialize_options(self):
 		bdist_wheel.bdist_wheel.initialize_options(self)
-		self.src_ext = 'py,pyw'
+		self.src_ext = 'c,h'
 
 	def finalize_options(self):
 		bdist_wheel.bdist_wheel.finalize_options(self)
