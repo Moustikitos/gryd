@@ -167,8 +167,13 @@ Ellispoid epsg=7030 a=6378137.000000 1/f=298.25722356
 1.0.7
 
 + Provide a multiplatform wheel (32 and 64 bit for Windows and Ubuntu)
++ Python sources released
 
-.. _Gryd-1.0.5-cp27-none-linux_i686.whl: http://bruno.thoorens.free.fr/gryd/Gryd-1.0.5-cp27-none-linux_i686.whl
-.. _Gryd-1.0.5-cp34-cp34m-linux_i686.whl: http://bruno.thoorens.free.fr/gryd/Gryd-1.0.5-cp34-cp34m-linux_i686.whl
+Todo
+====
+
++ implement oblique mercator
++ implement epsg database maintainer
+
 .. _ctypes Structure: https://docs.python.org/3/library/ctypes.html#structures-and-unions
 .. _From Python 3.5 Module doc: http://bruno.thoorens.free.fr/gryd/doc/index.html
