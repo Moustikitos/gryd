@@ -12,19 +12,9 @@
 ## Why this package ?
 `Gryd` package provides efficient great circle computation and projection library.
 
-```python
->>> from Gryd import *
-```
-
-### Vincenty application
-```python
->>> wgs84 = Ellipsoid(name="WGS 84")
->>> london = Geodesic(-0.127005, 51.518602, 0.)
->>> dublin = Geodesic(-6.259437, 53.350765, 0.)
->>> vdist = wgs84.distance(dublin, london)
-vdist
-Distance 464.025km initial bearing=113.6 final bearing=118.5
-```
+### Vincenty formulae
+They are two related iterative methods used in geodesy to calculate
+the distance between two points on the surface of a spheroid.
 
 ### EPSG dataset
 All epsg dataset linked to these projections are available through
@@ -50,8 +40,6 @@ http://bruno.thoorens.free.fr/gryd/doc/index.html
 Use project issues.
 
 ### Add / modify / fix code
-Guidance words: keep it simple and solid!
-
 1. open a issue to propose your contribution
 2. once issue is granted
   + fork this repository
