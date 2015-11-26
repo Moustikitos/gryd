@@ -9,10 +9,10 @@
 [![pypi](https://img.shields.io/pypi/dm/Gryd.svg?style=flat-square)](https://pypi.python.org/pypi/Gryd)
 [![pypi](https://img.shields.io/badge/wheel-yes-brightgreen.svg?style=flat-square)](https://pypi.python.org/pypi/Gryd)
 
+<img src="https://assets.gratipay.com/gratipay.svg?etag=3tGiSB5Uw_0-oWiLLxAqpQ~~" href="https://gratipay.com/Gryd" />
+
 ## Why this package ?
 `Gryd` package provides efficient great circle computation and projection library.
-
-<img src="https://assets.gratipay.com/gratipay.svg?etag=3tGiSB5Uw_0-oWiLLxAqpQ~~" href="https://gratipay.com/Gryd" />
 
 ### Vincenty formulae
 They are two related iterative methods used in geodesy to calculate
