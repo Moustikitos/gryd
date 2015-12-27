@@ -1,8 +1,19 @@
 ``Gryd`` package provides efficient great circle computation and
 projection library.
 
-.. image:: https://assets.gratipay.com/gratipay.svg?etag=3tGiSB5Uw_0-oWiLLxAqpQ~~
+Support this project
+====================
+
+.. image:: http://bruno.thoorens.free.fr/img/gratipay.png
    :target: https://gratipay.com/gryd
+
+---
+
+.. image:: http://bruno.thoorens.free.fr/img/bitcoin.png
+
+1WJfDP1F2QTgqQhCT53KmhRwQSUkKRHgh
+
+.. image:: http://bruno.thoorens.free.fr/img/wallet.png
 
 Vicenty application
 ===================
