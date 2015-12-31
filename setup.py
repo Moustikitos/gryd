@@ -50,7 +50,7 @@ kw.update(**{
 	                         ["VERSION", "*.c", "*.h", "*.html", "*.sqlite", "rest/*.*", "test/*.*"]}, # "*%s"%libext
 	"license": "Copyright 2015, THOORENS Bruno, BSD licence",
 	"classifiers": [
-		'Development Status :: 5 - Production/Stable',
+		'Development Status :: 6 - Mature',
 		'Environment :: Console',
 		'Intended Audience :: Developers',
 		'Intended Audience :: Science/Research',
