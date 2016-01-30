@@ -1,20 +1,6 @@
 ``Gryd`` package provides efficient great circle computation and
 projection library.
 
-Support this project
-====================
-
-.. image:: http://bruno.thoorens.free.fr/img/gratipay.png
-   :target: https://gratipay.com/gryd
-
----
-
-.. image:: http://bruno.thoorens.free.fr/img/bitcoin.png
-
-1WJfDP1F2QTgqQhCT53KmhRwQSUkKRHgh
-
-.. image:: http://bruno.thoorens.free.fr/img/wallet.png
-
 Vicenty application
 ===================
 
@@ -127,6 +113,20 @@ API Doc
 
 + `From Python 3.5 Module doc`_
 
+Support this project
+====================
+
+.. image:: http://bruno.thoorens.free.fr/img/gratipay.png
+   :target: https://gratipay.com/gryd
+
+---
+
+.. image:: http://bruno.thoorens.free.fr/img/bitcoin.png
+
+1WJfDP1F2QTgqQhCT53KmhRwQSUkKRHgh
+
+.. image:: http://bruno.thoorens.free.fr/img/wallet.png
+
 Changes
 =======
 
@@ -182,6 +182,15 @@ Ellispoid epsg=7030 a=6378137.000000 1/f=298.25722356
 
 + Provide a multiplatform wheel (32 and 64 bit for Windows and Ubuntu)
 + Python sources released
+
+1.0.8
+
++ bugfix for ``utm`` and ``mgrs`` grid computation
++ ``Crs.unit`` value is now used in computation
+
+1.0.9
+
++ ``bng`` and ``ing`` grid tweaks
 
 Todo
 ====

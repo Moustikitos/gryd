@@ -11,34 +11,22 @@ ENGINE_I = tmerc_inverse
 
 def forward(ellipsoid, lla, crs):
 	ZoneNumber = _UTMZoneNumber((lla.longitude+pi) - int((lla.longitude+pi)/(2*pi))*2*pi - pi, lla.latitude)
+	area = "%d%c" % (ZoneNumber, _UTMLetterDesignator(lla.latitude))
 	xya = ENGINE_F(
-		ellipsoid,
-		lla,
-		Crs(
-			k0 = 0.9996, x0 = 500000.0, y0 = 10000000.0 if lla.latitude < 0 else 0.,
-			lambda0 = radians((ZoneNumber-1)*6-180+3),
-			phi0 = 0., phi1 = 0., phi2 = 0., azimut = 0.
-		)
+		ellipsoid, lla,
+		Crs(x0=500000.0, y0=10000000.0 if lla.latitude < 0 else 0., k0=0.9996, lambda0=(ZoneNumber-1)*6-180+3, phi0=0.)
 	)
 	return Grid(
 		northing = xya.y,
 		easting = xya.x,
 		altitude = lla.altitude,
-		area = "%d%c" % (ZoneNumber, _UTMLetterDesignator(lla.latitude))
+		area = area
 	)
 
 def inverse(ellipsoid, grid, crs):
-	ZoneLetter = grid.area[-1]
-	ZoneNumber = int(grid.area[:-1])
-
 	return ENGINE_I(
-		ellipsoid,
-		Geographic(x = grid.easting, y = grid.northing, altitude = grid.altitude), 
-		Crs(
-			k0 = 0.9996, x0 = 500000.0, y0 = 10000000.0 if ZoneLetter < 'N' else 0.,
-			lambda0 = radians((ZoneNumber-1)*6-180+3),
-			phi0 = 0., phi1 = 0., phi2 = 0., azimut = 0.
-		)
+		ellipsoid, Geographic(x=grid.easting, y=grid.northing, altitude=grid.altitude), 
+		Crs(x0=500000.0, y0=10000000.0 if grid.area[-1] < 'N' else 0., k0=0.9996, lambda0=(int(grid.area[:-1])-1)*6-180+3, phi0=0.)
 	)
 
 def _UTMZoneNumber(lambd_, phi):

@@ -49,7 +49,7 @@ __author__  = "Bruno THOORENS"
 # number is bumped whenever there is a significant project release.  The major
 # number will be bumped when the project is feature-complete, and perhaps if
 # there is a major change in the design.
-__version__ = "1.0.6"
+__version__ = "1.0.9"
 
 # add C projection functions here
 __c_proj__ = ["tmerc", "merc", "lcc"]
@@ -133,9 +133,8 @@ class Grid(ctypes.Structure):
 applied on flattened earth. It is defined by an area, a 2D coordinates and
 altitude. Attributes :
  * area -> string region
- * x -> X-grid-axis value
- * y -> Y-grid-axis value
- * altitude
+ * easting -> X-grid-axis value
+ * northing -> Y-grid-axis value
 
 >>> Gryd.Grid(area="31T", easting=925595, northing=5052949, altitude=105)
 Grid point area=31T E=925595.000 N=5052949.000, alt=105.000"""
@@ -498,6 +497,7 @@ Crs epsg=27700:
 		self._points = []
 		self.projection = "latlong"
 		Structure.__init__(self, *args, **kwargs)
+		self.unit = kwargs.pop("unit", 9001)
 
 	def __setattr__(self, attr, value):
 		if attr == "datum":
@@ -531,8 +531,24 @@ Geographic point X=529939.106 Y=181680.962s alt=0.000
 >>> osgb36(osgb36(london)) # deprojection of Geographic point
 Geodesic point lon=-000°07'37.218'' lat=+051°31'6.967'' alt=0.000"""
 		try:
-			if isinstance(element, Geodesic): return self.forward(self.datum.ellipsoid, element, self)
-			elif isinstance(element, (Grid, Geographic)): return self.inverse(self.datum.ellipsoid, element, self)
+			ratio = self.unit.ratio
+			if isinstance(element, Geodesic):
+				xya = self.forward(self.datum.ellipsoid, element, self)
+				if isinstance(xya, Grid):
+					xya.easting /= ratio
+					xya.northing /= ratio
+				elif isinstance(element, Geographic):
+					xya.x /= ratio
+					xya.y /= ratio
+				return xya
+			elif isinstance(element, Grid):
+				element.easting *= ratio
+				element.northing *= ratio
+				return self.inverse(self.datum.ellipsoid, element, self)
+			elif isinstance(element, Geographic):
+				element.x *= ratio
+				element.y *= ratio
+				return self.inverse(self.datum.ellipsoid, element, self)
 			else: pass
 		except AttributeError:
 			setattr(self, "projection", getattr(self, "projection", None))

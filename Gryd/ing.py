@@ -13,10 +13,10 @@ ENGINE_I = tmerc_inverse
 CRS = Crs(epsg=29900)
 
 def forward(ellipsoid, lla, crs):
-	return _grid(ENGINE_F(ellipsoid, lla, CRS))
+	return _grid(ENGINE_F(CRS.datum.ellipsoid, lla, CRS))
 
 def inverse(ellipsoid, grid, crs):
-	return ENGINE_I(ellipsoid, _inv_grid(grid), CRS)
+	return ENGINE_I(CRS.datum.ellipsoid, _inv_grid(grid), CRS)
 
 inv_grid_100 = {
 	"A": (0., 4.), "B": (1., 4.), "C": (2., 4.), "D": (3., 4.), "E": (4., 4.),

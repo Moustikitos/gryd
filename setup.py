@@ -48,7 +48,7 @@ kw.update(**{
 	"packages": ["Gryd"],
 	"package_data": {"Gryd": ["VERSION", "*.html", "*.sqlite", "*.dll", "*.so"] if "sdist" not in sys.argv else \
 	                         ["VERSION", "*.c", "*.h", "*.html", "*.sqlite", "rest/*.*", "test/*.*"]}, # "*%s"%libext
-	"license": "Copyright 2015, THOORENS Bruno, BSD licence",
+	"license": "Copyright 2015-2016, THOORENS Bruno, BSD licence",
 	"classifiers": [
 		'Development Status :: 6 - Mature',
 		'Environment :: Console',
