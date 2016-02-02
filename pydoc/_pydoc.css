@@ -1,0 +1,17 @@
+body
+{
+	font-family : calibri, verdana, tahoma;
+}
+
+tt
+{
+	font-family: consolas;
+	font-size: 13px;
+}
+.main
+{
+	padding      : 10px;
+	margin-left  : 20%;
+	margin-right : 32%;
+	text-align   : justify;
+}

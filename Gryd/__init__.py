@@ -1,6 +1,6 @@
 # -*- encoding:utf-8 -*-
-# http://bruno.thoorens.free.fr/licence/gryd.html
-# Copyright© 2015, THOORENS Bruno
+# http://bruno.thoorens.free.fr/licences/gryd.html
+# Copyright© 2015-2016, THOORENS Bruno
 # All rights reserved.
 
 """Gryd package provides efficient great circle computation and projection
@@ -24,14 +24,14 @@ National Grid.
 >>> dublin = Geodesic(-6.259437, 53.350765, 0.)
 >>> utm = Crs(epsg=3395, projection="utm")
 >>> utm(dublin)
-Grid point area=29U E=94016.667 N=5928665.351, alt=0.000
+Grid point area=29U E=682406.211 N=5914792.531, alt=0.000
 >>> mgrs = Crs(epsg=3395, projection="mgrs")
 >>> mgrs(dublin)
-Grid point area=29U RV E=94016.667 N=28665.351, alt=0.000
->>> bng = Crs(epsg=27700, projection="bng")
+Grid point area=29U PV E=82406.211 N=14792.531, alt=0.000
+>>> bng = Crs(projection="bng")
 >>> bng(dublin)
 Grid point area=SG E=16572.029 N=92252.917, alt=0.000
->>> ing = Crs(epsg=29900, projection="ing")
+>>> ing = Crs(projection="ing")
 >>> ing(dublin)
 Grid point area=O E=15890.887 N=34804.964, alt=0.000
 
@@ -49,7 +49,7 @@ __author__  = "Bruno THOORENS"
 # number is bumped whenever there is a significant project release.  The major
 # number will be bumped when the project is feature-complete, and perhaps if
 # there is a major change in the design.
-__version__ = "1.0.9"
+__version__ = "1.0.10"
 
 # add C projection functions here
 __c_proj__ = ["tmerc", "merc", "lcc"]
@@ -57,6 +57,7 @@ __c_proj__ = ["tmerc", "merc", "lcc"]
 # add python projection modules here
 __py_proj__ = ["utm", "mgrs", "bng", "ing"]
 
+from .geodesy import *
 import os, sys, imp, math
 import ctypes, sqlite3
 __dll_ext__ = "dll" if sys.platform.startswith("win") else \
@@ -148,31 +149,10 @@ Grid point area=31T E=925595.000 N=5052949.000, alt=105.000"""
 	def __repr__(self):
 		return "Grid point area=%s E=%.3f N=%.3f, alt=%.3f" % (self.area, self.easting, self.northing, self.altitude)
 
-class Geodesic(ctypes.Structure):
-	"""ctypes structure for geodesic coordinates. Attributes :
- * longitude -> radians
- * latitude -> radians
- * altitude
+def _Geodesic__repr(obj):
+	return "Geodesic point lon=%r lat=%r alt=%.3f" % (dms(math.degrees(obj.longitude)), dms(math.degrees(obj.latitude)), obj.altitude)
+setattr(Geodesic, "__repr__", _Geodesic__repr)
 
->>> Gryd.Geodesic(longitude=5.5, latitude=45.5, altitude=105)
-Geodesic point lon=+005°30´0.00´´ lat=+045°30´0.00´´ alt=105.000
->>> Gryd.Geodesic(45.5, 5.5, 105)
-Geodesic point lon=+045°30´0.00´´ lat=+005°30´0.00´´ alt=105.000"""
-	_fields_ = [
-		("longitude", ctypes.c_double),
-		("latitude",  ctypes.c_double),
-		("altitude",  ctypes.c_double)
-	]
-
-	def __init__(self, *args, **kwargs):
-		"Angular value must be given in degree here (more human values)."
-		args = list(args)
-		for i in range(min(2, len(args))): args[i] *= _TORAD
-		for key in [k for k in kwargs if k in ["longitude", "latitude"]]: kwargs[key] *= _TORAD
-		ctypes.Structure.__init__(self, *args, **kwargs)
-	
-	def __repr__(self):
-		return "Geodesic point lon=%r lat=%r alt=%.3f" % (dms(math.degrees(self.longitude)), dms(math.degrees(self.latitude)), self.altitude)
 
 class Point(ctypes.Structure):
 	"""ctypes structure for calibration point. Attributes :
@@ -240,7 +220,7 @@ class Dms(ctypes.Structure):
 	]
 
 	def __repr__(self):
-		return "%s%03d°%02d'%0.3f''" % ("+" if self.sign>0 else "-", self.degree, self.minute, self.second)
+		return "%s%03d°%02d'%00.3f''" % ("+" if self.sign>0 else "-", self.degree, self.minute, self.second)
 	
 	def __float__(self):
 		return (1 if self.sign>0 else -1) * (((self.second/60)+self.minute)/60 + self.degree)
@@ -259,7 +239,7 @@ class Dmm(ctypes.Structure):
 	]
 
 	def __repr__(self): 
-		return "%s%03d°%.6f'" % ("+" if self.sign>0 else "-", self.degree, self.minute)
+		return "%s%03d°%00.6f'" % ("+" if self.sign>0 else "-", self.degree, self.minute)
 
 	def __float__(self):
 		return (1 if self.sign>0 else -1) * (self.minute/60 + self.degree)
@@ -359,16 +339,16 @@ Ellispoid epsg=7030 a=6378137.000000 1/f=298.25722356"""
 		return "Ellispoid epsg=%d a=%.6f 1/f=%.8f" % (self.epsg, self.a, (1/self.f if self.f != 0. else 0.))
 
 	def __setattr__(self, attr, value):
-		object.__setattr__(self, attr, value)
+		Structure.__setattr__(self, attr, value)
 		if attr  == "b":
-			object.__setattr__(self, "f", (self.a-value) / self.a)
-			object.__setattr__(self, "e", math.sqrt(2*self.f - self.f**2))
+			Structure.__setattr__(self, "f", (self.a-value) / self.a)
+			Structure.__setattr__(self, "e", math.sqrt(2*self.f - self.f**2))
 		elif attr == "e":
-			object.__setattr__(self, "b", math.sqrt(self.a**2 * (1 - value**2)))
-			object.__setattr__(self, "f", (self.a - self.b) / self.a)
+			Structure.__setattr__(self, "b", math.sqrt(self.a**2 * (1 - value**2)))
+			Structure.__setattr__(self, "f", (self.a - self.b) / self.a)
 		elif attr == "f":
-			object.__setattr__(self, "e", math.sqrt(2*value - value**2))
-			object.__setattr__(self, "b", math.sqrt(self.a**2 * (1 - self.e**2)))
+			Structure.__setattr__(self, "e", math.sqrt(2*value - value**2))
+			Structure.__setattr__(self, "b", math.sqrt(self.a**2 * (1 - self.e**2)))
 
 	def distance(self, lla0, lla1):
 		""">>> london = Gryd.Geodesic(-0.127005, 51.518602, 0.)
@@ -432,7 +412,7 @@ Datum epsg=4326:
 			if isinstance(value, int): value = Prime(epsg=value)
 			elif isinstance(value, (str, bytes)): value = Prime(name=value)
 			elif not isinstance(value, Prime): raise Exception("Cannot configure Datum with prime %r" % value)
-		object.__setattr__(self, attr, value)
+		Structure.__setattr__(self, attr, value)
 
 	def xyz(self, lla):
 		""">>> wgs84.xyz(london)
@@ -513,17 +493,17 @@ Crs epsg=27700:
 			record = Structure.sqlite.execute("SELECT * from projection WHERE epsg=%r;" % value).fetchall()
 			if len(record) > 0: value = record[0]["typeproj"]
 			if value in __c_proj__:
-				eval('object.__setattr__(self, "forward", %s_forward)' % value)
-				eval('object.__setattr__(self, "inverse", %s_inverse)' % value)
+				eval('Structure.__setattr__(self, "forward", %s_forward)' % value)
+				eval('Structure.__setattr__(self, "inverse", %s_inverse)' % value)
 			elif value in __py_proj__:
 				module = __import__('Gryd.'+value, globals(), locals(), [value], 0)
-				object.__setattr__(self, "forward", module.forward)
-				object.__setattr__(self, "inverse", module.inverse)
+				Structure.__setattr__(self, "forward", module.forward)
+				Structure.__setattr__(self, "inverse", module.inverse)
 			else:
 				value = "latlong"
-				object.__setattr__(self, "forward", lambda ellps,lla,o=self:Geographic(lla.longitude*ellps.a,lla.latitude*ellps.b,lla.altitude))
-				object.__setattr__(self, "inverse", lambda ellps,xya,o=self:Geodesic(xya.x/ellps.a,xya.y/ellps.b,xya.altitude))
-		object.__setattr__(self, attr, value)
+				Structure.__setattr__(self, "forward", lambda ellps,lla,o=self:Geographic(lla.longitude*ellps.a,lla.latitude*ellps.b,lla.altitude))
+				Structure.__setattr__(self, "inverse", lambda ellps,xya,o=self:Geodesic(xya.x/ellps.a,xya.y/ellps.b,xya.altitude))
+		Structure.__setattr__(self, attr, value)
 
 	def __call__(self, element):
 		""">>> osgb36(london) # projection of Geodesic point

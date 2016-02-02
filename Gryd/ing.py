@@ -2,7 +2,7 @@
 # Irish National Grid
 # @http://en.wikipedia.org/wiki/Irish_grid_reference_system
 # @http://www.gridreference.ie
-"""Copyright© 2015, THOORENS Bruno
+"""Copyright© 2015-2016, THOORENS Bruno
 All rights reserved"""
 
 from . import *

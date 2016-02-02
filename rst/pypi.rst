@@ -61,14 +61,14 @@ National Grid.
 
 >>> utm = Crs(epsg=3395, projection="utm")
 >>> utm(dublin)
-Grid point area=29U E=94016.667 N=5928665.351, alt=0.000
+Grid point area=29U E=682406.211 N=5914792.531, alt=0.000
 >>> mgrs = Crs(epsg=3395, projection="mgrs")
 >>> mgrs(dublin)
-Grid point area=29U RV E=94016.667 N=28665.351, alt=0.000
->>> bng = Crs(epsg=27700, projection="bng")
+Grid point area=29U PV E=82406.211 N=14792.531, alt=0.000
+>>> bng = Crs(projection="bng")
 >>> bng(dublin)
 Grid point area=SG E=16572.029 N=92252.917, alt=0.000
->>> ing = Crs(epsg=29900, projection="ing")
+>>> ing = Crs(projection="ing")
 >>> ing(dublin)
 Grid point area=O E=15890.887 N=34804.964, alt=0.000
 
@@ -191,6 +191,38 @@ Ellispoid epsg=7030 a=6378137.000000 1/f=298.25722356
 1.0.9
 
 + ``bng`` and ``ing`` grid tweaks
+
+1.0.10
+
++ ``Gryd.Geodesic`` exports itself in ``geohash``, ``maidenhead``, ``georef`` and ``gars``
+
+>>> dublin = Gryd.Geodesic(-6.272877, 53.344606, 0.)
+>>> dublin.Geohash(), dublin.Geohash(digit=15)
+('gc7x3r04z7', 'gc7x3r04z77csws')
+>>> dublin.Maindenhead(), dublin.Maindenhead(level=6)
+('IO63ui72gq', 'IO63ui72gq19dh')
+>>> dublin.Georef(), dublin.Georef(digit=6)
+('MKJJ43322037', 'MKJJ433203')
+>>> dublin.Gars()
+'348MY16'
+
++ Gryd convert from ``geohash``, ``maidenhead``, ``georef`` and ``gars`` to ``Geodesic``
+
+>>> Gryd.from_geohash('gc7x3r04z77csws')
+Geodesic point lon=-006°16'22.357'' lat=+053°20'40.582'' alt=0.000
+>>> Gryd.from_maidenhead('IO63ui72gq')
+Geodesic point lon=-006°16'21.938'' lat=+053°20'40.563'' alt=0.000
+>>> Gryd.from_maidenhead('IO63ui72gq19dh')
+Geodesic point lon=-006°16'22.357'' lat=+053°20'40.583'' alt=0.000
+>>> Gryd.from_georef('MKJJ43322037')
+Geodesic point lon=-006°16'21.900'' lat=+053°20'41.100'' alt=0.000
+>>> Gryd.from_georef('MKJJ433203')
+Geodesic point lon=-006°16'15.000'' lat=+053°20'45.000'' alt=0.000
+>>> Gryd.from_gars('348MY16') # center of 5minx5min tile
+Geodesic point lon=-006°17'30.000'' lat=+053°22'30.000'' alt=0.000
+>>> Gryd.from_gars('348MY16', anchor="sw") # south west of 5minx5min tile
+Geodesic point lon=-006°20'00.000'' lat=+053°20'00.000'' alt=0.000
+
 
 Todo
 ====

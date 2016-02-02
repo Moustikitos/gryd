@@ -1,6 +1,6 @@
 # -*- encoding:utf-8 -*-
 # Military Grid Reference System
-"""Copyright© 2015, THOORENS Bruno
+"""Copyright© 2015-2016, THOORENS Bruno
 All rights reserved"""
 
 from . import Grid, Geodesic, utm

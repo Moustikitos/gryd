@@ -1,6 +1,6 @@
 # -*- encoding:utf-8 -*-
 # Universal Tranverse Mercator
-"""Copyright© 2015, THOORENS Bruno
+"""Copyright© 2015-2016, THOORENS Bruno
 All rights reserved"""
 
 from . import *
@@ -8,26 +8,19 @@ from math import pi, radians, degrees
 
 ENGINE_F = tmerc_forward
 ENGINE_I = tmerc_inverse
+CRS = Crs(x0=500000.0, k0=0.9996)
 
 def forward(ellipsoid, lla, crs):
 	ZoneNumber = _UTMZoneNumber((lla.longitude+pi) - int((lla.longitude+pi)/(2*pi))*2*pi - pi, lla.latitude)
-	area = "%d%c" % (ZoneNumber, _UTMLetterDesignator(lla.latitude))
-	xya = ENGINE_F(
-		ellipsoid, lla,
-		Crs(x0=500000.0, y0=10000000.0 if lla.latitude < 0 else 0., k0=0.9996, lambda0=(ZoneNumber-1)*6-180+3, phi0=0.)
-	)
-	return Grid(
-		northing = xya.y,
-		easting = xya.x,
-		altitude = lla.altitude,
-		area = area
-	)
+	CRS.lambda0 = radians((ZoneNumber-1)*6-180+3)
+	CRS.y0 = 10000000.0 if lla.latitude < 0 else 0.
+	xya = ENGINE_F(ellipsoid, lla, CRS)
+	return Grid(northing=xya.y, easting=xya.x, altitude=lla.altitude, area="%d%c" % (ZoneNumber, _UTMLetterDesignator(lla.latitude)))
 
 def inverse(ellipsoid, grid, crs):
-	return ENGINE_I(
-		ellipsoid, Geographic(x=grid.easting, y=grid.northing, altitude=grid.altitude), 
-		Crs(x0=500000.0, y0=10000000.0 if grid.area[-1] < 'N' else 0., k0=0.9996, lambda0=(int(grid.area[:-1])-1)*6-180+3, phi0=0.)
-	)
+	CRS.lambda0 = radians((int(grid.area[:-1])-1)*6-180+3)
+	CRS.y0 = 10000000.0 if grid.area[-1] < 'N' else 0.
+	return ENGINE_I(ellipsoid, Geographic(x=grid.easting, y=grid.northing, altitude=grid.altitude), CRS)
 
 def _UTMZoneNumber(lambd_, phi):
 	lambd_, phi = degrees(lambd_), degrees(phi)
