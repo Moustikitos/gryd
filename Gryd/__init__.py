@@ -49,7 +49,7 @@ __author__  = "Bruno THOORENS"
 # number is bumped whenever there is a significant project release.  The major
 # number will be bumped when the project is feature-complete, and perhaps if
 # there is a major change in the design.
-__version__ = "1.0.10"
+__version__ = "1.0.11"
 
 # add C projection functions here
 __c_proj__ = ["tmerc", "merc", "lcc"]

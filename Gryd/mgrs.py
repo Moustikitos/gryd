@@ -18,7 +18,7 @@ def forward(ellipsoid, lla, crs):
 	grid.northing -= (row*100000.0)
 
 	E_band = E_letter[int(grid.area[:-1])%3]
-	N_band = N_letter[int(grid.area[:-1])%2]
+	N_band = (N_shifted_letter if ellipsoid.epsg in [7004, 7006, 7008, 7012] else N_letter)[int(grid.area[:-1])%2]
 
 	grid.area = "%s %s" % (grid.area, E_band[col-1] + N_band[row%len(N_band)])
 	return grid
@@ -28,16 +28,16 @@ def inverse(ellipsoid, grid, crs):
 	fuseau, zone = int(fuseau[:-1]), fuseau[-1]
 
 	col = E_letter[fuseau%3].index(area[0])+1
-	row = N_letter[fuseau%2].index(area[-1])
+	row = (N_shifted_letter if ellipsoid.epsg in [7004, 7006, 7008, 7012] else N_letter)[fuseau%2].index(area[-1])
 
-	N_shift = 100000. * floor((ENGINE_F(ellipsoid, Geodesic(radians((fuseau-1)*6-180+3), radians(UTM_letter[zone])), crs).northing/100000.)/20) * 20
-
+	northing = ENGINE_F(ellipsoid, Geodesic((fuseau-1)*6-180+3, UTM_letter[zone]), crs).northing
 	grid.easting += col * 100000.
-	grid.northing += N_shift + row * 100000.
+	grid.northing += ((northing//2000000)*20 + row) * 100000.
 
 	grid.area = "%s%s" % (fuseau, zone)
 	return ENGINE_I(ellipsoid, grid, crs)
 
+ 
 E_letter = {
 	# key = UTMZONENUMBER%3
 	1.: ["A", "B", "C", "D", "E", "F", "G", "H"],
@@ -50,6 +50,12 @@ N_letter = {
 	1.: ["A", "B", "C", "D", "E", "F", "G", "H", "J", "K", "L", "M", "N", "P", "Q", "R", "S", "T", "U", "V"],
 	0.: ["F", "G", "H", "J", "K", "L", "M", "N", "P", "Q", "R", "S", "T", "U", "V", "A", "B", "C", "D", "E"]
 }
+
+# for specific ellipsoid :
+# Bessel 1841 (Ethiopia, Indonesia)
+# Bessel 1841 (Namibia)
+# Clarke 1866
+# Clarke 1880
 N_shifted_letter = {
 	# key = UTMZONENUMBER%2
 	1.: ["L", "M", "N", "P", "Q", "R", "S", "T", "U", "V", "A", "B", "C", "D", "E", "F", "G", "H", "J", "K"],

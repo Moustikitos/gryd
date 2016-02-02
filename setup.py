@@ -31,7 +31,7 @@ if "sdist" not in sys.argv:
 
 
 f = open("Gryd/VERSION", "r")
-long_description = open("./rst/pypi.rst", "r")
+long_description = open("./rst/pypi.rst", "rb")
 kw.update(**{
 	"version": f.read().strip(),
 	"name": "Gryd",

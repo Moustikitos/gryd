@@ -8,9 +8,9 @@ _TODEG = 180.0/math.pi
 
 class Geodesic(ctypes.Structure):
 	"""ctypes structure for geodesic coordinates. Attributes :
- * longitude -> radians
- * latitude -> radians
- * altitude -> meters
+ * longitude
+ * latitude
+ * altitude
 
 >>> dublin = Gryd.Geodesic(-6.272877, 53.344606, 0.)
 >>> dublin
@@ -73,9 +73,9 @@ gc7x3r04z77csw
 
 	def Maidenhead(self, level=4):
 		"""Convert coordinates to Maidenhead.
->>> dublin.Maindenhead()
+>>> dublin.Maidenhead()
 'IO63ui72gq'
->>> dublin.Maindenhead(level=6)
+>>> dublin.Maidenhead(level=6)
 'IO63ui72gq19dh'
 """
 		base = "ABCDEFGHIJKLMNOPQRSTUVWX"
