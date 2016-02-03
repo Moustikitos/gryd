@@ -6,15 +6,15 @@ All rights reserved"""
 from . import Grid, Geodesic, ctypes, utm, geoid
 from math import radians
 
-MD = geoid.MD
+MD = geoid.MD # meridian distance
 MD.argtypes = [ctypes.c_double, ctypes.c_double, ctypes.c_double]
 MD.restype = ctypes.c_double
 
 ENGINE_F = utm.forward
 ENGINE_I = utm.inverse
 
-def forward(ellipsoid, lla, crs):
-	grid = ENGINE_F(ellipsoid, lla, crs)
+def forward(crs, lla):
+	grid = ENGINE_F(crs, lla)
 
 	col = int(grid.easting//100000.0)
 	row = int(grid.northing//100000.0)
@@ -22,17 +22,17 @@ def forward(ellipsoid, lla, crs):
 	grid.northing -= (row*100000.0)
 
 	E_band = E_letter[int(grid.area[:-1])%3]
-	N_band = (N_shifted_letter if ellipsoid.epsg in [7004, 7006, 7008, 7012] else N_letter)[int(grid.area[:-1])%2]
+	N_band = (N_shifted_letter if crs.datum.ellipsoid.epsg in [7004, 7006, 7008, 7012] else N_letter)[int(grid.area[:-1])%2]
 
 	grid.area = "%s %s" % (grid.area, E_band[col-1] + N_band[row%len(N_band)])
 	return grid
 
-def inverse(ellipsoid, grid, crs):
+def inverse(crs, grid):
 	fuseau, area = grid.area.split()
 	fuseau, zone = int(fuseau[:-1]), fuseau[-1]
 
-	ellipsoid = utm.CRS.datum.ellipsoid if ellipsoid.a == 0. else ellipsoid
-	k0 = utm.CRS.k0 if crs.k0 == 0 else crs.k0
+	ellipsoid = crs.datum.ellipsoid
+	k0 = crs.k0
 
 	col = E_letter[fuseau%3].index(area[0])+1
 	row = (N_shifted_letter if ellipsoid.epsg in [7004, 7006, 7008, 7012] else N_letter)[fuseau%2].index(area[-1])
@@ -42,7 +42,7 @@ def inverse(ellipsoid, grid, crs):
 	grid.northing += ((northing//2000000)*20 + row) * 100000.
 
 	grid.area = "%s%s" % (fuseau, zone)
-	return ENGINE_I(ellipsoid, grid, crs)
+	return ENGINE_I(crs, grid)
 
  
 E_letter = {

@@ -7,6 +7,11 @@
 Changes
 =======
 
+1.1.0
+
++ projection core changes (simpler & faster)
++ 64bit support for Windows
+
 1.0.11
 
 + bugfix for ``mgrs.inverse`` function

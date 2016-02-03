@@ -513,8 +513,7 @@ Geodesic point lon=-000°07'37.218'' lat=+051°31'6.967'' alt=0.000"""
 		try:
 			ratio = self.unit.ratio
 			if isinstance(element, Geodesic):
-				xya = self.forward(self.datum.ellipsoid, element, self)
-				# xya = self.forward(self, element)
+				xya = self.forward(self, element)
 				if isinstance(xya, Grid):
 					xya.easting /= ratio
 					xya.northing /= ratio
@@ -525,11 +524,11 @@ Geodesic point lon=-000°07'37.218'' lat=+051°31'6.967'' alt=0.000"""
 			elif isinstance(element, Grid):
 				element.easting *= ratio
 				element.northing *= ratio
-				return self.inverse(self.datum.ellipsoid, element, self)
+				return self.inverse(self, element)
 			elif isinstance(element, Geographic):
 				element.x *= ratio
 				element.y *= ratio
-				return self.inverse(self.datum.ellipsoid, element, self)
+				return self.inverse(self, element)
 			else: pass
 		except AttributeError:
 			setattr(self, "projection", getattr(self, "projection", None))
@@ -655,13 +654,9 @@ proj = ctypes.CDLL(get_data_file("proj.%s"%__dll_ext__))
 for name in __c_proj__:
 	exec("""
 %(name)s_forward = proj.%(name)s_forward
-%(name)s_forward.argtypes = [Ellipsoid, Geodesic, Crs]
+%(name)s_forward.argtypes = [ctypes.POINTER(Crs), ctypes.POINTER(Geodesic)]
 %(name)s_forward.restype = Geographic
 %(name)s_inverse = proj.%(name)s_inverse
-%(name)s_inverse.argtypes = [Ellipsoid, Geographic, Crs]
+%(name)s_inverse.argtypes = [ctypes.POINTER(Crs), ctypes.POINTER(Geographic)]
 %(name)s_inverse.restype = Geodesic
 """ % {"name":name})
-
-# tmerc_forward = prosj.xtmerc_forward
-# tmerc_forward.argtypes = [ctypes.POINTER(Crs), ctypes.POINTER(Geodesic)]
-# tmerc_forward.restype = Geographic
