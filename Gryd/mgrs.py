@@ -3,8 +3,12 @@
 """Copyright© 2015-2016, THOORENS Bruno
 All rights reserved"""
 
-from . import Grid, Geodesic, utm
-from math import radians, floor
+from . import Grid, Geodesic, ctypes, utm, geoid
+from math import radians
+
+MD = geoid.MD
+MD.argtypes = [ctypes.c_double, ctypes.c_double, ctypes.c_double]
+MD.restype = ctypes.c_double
 
 ENGINE_F = utm.forward
 ENGINE_I = utm.inverse
@@ -12,8 +16,8 @@ ENGINE_I = utm.inverse
 def forward(ellipsoid, lla, crs):
 	grid = ENGINE_F(ellipsoid, lla, crs)
 
-	col = int(floor(grid.easting/100000.0))
-	row = int(floor(grid.northing/100000.0))
+	col = int(grid.easting//100000.0)
+	row = int(grid.northing//100000.0)
 	grid.easting -= (col*100000.0)
 	grid.northing -= (row*100000.0)
 
@@ -27,10 +31,13 @@ def inverse(ellipsoid, grid, crs):
 	fuseau, area = grid.area.split()
 	fuseau, zone = int(fuseau[:-1]), fuseau[-1]
 
+	ellipsoid = utm.CRS.datum.ellipsoid if ellipsoid.a == 0. else ellipsoid
+	k0 = utm.CRS.k0 if crs.k0 == 0 else crs.k0
+
 	col = E_letter[fuseau%3].index(area[0])+1
 	row = (N_shifted_letter if ellipsoid.epsg in [7004, 7006, 7008, 7012] else N_letter)[fuseau%2].index(area[-1])
 
-	northing = ENGINE_F(ellipsoid, Geodesic((fuseau-1)*6-180+3, UTM_letter[zone]), crs).northing
+	northing = k0 * MD(ellipsoid.a, ellipsoid.e, radians(float(UTM_letter[zone])))
 	grid.easting += col * 100000.
 	grid.northing += ((northing//2000000)*20 + row) * 100000.
 

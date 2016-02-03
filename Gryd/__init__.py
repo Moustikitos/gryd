@@ -514,6 +514,7 @@ Geodesic point lon=-000°07'37.218'' lat=+051°31'6.967'' alt=0.000"""
 			ratio = self.unit.ratio
 			if isinstance(element, Geodesic):
 				xya = self.forward(self.datum.ellipsoid, element, self)
+				# xya = self.forward(self, element)
 				if isinstance(xya, Grid):
 					xya.easting /= ratio
 					xya.northing /= ratio
@@ -660,3 +661,7 @@ for name in __c_proj__:
 %(name)s_inverse.argtypes = [Ellipsoid, Geographic, Crs]
 %(name)s_inverse.restype = Geodesic
 """ % {"name":name})
+
+# tmerc_forward = prosj.xtmerc_forward
+# tmerc_forward.argtypes = [ctypes.POINTER(Crs), ctypes.POINTER(Geodesic)]
+# tmerc_forward.restype = Geographic

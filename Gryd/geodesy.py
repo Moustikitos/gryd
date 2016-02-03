@@ -72,7 +72,7 @@ gc7x3r04z77csw
 		return geocache
 
 	def Maidenhead(self, level=4):
-		"""Convert coordinates to Maidenhead.
+		"""Convert coordinates to maidenhead.
 >>> dublin.Maidenhead()
 'IO63ui72gq'
 >>> dublin.Maidenhead(level=6)
@@ -103,7 +103,7 @@ gc7x3r04z77csw
 		return result
 
 	def Georef(self, digit=8):
-		"""Convert coordinates to Maidenhead.
+		"""Convert coordinates to georef.
 >>> dublin.Georef()
 'MKJJ43322037'
 >>> dublin.Georef(digit=4)
