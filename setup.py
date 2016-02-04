@@ -24,9 +24,10 @@ elif sys.platform.startswith("win"):
 if "sdist" not in sys.argv:
 	if not os.path.exists("Gryd/geoid%s" % libext):
 		os.system("gcc -o Gryd/geoid%s -s -shared Gryd/geoid.c %s -O3" % (libext, opt))
+		os.system("strip Gryd/geoid%s" % libext)
 	if not os.path.exists("Gryd/proj%s" % libext):
-		os.system("gcc -o Gryd/proj%s -s -shared Gryd/tmerc.c Gryd/merc.c Gryd/lcc.c %s -O3" % (libext, opt))
-
+		os.system("gcc -o Gryd/proj%s -s -shared Gryd/omerc.c Gryd/tmerc.c Gryd/miller.c Gryd/eqc.c Gryd/merc.c Gryd/lcc.c %s -O3" % (libext, opt))
+		os.system("strip Gryd/proj%s" % libext)
 
 f = open("Gryd/VERSION", "r")
 long_description = open("./rst/pypi.rst", "r")

@@ -33,14 +33,13 @@ Geodesic point lon=+045°30´0.00´´ lat=+005°30´0.00´´ alt=105.000"""
 	def __repr__(self):
 		return "Geodesic point lon=%.6f lat=%.6f alt=%.3f" % (self.longitude*_TODEG, self.latitude*_TODEG, self.altitude)
 
-	def Geohash(self, digit=10):
+	def Geohash(self, digit=10, base="0123456789bcdefghjkmnpqrstuvwxyz"):
 		"""Convert coordinates to geohash.
 >>> dublin.Geohash() # by default on 10 digit for metric precision
 gc7x3r04z7
 >>> dublin.Geohash(14) # why not on 14 digit for milimetric precision
 gc7x3r04z77csw
 """
-		base = "0123456789bcdefghjkmnpqrstuvwxyz"
 		longitude = self.longitude*_TODEG
 		latitude = self.latitude*_TODEG
 
@@ -48,9 +47,9 @@ gc7x3r04z77csw
 		min_lat, max_lat = -90., 90.
 		mid_lon, mid_lat = 0., 0.
 
-		geocache = ""
+		geohash = ""
 		even = False
-		while len(geocache) < digit:
+		while len(geohash) < digit:
 			val = 0
 			for mask in [0b10000,0b01000,0b00100,0b00010,0b00001]:
 				if not even:
@@ -68,8 +67,8 @@ gc7x3r04z77csw
 						max_lat = mid_lat
 					mid_lat = (min_lat+max_lat)/2
 				even = not even
-			geocache += base[val]
-		return geocache
+			geohash += base[val]
+		return geohash
 
 	def Maidenhead(self, level=4):
 		"""Convert coordinates to maidenhead.
@@ -102,11 +101,18 @@ gc7x3r04z77csw
 				coef = 10.
 		return result
 
+	def encrypt(self, key=""):
+		base = list("0123456789bcdefghjkmnpqrstuvwxyz")
+		newbase = ""
+		for c in key.lower(): newbase += "" if c not in base else base.pop(base.index(c))
+		newbase += "".join(reversed(base))
+		return self.Geohash(15, newbase)
+
 	def Georef(self, digit=8):
 		"""Convert coordinates to georef.
 >>> dublin.Georef()
 'MKJJ43322037'
->>> dublin.Georef(digit=4)
+>>> dublin.Georef(digit=6)
 'MKJJ433203'
 """
 		base = "ABCDEFGHJKLMNPQRSTUVWXYZ"
@@ -170,9 +176,8 @@ gc7x3r04z77csw
 		return quadrant+str(number)+str(key)
 
 
-def from_geohash(geohash):
+def from_geohash(geohash, base="0123456789bcdefghjkmnpqrstuvwxyz"):
 	"""return Geodesic object from geohash"""
-	base = "0123456789bcdefghjkmnpqrstuvwxyz"
 	eps_lon, eps_lat = 360./2., 180./2.
 	mid_lon, mid_lat = 0., 0.
 	min_lon, max_lon = -180., 180.
@@ -265,3 +270,10 @@ def from_gars(gars, anchor=""):
 	latitude += (base.index(gars[3])*24 + base.index(gars[4]))*0.5
 
 	return Geodesic(longitude=longitude-180, latitude=latitude-90)
+
+def decrypt(encrypted, key=""):
+	base = list("0123456789bcdefghjkmnpqrstuvwxyz")
+	newbase = ""
+	for c in key.lower(): newbase += "" if c not in base else base.pop(base.index(c))
+	newbase += "".join(reversed(base))
+	return from_geohash(encrypted, newbase)

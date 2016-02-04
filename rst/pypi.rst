@@ -1,8 +1,8 @@
-``Gryd`` package provides :
+``Gryd`` package provides functions for :
 
-+ great circle computation functions
-+ projection and grid tools
-+ advanced geodesy functions
++ great circle computation
++ projection and grid coordinates
++ advanced geodesy
 
 Changes
 =======
@@ -10,7 +10,19 @@ Changes
 1.1.0
 
 + projection core changes (simpler & faster)
-+ 64bit support for Windows
++ added ``miller`` and ``eqc`` projection
++ 64 bit support for Windows
++ encrypt/decrypt geodesic coordinates
+
+>>> point = Gryd.Geodesic(-6.23, 53.63)
+>>> point.encrypt("your encryption key")
+'mwszncbe9g2tu29'
+>>> Gryd.decrypt('mwszncbe9g2tu29', key="hacking...") # gives coordinates but not the good ones
+Geodesic point lon=+025°22'0.011'' lat=-086°36'35.290'' alt=0.000
+>>> Gryd.decrypt('mwszncbe9g2tu29', key="your encryption key")
+Geodesic point lon=-006°13'48.000'' lat=+053°37'48.000'' alt=0.000
+>>> point
+Geodesic point lon=-006°13'48.000'' lat=+053°37'48.000'' alt=0.000
 
 1.0.11
 
@@ -20,7 +32,7 @@ Changes
 1.0.10
 
 + ``Gryd.Geodesic`` exports itself in ``geohash``, ``maidenhead``, ``georef`` and ``gars``
-+ ``Gryd.Geodesic`` created from ``geohash``, ``maidenhead``, ``georef`` and ``gars`` to ``Geodesic``
++ ``Gryd.Geodesic`` created from ``geohash``, ``maidenhead``, ``georef`` and ``gars``
 
 1.0.9
 

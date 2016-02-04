@@ -52,7 +52,7 @@ __author__  = "Bruno THOORENS"
 __version__ = "1.0.11"
 
 # add C projection functions here
-__c_proj__ = ["tmerc", "merc", "lcc"]
+__c_proj__ = ["omerc", "tmerc", "merc", "lcc", "eqc", "miller"]
 
 # add python projection modules here
 __py_proj__ = ["utm", "mgrs", "bng", "ing"]
