@@ -2,6 +2,8 @@
 # Copyright© 2015-2016, THOORENS Bruno
 # All rights reserved.
 import math, ctypes
+try: import urllib.request as urllib
+except ImportError: import urllib
 
 _TORAD = math.pi/180.0
 _TODEG = 180.0/math.pi
@@ -175,6 +177,17 @@ gc7x3r04z77csw
 
 		return quadrant+str(number)+str(key)
 
+	def dump_location(self, tilename, zoom=15, size="256x256", mcolor="0xff00ff", format="png", scale=1):
+		latitude, longitude = self.latitude, self.longitude
+		try:
+			urllib.urlretrieve(
+				"https://maps.googleapis.com/maps/api/staticmap?center=%s,%s&zoom=%s&size=%s&markers=color:%s%%7C%s,%s&format=%s&scale=%s" % (
+					latitude, longitude, zoom, size, mcolor, latitude, longitude, format, scale
+				),
+				os.path.splitext(tilename)[0] + "."+format
+			)
+		except:
+			pass
 
 def from_geohash(geohash, base="0123456789bcdefghjkmnpqrstuvwxyz"):
 	"""return Geodesic object from geohash"""

@@ -49,7 +49,7 @@ __author__  = "Bruno THOORENS"
 # number is bumped whenever there is a significant project release.  The major
 # number will be bumped when the project is feature-complete, and perhaps if
 # there is a major change in the design.
-__version__ = "1.0.11"
+__version__ = "1.1.1"
 
 # add C projection functions here
 __c_proj__ = ["omerc", "tmerc", "merc", "lcc", "eqc", "miller"]
@@ -517,7 +517,7 @@ Geodesic point lon=-000°07'37.218'' lat=+051°31'6.967'' alt=0.000"""
 				if isinstance(xya, Grid):
 					xya.easting /= ratio
 					xya.northing /= ratio
-				elif isinstance(element, Geographic):
+				elif isinstance(xya, Geographic):
 					xya.x /= ratio
 					xya.y /= ratio
 				return xya
