@@ -146,7 +146,7 @@ CREATE UNIQUE INDEX IF NOT EXISTS density_index ON density(serial, value);
             yield (geoh, serial, cat, json.dumps(data))
 
     def _guess_density(self, longitude, latitude):
-        guess_area = [s[:13]for s in define_search_area(longitude, latitude, radius=SERIAL_GRIDSIZE[13])]
+        guess_area = [s[:13] for s in define_search_area(longitude, latitude, radius=SERIAL_GRIDSIZE[13])]
         return sum([rec[0] for rec in self("SELECT value FROM density WHERE serial IN ('%s');" % "','".join(guess_area))])
 
     def add_many(self, sequence):
