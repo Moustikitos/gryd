@@ -2,6 +2,7 @@
 # Copyright© 2015-2016, THOORENS Bruno
 # All rights reserved.
 import math, ctypes
+from . import geohash as geoH
 try: import urllib.request as urllib
 except ImportError: import urllib
 
@@ -44,33 +45,33 @@ gc7x3r04z77csw
 """
 		longitude = self.longitude*_TODEG
 		latitude = self.latitude*_TODEG
+		return geoH.to_geohash(longitude, latitude, digit, base)
+		# min_lon, max_lon = -180., 180.
+		# min_lat, max_lat = -90., 90.
+		# mid_lon, mid_lat = 0., 0.
 
-		min_lon, max_lon = -180., 180.
-		min_lat, max_lat = -90., 90.
-		mid_lon, mid_lat = 0., 0.
-
-		geohash = ""
-		even = False
-		while len(geohash) < digit:
-			val = 0
-			for mask in [0b10000,0b01000,0b00100,0b00010,0b00001]:
-				if not even:
-					if longitude >= mid_lon:
-						min_lon = mid_lon
-						val = mask if val == 0 else val|mask
-					else:
-						max_lon = mid_lon
-					mid_lon = (min_lon+max_lon)/2
-				else:
-					if latitude >= mid_lat:
-						min_lat = mid_lat
-						val = mask if val == 0 else val|mask
-					else:
-						max_lat = mid_lat
-					mid_lat = (min_lat+max_lat)/2
-				even = not even
-			geohash += base[val]
-		return geohash
+		# geohash = ""
+		# even = False
+		# while len(geohash) < digit:
+		# 	val = 0
+		# 	for mask in [0b10000,0b01000,0b00100,0b00010,0b00001]:
+		# 		if not even:
+		# 			if longitude >= mid_lon:
+		# 				min_lon = mid_lon
+		# 				val = mask if val == 0 else val|mask
+		# 			else:
+		# 				max_lon = mid_lon
+		# 			mid_lon = (min_lon+max_lon)/2
+		# 		else:
+		# 			if latitude >= mid_lat:
+		# 				min_lat = mid_lat
+		# 				val = mask if val == 0 else val|mask
+		# 			else:
+		# 				max_lat = mid_lat
+		# 			mid_lat = (min_lat+max_lat)/2
+		# 		even = not even
+		# 	geohash += base[val]
+		# return geohash
 
 	def Maidenhead(self, level=4):
 		"""Convert coordinates to maidenhead.
@@ -191,27 +192,28 @@ gc7x3r04z77csw
 
 def from_geohash(geohash, base="0123456789bcdefghjkmnpqrstuvwxyz"):
 	"""return Geodesic object from geohash"""
-	eps_lon, eps_lat = 360./2., 180./2.
-	mid_lon, mid_lat = 0., 0.
-	min_lon, max_lon = -180., 180.
-	min_lat, max_lat = -90., 90.
+	# eps_lon, eps_lat = 360./2., 180./2.
+	# mid_lon, mid_lat = 0., 0.
+	# min_lon, max_lon = -180., 180.
+	# min_lat, max_lat = -90., 90.
 
-	even = False
-	for digit in geohash:
-		val = base.index(digit)
-		for mask in [0b10000,0b01000,0b00100,0b00010,0b00001]:
-			if not even:
-				if mask & val == mask: min_lon = mid_lon
-				else: max_lon = mid_lon
-				mid_lon = (min_lon+max_lon)/2.
-				eps_lon /= 2.
-			else:
-				if mask & val == mask: min_lat = mid_lat
-				else: max_lat = mid_lat
-				mid_lat = (min_lat+max_lat)/2.
-				eps_lat /= 2.
-			even = not even
+	# even = False
+	# for digit in geohash:
+	# 	val = base.index(digit)
+	# 	for mask in [0b10000,0b01000,0b00100,0b00010,0b00001]:
+	# 		if not even:
+	# 			if mask & val == mask: min_lon = mid_lon
+	# 			else: max_lon = mid_lon
+	# 			mid_lon = (min_lon+max_lon)/2.
+	# 			eps_lon /= 2.
+	# 		else:
+	# 			if mask & val == mask: min_lat = mid_lat
+	# 			else: max_lat = mid_lat
+	# 			mid_lat = (min_lat+max_lat)/2.
+	# 			eps_lat /= 2.
+	# 		even = not even
 
+	mid_lon, mid_lat, eps_lon, eps_lat = geoH.from_geohash(geohash, base)
 	result = Geodesic(longitude=mid_lon, latitude=mid_lat)
 	setattr(result, "precision", (eps_lon, eps_lat))
 	return result

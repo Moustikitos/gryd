@@ -7,6 +7,10 @@
 Changes
 =======
 
+1.2.0
+
++ added ``geohash`` module
+
 1.1.1
 
 + ``Geodesic`` class can now dump thumbanil location from google staticmap API
@@ -269,5 +273,3 @@ Support this project
 .. image:: http://bruno.thoorens.free.fr/img/bitcoin.png
 
 3Jgib9SQiDLYML7QKBYtJUkHq2nyG6Z63D
-
-.. image:: http://bruno.thoorens.free.fr/img/wallet.png

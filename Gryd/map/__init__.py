@@ -21,35 +21,33 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 '''
 
-from .. import Crs
-import json, sqlitemap
+# import json, sqlitemap
 
+# class GrydMap(sqlitemap.SqliteMapFile):
+# 	ext = ".gmp"
 
-class GrydMap(sqlitemap.SqliteMapFile):
-	ext = ".gmp"
-
-	def __init__(self, *args, **kwargs):
-		sqlitemap.SqliteMapFile.__init__(self, *args, **kwargs)
-		self.cursor.execute("CREATE TABLE IF NOT EXISTS metadata(name TEXT, value TEXT);")
+# 	def __init__(self, *args, **kwargs):
+# 		sqlitemap.SqliteMapFile.__init__(self, *args, **kwargs)
+# 		self.cursor.execute("CREATE TABLE IF NOT EXISTS metadata(name TEXT, value TEXT);")
 		
-	#  metadata table management
-	def __setitem__(self, item, value):
-		self.cursor.execute("INSERT OR REPLACE INTO metadata(name, value) VALUES(?, ?);", (item, json.dumps(value)))
+# 	#  metadata table management
+# 	def __setitem__(self, item, value):
+# 		self.cursor.execute("INSERT OR REPLACE INTO metadata(name, value) VALUES(?, ?);", (item, json.dumps(value)))
 
-	def __getitem__(self, item):
-		try: return json.loads(self.cursor.execute("SELECT * FROM metadata WHERE name=?;", (item,)).fetchall()[0]["value"])
-		except: raise KeyError('metadata table does not have "%s" key' % item)
+# 	def __getitem__(self, item):
+# 		try: return json.loads(self.cursor.execute("SELECT * FROM metadata WHERE name=?;", (item,)).fetchall()[0]["value"])
+# 		except: raise KeyError('metadata table does not have "%s" key' % item)
 
-	def __delitem__(self, item):
-		self.cursor.execute("DELETE FROM metadata WHERE name=?", (item,))
+# 	def __delitem__(self, item):
+# 		self.cursor.execute("DELETE FROM metadata WHERE name=?", (item,))
 
-	def clear_metadata(self):
-		self.cursor.execute("DELETE FROM metadata;")
+# 	def clear_metadata(self):
+# 		self.cursor.execute("DELETE FROM metadata;")
 
 
 
-class Raster:
+# class Raster:
 
-	def __init__(self, rst, **kw):
-		pass
+# 	def __init__(self, rst, **kw):
+# 		pass
 
