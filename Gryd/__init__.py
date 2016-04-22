@@ -49,7 +49,7 @@ __author__  = "Bruno THOORENS"
 # number is bumped whenever there is a significant project release.  The major
 # number will be bumped when the project is feature-complete, and perhaps if
 # there is a major change in the design.
-__version__ = "1.1.1"
+__version__ = "1.2.1"
 
 # add C projection functions here
 __c_proj__ = ["omerc", "tmerc", "merc", "lcc", "eqc", "miller"]
@@ -88,7 +88,7 @@ def get_data_file(name):
 		raise IOError("%s data file not found"%name)
 
 # create and configure connection to epsg database
-EPSG_CON = sqlite3.connect(get_data_file("epsg.sqlite"))
+EPSG_CON = sqlite3.connect(get_data_file("db/epsg.sqlite"))
 EPSG_CON.row_factory = sqlite3.Row
 
 # Create a table of n ctypes and return pointer
@@ -619,7 +619,7 @@ Reference point px=384 py=384
 
 
 # loading libgeoid library
-geoid = ctypes.CDLL(get_data_file("geoid.%s"%__dll_ext__))
+geoid = ctypes.CDLL(get_data_file("lib/geoid.%s"%__dll_ext__))
 # shortcuts
 dms = geoid.dms
 dmm = geoid.dmm
@@ -650,7 +650,7 @@ npoints.restype = ctypes.POINTER(Vincenty_dest)
 lagrange.argtypes = [ctypes.c_double, ctypes.POINTER(ctypes.c_double), ctypes.POINTER(ctypes.c_double), ctypes.c_int]
 lagrange.restype = ctypes.c_double
 # loading projection library
-proj = ctypes.CDLL(get_data_file("proj.%s"%__dll_ext__))
+proj = ctypes.CDLL(get_data_file("lib/proj.%s"%__dll_ext__))
 for name in __c_proj__:
 	exec("""
 %(name)s_forward = proj.%(name)s_forward

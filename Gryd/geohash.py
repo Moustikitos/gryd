@@ -1,7 +1,7 @@
 # -*- encoding:utf-8 -*-
 # Copyright© 2015-2016, THOORENS Bruno
 # All rights reserved.
-import os, sys, math, json, sqlite3
+import os, sys, math, json, ctypes, sqlite3
 import functools
 reduce = functools.reduce
 
@@ -12,11 +12,11 @@ SERIAL_GRIDSIZE = dict([n, math.radians(90./pow(2,(n-1)/2))*EARTH_RADIUS] for n 
 # precision according to geohash digit number
 GRIDSIZE = dict([k//5, SERIAL_GRIDSIZE[k]] for k in sorted(SERIAL_GRIDSIZE.keys()) if k%5 == 0)
 
+_next = lambda serial: bin(int(serial, base=2) + 1)[2:].zfill(len(serial))[-len(serial):]
+_prev = lambda serial: bin(int(serial, base=2) - 1)[2:].zfill(len(serial))[-len(serial):]
 serialize   = lambda geohash,base="0123456789bcdefghjkmnpqrstuvwxyz":"".join((bin(base.index(c))[2:].zfill(5) for c in geohash))
 unserialize = lambda serial,base="0123456789bcdefghjkmnpqrstuvwxyz": "".join((base[int(serial[i:i+5], base=2)] for i in range(0, len(serial), 5)))
 neighbors = lambda geohash: (unserialize(serial) for serial in _neighbors(serialize(geohash)))
-_next = lambda serial: bin(int(serial, base=2) + 1)[2:].zfill(len(serial))[-len(serial):]
-_prev = lambda serial: bin(int(serial, base=2) - 1)[2:].zfill(len(serial))[-len(serial):]
 
 def _mix(serial1, serial2):
     serial = ""
@@ -93,12 +93,12 @@ def define_search_area(lon, lat, radius=100000.):
 
     delta = math.degrees(radius/EARTH_RADIUS)
 
-    # (c) THOORENS Bruno : "geohash serial star search"
+    # © THOORENS Bruno : "geohash serial star search"
     # r = 1.49*delta*math.sqrt(2)
     # sin45 = cos(45) = math.sqrt(2)/2
     # r*cos(45) = r*sin(45) = 1.49*delta*2/2
-    n += 6 # scale effect
-    k = 1.49*delta/3
+    n += 6           # +6 : scale effect
+    k = 1.49*delta/3 # /3 : scale effect
     area = set([])
     area.update(_neighbors(serialize(to_geohash(lon+k, lat+k))[:n]))
     area.update(_neighbors(serialize(to_geohash(lon+k, lat-k))[:n]))
@@ -107,8 +107,22 @@ def define_search_area(lon, lat, radius=100000.):
 
     return area
 
-def as_int(geohash):
+def as_uint(geohash):
     return int(serialize(geohash), base=2)
+
+# class Geohash(ctypes.Structure):
+#     _fields_ = [
+#         ("hash",  ctypes.c_ulonglong),
+#         ("longitude", ctypes.c_double),
+#         ("latitude",  ctypes.c_double),
+#     ]
+#     def __str__(self): return self.serial()
+#     __repr__ = __str__
+
+#     def serial(self): return bin(self.hash)[2:]
+#     def next(self): return self.hash+1
+#     def prev(self): return self.hash-1
+#     def neighbors(self): return (Geohash(int(elem, base=2)) for elem in _neighbors(bin(self.hash)[2:]))
 
 
 class CachePoint():
@@ -124,8 +138,8 @@ class CachePoint():
         self.cursor.executescript("""
 CREATE TABLE IF NOT EXISTS points(geohash TEXT, serial TEXT, category TEXT, data TEXT);
 CREATE UNIQUE INDEX IF NOT EXISTS points_index ON points(geohash, serial, category);
-CREATE TABLE IF NOT EXISTS density(serial TEXT, value INTEGER);
-CREATE UNIQUE INDEX IF NOT EXISTS density_index ON density(serial, value);
+CREATE TABLE IF NOT EXISTS density(serial TEXT, category TEXT, value INTEGER);
+CREATE UNIQUE INDEX IF NOT EXISTS density_index ON density(serial, category);
 """)
 
     def __repr__(self):
@@ -145,38 +159,23 @@ CREATE UNIQUE INDEX IF NOT EXISTS density_index ON density(serial, value);
             serial = serialize(geoh)
             yield (geoh, serial, cat, json.dumps(data))
 
-    def _guess_density(self, longitude, latitude):
+    def _guess_density(self, longitude, latitude, category=False):
         guess_area = [s[:13] for s in define_search_area(longitude, latitude, radius=SERIAL_GRIDSIZE[13])]
         return sum([rec[0] for rec in self("SELECT value FROM density WHERE serial IN ('%s');" % "','".join(guess_area))])
 
     def add_many(self, sequence):
         seq1 = list(self._add_many_sequencer(sequence))
-        seq2 = [(e[1][:13],) for e in seq1]
+        seq2 = [(e[1][:13],e[2]) for e in seq1]
         self.cursor.executemany("INSERT OR REPLACE INTO points(geohash, serial, category, data) VALUES(?,?,?,?);", seq1)
-        self.cursor.executemany("INSERT OR IGNORE INTO density(serial, value) VALUES(?, 0);", seq2)
-        self.cursor.executemany("UPDATE density SET value = value +1 WHERE serial=?;", seq2)
+        self.cursor.executemany("INSERT OR IGNORE INTO density(serial, category, value) VALUES(?,?,0);", seq2)
+        self.cursor.executemany("UPDATE density SET value = value +1 WHERE serial=? AND category=?;", seq2)
 
     def add(self, longitude, latitude, category, data):
         geoh = to_geohash(longitude, latitude, digit=10)
         serial = serialize(geoh)
         self("INSERT OR REPLACE INTO points(geohash, serial, category, data) VALUES(?,?,?,?);", (geoh, serial, category, json.dumps(data)))
-        self("INSERT OR IGNORE INTO density(serial, value) VALUES(?, 0);", (serial[:13],))
-        self("UPDATE density SET value = value +1 WHERE serial=?;", (serial[:13],))
-
-    def get_nearby(self, longitude, latitude, category=False):
-        cmd, found, n = "SELECT geohash, data FROM points WHERE serial LIKE ?" if not category else ("SELECT geohash, data FROM "+category+" WHERE serial LIKE ?"), False, 21
-        if self._guess_density(longitude, latitude) == 0:
-            n = 11
-        while not found and n > 0:
-            nearby = reduce(list.__add__, [self.cursor.execute(cmd, (s+r"%",)).fetchall() for s in define_search_area(longitude, latitude, radius=SERIAL_GRIDSIZE[n])])
-            if len(nearby): found = True
-            else: n -= 2
-        return [(from_geohash(rec[0])[:2], rec[1]) for rec in nearby]
-
-    def get_closest(self, longitude, latitude, category=False):
-        nearby = self.get_nearby(longitude, latitude, category)
-        if len(nearby):
-            return sorted([[n[0], n[1], self.distance((longitude, latitude), n[0])] for n in nearby], key = lambda e:e[-1])[0]
+        self("INSERT OR IGNORE INTO density(serial, category, value) VALUES(?,?,0);", (serial[:13], category))
+        self("UPDATE density SET value = value +1 WHERE serial=? AND category=?;", (serial[:13], category))
 
     def close(self):
         for category in [rec[0] for rec in self("SELECT DISTINCT category FROM points;")]:
@@ -195,3 +194,18 @@ points.data    AS data FROM points WHERE category='%(cat)s';
         a = math.sin(dLat/2.) * math.sin(dLat/2.) + math.cos(math.radians(lat1)) * math.cos(math.radians(lat2)) * math.sin(dLon/2.) * math.sin(dLon/2.)
         c = 2 * math.atan2(math.sqrt(a), math.sqrt(1-a))
         return 6371. * c
+
+    def get_nearby(self, longitude, latitude, category=False):
+        cmd, found, n = "SELECT geohash, data FROM points WHERE serial LIKE ?" if not category else ("SELECT geohash, data FROM "+category+" WHERE serial LIKE ?"), False, 21
+        if self._guess_density(longitude, latitude, category) == 0:
+            n = 11
+        while not found and n > 0:
+            nearby = reduce(list.__add__, [self.cursor.execute(cmd, (s+r"%",)).fetchall() for s in define_search_area(longitude, latitude, radius=SERIAL_GRIDSIZE[n])])
+            if len(nearby): found = True
+            else: n -= 2
+        return [(from_geohash(rec[0])[:2], rec[1]) for rec in nearby]
+
+    def get_closest(self, longitude, latitude, category=False):
+        nearby = self.get_nearby(longitude, latitude, category)
+        if len(nearby):
+            return sorted([[n[0], n[1], self.distance((longitude, latitude), n[0])] for n in nearby], key = lambda e:e[-1])[0]
