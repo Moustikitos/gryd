@@ -1,5 +1,10 @@
 <img src="http://bruno.thoorens.free.fr/img/gryd.png" height="100px" />
 
+## Support this project
+
+  * [X] Send &#1126; to `AUahWfkfr5J4tYakugRbfow7RWVTK35GPW`
+  * [X] Vote `arky` on [Ark blockchain](https://explorer.ark.io) and [earn &#1126; weekly](http://arky-delegate.info/arky)
+
 # `Gryd`
 [![pypi](https://img.shields.io/pypi/l/Gryd.svg?style=flat-square)](http://bruno.thoorens.free.fr/licences/gryd.html)
 
@@ -10,6 +15,8 @@
 [![pypi](https://img.shields.io/badge/wheel-yes-brightgreen.svg?style=flat-square)](https://pypi.python.org/pypi/Gryd)
 
 [<img src="https://assets.gratipay.com/gratipay.svg?etag=3tGiSB5Uw_0-oWiLLxAqpQ~~" />](https://gratipay.com/Gryd)
+
+[![](http://img.shields.io/gratipay/user/b_py.svg?style=flat-square)](https://gratipay.com/~b_py)
 
 ## Why this package ?
 `Gryd` package provides efficient great circle computation and projection library.
