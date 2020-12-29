@@ -135,7 +135,7 @@ class Geocentric(ctypes.Structure):
     ]
 
     def __repr__(self):
-        return "Geocentric point X=%.3f Y=%.3f Z=%.3f" % (
+        return "<X=%.3f Y=%.3f Z=%.3f>" % (
             self.x, self.y, self.z
         )
 
