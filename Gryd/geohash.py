@@ -1,211 +1,267 @@
 # -*- encoding:utf-8 -*-
-# Copyright© 2015-2016, THOORENS Bruno
-# All rights reserved.
-import os, sys, math, json, ctypes, sqlite3
-import functools
-reduce = functools.reduce
 
-# Popular Visualisation Spheroid radius (epsg #7059 ellipsoid)
+"""
+Efficient geohash computing library based on bitwise operation with python
+integer.
+
+```python
+>>> from Gryd import geohash
+>>> dublin = geohash.geoh(-6.272877, 53.344606, bits=50)
+>>> dublin
+<01111010110011111101000111011100000001001111100111>
+>>> geohash.as_str(dublin)
+'gc7x3r04z7'
+>>> geohash.geohash(-6.272877, 53.344606, digit=10)
+'gc7x3r04z7'
+```
+
+Geohash can be encoded with a custom 32-element-sized base.
+
+```python
+>>> import random
+>>> base = list("0123456789bcdefghjkmnpqrstuvwxyz")
+>>> random.shuffle(base)
+>>> base = "".join(base)
+>>> base
+'tjcbwq2uev8n7r9gmdf1sy05kzxh4p63'
+>>> geohash.geohash(-6.272877, 53.344606, digit=10, base=base)
+'gnupb5tw3u'
+```
+"""
+
+import math
+
+
+#: Popular Visualisation Spheroid radius (epsg #7059 ellipsoid)
 EARTH_RADIUS = 6378137.0
-# precision according to geohash serial number (for serial only)
-SERIAL_GRIDSIZE = dict([n, math.radians(90./pow(2,(n-1)/2))*EARTH_RADIUS] for n in range(1, 56, 2))
-# precision according to geohash digit number
-GRIDSIZE = dict([k//5, SERIAL_GRIDSIZE[k]] for k in sorted(SERIAL_GRIDSIZE.keys()) if k%5 == 0)
 
-_next = lambda serial: bin(int(serial, base=2) + 1)[2:].zfill(len(serial))[-len(serial):]
-_prev = lambda serial: bin(int(serial, base=2) - 1)[2:].zfill(len(serial))[-len(serial):]
-serialize   = lambda geohash,base="0123456789bcdefghjkmnpqrstuvwxyz":"".join((bin(base.index(c))[2:].zfill(5) for c in geohash))
-unserialize = lambda serial,base="0123456789bcdefghjkmnpqrstuvwxyz": "".join((base[int(serial[i:i+5], base=2)] for i in range(0, len(serial), 5)))
-neighbors = lambda geohash: (unserialize(serial) for serial in _neighbors(serialize(geohash)))
 
-def _mix(serial1, serial2):
-    serial = ""
-    for i in range(len(serial1)):
-        try: serial += serial1[i] + serial2[i]
-        except IndexError: serial += serial1[-1]
-    return serial
+class GeoH(int):
+    """
+    Integer that keeps info about leading zero bits.
+    """
 
-def _neighbors(serial):
-    lon_h, lat_h = serial[0::2], serial[1::2]
-    for h1 in [_prev(lon_h), lon_h, _next(lon_h)]:
-        for h2 in [_prev(lat_h), lat_h, _next(lat_h)]:
-            yield _mix(h1, h2)
+    @staticmethod
+    def join(a, b):
+        return join(a, b)
 
-def to_geohash(longitude, latitude, digit=10, base="0123456789bcdefghjkmnpqrstuvwxyz"):
+    def __init__(self, *args, **kwargs):
+        int.__init__(self)
+        self._bit_length = self.bit_length()
+
+    def __repr__(self):
+        return "<%s%s>" % (
+            (self._bit_length - self.bit_length()) * "0",
+            bin(self)[2:]
+        )
+
+    def precision(self):
+        """
+        Return metter precision tuple for longitude and latitude based on
+        Popular Visualisation Spheroid radius (epsg #7059 ellipsoid).
+        """
+        if not hasattr(self, "_precision"):
+            n = self._bit_length // 2
+            delta = math.radians(90. / pow(2, n-1)) * EARTH_RADIUS
+            self._precision = (
+                delta * (1 if self._bit_length % 2 else 2),
+                delta
+            )
+        return self._precision
+
+
+def geoh(lon, lat, bits=25):
+    """
+    Return a python integer representing geohashed coordinates longitude and
+    latitude with a given precision.
+
+    Arguments:
+        lon (float): longitude
+        lat (float): latitude
+        bits (int): length of the geohash in bit
+    Returns:
+        `Gryd.geohash.GeoH`
+    """
     min_lon, max_lon = -180., 180.
     min_lat, max_lat = -90., 90.
     mid_lon, mid_lat = 0., 0.
+    odd = False
+    geoh = 0
+    mask = 1 << (bits - 1)
 
-    geohash = ""
-    even = False
-    while len(geohash) < digit:
-        val = 0
-        for mask in [0b10000,0b01000,0b00100,0b00010,0b00001]:
-            if not even:
-                if longitude >= mid_lon:
-                    min_lon = mid_lon
-                    val = mask if val == 0 else val|mask
-                else:
-                    max_lon = mid_lon
-                mid_lon = (min_lon+max_lon)/2
+    while mask > 0:
+        if not odd:
+            if lon >= mid_lon:
+                min_lon = mid_lon
+                geoh |= mask
             else:
-                if latitude >= mid_lat:
-                    min_lat = mid_lat
-                    val = mask if val == 0 else val|mask
-                else:
-                    max_lat = mid_lat
-                mid_lat = (min_lat+max_lat)/2
-            even = not even
-        geohash += base[val]
-    return geohash
+                max_lon = mid_lon
+            mid_lon = (min_lon + max_lon) / 2
+        else:
+            if lat >= mid_lat:
+                min_lat = mid_lat
+                geoh |= mask
+            else:
+                max_lat = mid_lat
+            mid_lat = (min_lat + max_lat) / 2
+        mask >>= 1
+        odd = not odd
 
-def from_geohash(geohash, base="0123456789bcdefghjkmnpqrstuvwxyz", center=True):
-    """return Geodesic object from geohash"""
+    geoh = GeoH(geoh)
+    geoh._bit_length = bits
+    return geoh
+
+
+def lonlat(value, centered=False):
+    """
+    Return longitude and latitude and precision from a geohash integer.
+
+    Arguments:
+        value (Gryd.geohash.GeoH or int): geohash value
+        centered (bool): returns bottom-left corner (if `False`) or center (if
+                         `True`) of geohash surface
+    Returns:
+        longitude, latitude and precision as (dlon, dlat) tuple
+    """
+    if not isinstance(value, GeoH):
+        value = GeoH(value)
+
     eps_lon, eps_lat = 360./2., 180./2.
     min_lon, max_lon = -180., 180.
     min_lat, max_lat = -90., 90.
+    odd = False
     mid_lon, mid_lat = 0., 0.
+    mask = 1 << (value.bit_length() - 1)
 
-    even = False
-    for digit in geohash:
-        val = base.index(digit)
-        for mask in [0b10000,0b01000,0b00100,0b00010,0b00001]:
-            if not even:
-                if mask & val == mask: min_lon = mid_lon
-                else: max_lon = mid_lon
-                mid_lon = (min_lon+max_lon)/2.
-                eps_lon /= 2.
+    for i in range(value._bit_length - value.bit_length()):
+        if not odd:
+            max_lon = mid_lon
+            mid_lon = (min_lon + max_lon) / 2.
+            eps_lon /= 2.
+        else:
+            max_lat = mid_lat
+            mid_lat = (min_lat + max_lat) / 2.
+            eps_lat /= 2.
+        odd = not odd
+
+    while mask > 0:
+        if not odd:
+            if mask & value == mask:
+                min_lon = mid_lon
             else:
-                if mask & val == mask: min_lat = mid_lat
-                else: max_lat = mid_lat
-                mid_lat = (min_lat+max_lat)/2.
-                eps_lat /= 2.
-            even = not even
+                max_lon = mid_lon
+            mid_lon = (min_lon + max_lon) / 2.
+            eps_lon /= 2.
+        else:
+            if mask & value == mask:
+                min_lat = mid_lat
+            else:
+                max_lat = mid_lat
+            mid_lat = (min_lat + max_lat) / 2.
+            eps_lat /= 2.
+        mask >>= 1
+        odd = not odd
 
-    if center: return mid_lon + eps_lon/2, mid_lat + eps_lat/2
-    else: return mid_lon, mid_lat, eps_lon, eps_lat
-
-def define_search_area(lon, lat, radius=100000.):
-    for n in SERIAL_GRIDSIZE:
-        if SERIAL_GRIDSIZE[n]/2. < radius:
-            radius = SERIAL_GRIDSIZE[n]/2.
-            break
-
-    delta = math.degrees(radius/EARTH_RADIUS)
-
-    # © THOORENS Bruno : "geohash serial star search"
-    # r = 1.49*delta*math.sqrt(2)
-    # sin45 = cos(45) = math.sqrt(2)/2
-    # r*cos(45) = r*sin(45) = 1.49*delta*2/2
-    n += 6           # +6 : scale effect
-    k = 1.49*delta/3 # /3 : scale effect
-    area = set([])
-    area.update(_neighbors(serialize(to_geohash(lon+k, lat+k))[:n]))
-    area.update(_neighbors(serialize(to_geohash(lon+k, lat-k))[:n]))
-    area.update(_neighbors(serialize(to_geohash(lon-k, lat-k))[:n]))
-    area.update(_neighbors(serialize(to_geohash(lon-k, lat+k))[:n]))
-
-    return area
-
-def as_uint(geohash):
-    return int(serialize(geohash), base=2)
-
-# class Geohash(ctypes.Structure):
-#     _fields_ = [
-#         ("hash",  ctypes.c_ulonglong),
-#         ("longitude", ctypes.c_double),
-#         ("latitude",  ctypes.c_double),
-#     ]
-#     def __str__(self): return self.serial()
-#     __repr__ = __str__
-
-#     def serial(self): return bin(self.hash)[2:]
-#     def next(self): return self.hash+1
-#     def prev(self): return self.hash-1
-#     def neighbors(self): return (Geohash(int(elem, base=2)) for elem in _neighbors(bin(self.hash)[2:]))
+    if centered:
+        eps_lon /= 2.
+        eps_lat /= 2.
+        return mid_lon + eps_lon, mid_lat + eps_lat, (eps_lon, eps_lat)
+    else:
+        return mid_lon, mid_lat, (eps_lon, eps_lat)
 
 
-class CachePoint():
-    ext = ".chp"
+def as_str(value, base="0123456789bcdefghjkmnpqrstuvwxyz"):
+    if not isinstance(value, GeoH):
+        value = GeoH(value)
 
-    def __init__(self, path, **kwargs):
-        if not path.endswith(CachePoint.ext): path += CachePoint.ext
-        self.path = os.path.abspath(path)
-        self.connexion = sqlite3.connect(self.path)
-        self.save = self.connexion.commit
-        self.connexion.row_factory = sqlite3.Row
-        self.cursor = self.connexion.cursor()
-        self.cursor.executescript("""
-CREATE TABLE IF NOT EXISTS points(geohash TEXT, serial TEXT, category TEXT, data TEXT);
-CREATE UNIQUE INDEX IF NOT EXISTS points_index ON points(geohash, serial, category);
-CREATE TABLE IF NOT EXISTS density(serial TEXT, category TEXT, value INTEGER);
-CREATE UNIQUE INDEX IF NOT EXISTS density_index ON density(serial, category);
-""")
+    geoh = bytearray() if isinstance(base, bytes) else []
+    value = value >> (value._bit_length % 5)
+    while value > 0:
+        geoh.append(base[value & 0b11111])
+        value >>= 5
 
-    def __repr__(self):
-        return self.path
+    geoh = reversed(geoh)
+    return bytes(geoh) if isinstance(base, bytes) else "".join(geoh)
 
-    def __del__(self):
-        try: self.close()
-        except: pass
 
-    def __call__(self, *args, **kw):
-        return self.cursor.execute(*args, **kw).fetchall()
+def as_int(geoh, base="0123456789bcdefghjkmnpqrstuvwxyz"):
+    if not isinstance(geoh, type(base)):
+        raise TypeError("base and geohash have to be from same type")
 
-    def _add_many_sequencer(self, sequence):
-        for item in sequence:
-            lon, lat, cat, data = item
-            geoh = to_geohash(lon, lat, digit=10)
-            serial = serialize(geoh)
-            yield (geoh, serial, cat, json.dumps(data))
+    first = base.index(geoh[0])
+    value = 0 | first
+    for c in geoh[1:]:
+        value <<= 5
+        value |= base.index(c)
 
-    def _guess_density(self, longitude, latitude, category=False):
-        guess_area = [s[:13] for s in define_search_area(longitude, latitude, radius=SERIAL_GRIDSIZE[13])]
-        return sum([rec[0] for rec in self("SELECT value FROM density WHERE serial IN ('%s');" % "','".join(guess_area))])
+    value = GeoH(value)
+    value._bit_length += 5 - first.bit_length()
+    return value
 
-    def add_many(self, sequence):
-        seq1 = list(self._add_many_sequencer(sequence))
-        seq2 = [(e[1][:13],e[2]) for e in seq1]
-        self.cursor.executemany("INSERT OR REPLACE INTO points(geohash, serial, category, data) VALUES(?,?,?,?);", seq1)
-        self.cursor.executemany("INSERT OR IGNORE INTO density(serial, category, value) VALUES(?,?,0);", seq2)
-        self.cursor.executemany("UPDATE density SET value = value +1 WHERE serial=? AND category=?;", seq2)
 
-    def add(self, longitude, latitude, category, data):
-        geoh = to_geohash(longitude, latitude, digit=10)
-        serial = serialize(geoh)
-        self("INSERT OR REPLACE INTO points(geohash, serial, category, data) VALUES(?,?,?,?);", (geoh, serial, category, json.dumps(data)))
-        self("INSERT OR IGNORE INTO density(serial, category, value) VALUES(?,?,0);", (serial[:13], category))
-        self("UPDATE density SET value = value +1 WHERE serial=? AND category=?;", (serial[:13], category))
+def split(value):
+    if not isinstance(value, GeoH):
+        value = GeoH(value)
 
-    def close(self):
-        for category in [rec[0] for rec in self("SELECT DISTINCT category FROM points;")]:
-            self("""
-CREATE VIEW IF NOT EXISTS %(cat)s AS SELECT
-points.geohash AS geohash,
-points.serial  AS serial,
-points.data    AS data FROM points WHERE category='%(cat)s';
-""" % {"cat":category,})
-        self.connexion.commit()
-        self.connexion.close()
+    lon, lon_bit_length = 0, 0
+    lat, lat_bit_length = 0, 0
+    odd = False
+    mask = 1 << (value._bit_length - 1)
 
-    def distance(self, ll1, ll2):
-        (lon1, lat1), (lon2, lat2) = ll1, ll2
-        dLat, dLon = math.radians(lat2 - lat1), math.radians(lon2 - lon1)
-        a = math.sin(dLat/2.) * math.sin(dLat/2.) + math.cos(math.radians(lat1)) * math.cos(math.radians(lat2)) * math.sin(dLon/2.) * math.sin(dLon/2.)
-        c = 2 * math.atan2(math.sqrt(a), math.sqrt(1-a))
-        return 6371. * c
+    while mask > 0:
+        if not odd:
+            lon <<= 1
+            lon_bit_length += 1
+            lon |= 1 if mask & value else 0
+        else:
+            lat <<= 1
+            lat_bit_length += 1
+            lat |= 1 if mask & value else 0
+        mask >>= 1
+        odd = not odd
 
-    def get_nearby(self, longitude, latitude, category=False):
-        cmd, found, n = "SELECT geohash, data FROM points WHERE serial LIKE ?" if not category else ("SELECT geohash, data FROM "+category+" WHERE serial LIKE ?"), False, 21
-        if self._guess_density(longitude, latitude, category) == 0:
-            n = 11
-        while not found and n > 0:
-            nearby = reduce(list.__add__, [self.cursor.execute(cmd, (s+r"%",)).fetchall() for s in define_search_area(longitude, latitude, radius=SERIAL_GRIDSIZE[n])])
-            if len(nearby): found = True
-            else: n -= 2
-        return [(from_geohash(rec[0])[:2], rec[1]) for rec in nearby]
+    lon = GeoH(lon)
+    lon._bit_length = lon_bit_length
+    lat = GeoH(lat)
+    lat._bit_length = lat_bit_length
+    return lon, lat
 
-    def get_closest(self, longitude, latitude, category=False):
-        nearby = self.get_nearby(longitude, latitude, category)
-        if len(nearby):
-            return sorted([[n[0], n[1], self.distance((longitude, latitude), n[0])] for n in nearby], key = lambda e:e[-1])[0]
+
+def join(lon, lat):
+    if not isinstance(lon, GeoH):
+        lon = GeoH(lon)
+    if not isinstance(lat, GeoH):
+        lat = GeoH(lon)
+
+    geoh = 0
+    odd = False
+    lon_mask = 1 << (lon._bit_length - 1)
+    lat_mask = 1 << (lat._bit_length - 1)
+
+    while lon_mask > 0 or lat_mask > 0:
+        geoh <<= 1
+        if not odd:
+            geoh |= 1 if lon_mask & lon else 0
+            lon_mask >>= 1
+        else:
+            geoh |= 1 if lat_mask & lat else 0
+            lat_mask >>= 1
+        odd = not odd
+
+    geoh = GeoH(geoh)
+    geoh._bit_length = lon._bit_length + lat._bit_length
+    return geoh
+
+
+def geohash(lon, lat, digit=10, base="0123456789bcdefghjkmnpqrstuvwxyz"):
+    return as_str(geoh(lon, lat, digit * 5), base)
+
+
+def geodesic(geoh, base="0123456789bcdefghjkmnpqrstuvwxyz"):
+    return lonlat(as_int(geoh, base))
+
+
+#: backward compatibility
+to_geohash = geohash
+#: backward compatibility
+from_geohash = geodesic
