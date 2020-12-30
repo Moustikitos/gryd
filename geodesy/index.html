@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        
+        
+        <link rel="shortcut icon" href="../img/favicon.ico">
+        <title>Geodesy - The Gryd Project</title>
+        <link href="../css/bootstrap.min.css" rel="stylesheet">
+        <link href="../css/font-awesome.min.css" rel="stylesheet">
+        <link href="../css/base.css" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css">
+
+        <script src="../js/jquery-1.10.2.min.js" defer></script>
+        <script src="../js/bootstrap.min.js" defer></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+        <script>hljs.initHighlightingOnLoad();</script> 
+    </head>
+
+    <body>
+        <div class="navbar fixed-top navbar-expand-lg navbar-dark bg-primary">
+            <div class="container">
+                <a class="navbar-brand" href="..">The Gryd Project</a>
+                <!-- Expander button -->
+                <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbar-collapse">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <!-- Expanded navigation -->
+                <div id="navbar-collapse" class="navbar-collapse collapse">
+                        <!-- Main navigation -->
+                        <ul class="nav navbar-nav">
+                            <li class="navitem">
+                                <a href=".." class="nav-link">Home</a>
+                            </li>
+                            <li class="navitem">
+                                <a href="../api/" class="nav-link">API</a>
+                            </li>
+                            <li class="navitem active">
+                                <a href="./" class="nav-link">Geodesy</a>
+                            </li>
+                            <li class="navitem">
+                                <a href="../grids/" class="nav-link">Grids</a>
+                            </li>
+                        </ul>
+
+                    <ul class="nav navbar-nav ml-auto">
+                        <li class="nav-item">
+                            <a href="#" class="nav-link" data-toggle="modal" data-target="#mkdocs_search_modal">
+                                <i class="fa fa-search"></i> Search
+                            </a>
+                        </li>
+                            <li class="nav-item">
+                                <a rel="prev" href="../api/" class="nav-link">
+                                    <i class="fa fa-arrow-left"></i> Previous
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a rel="next" href="../grids/" class="nav-link">
+                                    Next <i class="fa fa-arrow-right"></i>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="https://github.com/Moustikitos/Gryd/edit/master/docs/geodesy.md" class="nav-link"><i class="fa fa-github"></i> Edit on GitHub</a>
+                            </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="row">
+                    <div class="col-md-3"><div class="navbar-light navbar-expand-md bs-sidebar hidden-print affix" role="complementary">
+    <div class="navbar-header">
+        <button type="button" class="navbar-toggler collapsed" data-toggle="collapse" data-target="#toc-collapse" title="Table of Contents">
+            <span class="fa fa-angle-down"></span>
+        </button>
+    </div>
+
+    
+    <div id="toc-collapse" class="navbar-collapse collapse card bg-secondary">
+        <ul class="nav flex-column">
+            
+            <li class="nav-item" data-level="1"><a href="#grydgeodesy" class="nav-link">Gryd.geodesy</a>
+              <ul class="nav flex-column">
+            <li class="nav-item" data-level="2"><a href="#geodesic-objects" class="nav-link">Geodesic Objects</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+              </ul>
+            </li>
+            
+            <li class="nav-item" data-level="1"><a href="#grydgeohash" class="nav-link">Gryd.geohash</a>
+              <ul class="nav flex-column">
+            <li class="nav-item" data-level="2"><a href="#geoh-objects" class="nav-link">GeoH Objects</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+              </ul>
+            </li>
+        </ul>
+    </div>
+</div></div>
+                    <div class="col-md-9" role="main">
+
+<p><a name="Gryd.geodesy"></a></p>
+<h1 id="grydgeodesy">Gryd.geodesy</h1>
+<p><a name="Gryd.geodesy.Geodesic"></a></p>
+<h2 id="geodesic-objects">Geodesic Objects</h2>
+<pre><code class="language-python">class Geodesic(ctypes.Structure)
+</code></pre>
+<p><code>ctypes</code> structure for geodesic coordinates</p>
+<p><strong>Attributes</strong>:</p>
+<ul>
+<li>longitude</li>
+<li>latitude</li>
+<li>altitude</li>
+</ul>
+<pre><code class="language-python">&gt;&gt;&gt; dublin = Gryd.Geodesic(-6.272877, 53.344606, 0.)
+&gt;&gt;&gt; dublin
+&gt;&gt;&gt; Gryd.Geodesic(45.5, 5.5, 105)
+</code></pre>
+<p><a name="Gryd.geodesy.Geodesic.__init__"></a></p>
+<h4 id="__init__">__init__</h4>
+<pre><code class="language-python"> | __init__(*args, **kwargs)
+</code></pre>
+<p>Angular value must be given in degree here (more human values).</p>
+<p><a name="Gryd.geodesy.Geodesic.Geohash"></a></p>
+<h4 id="geohash">Geohash</h4>
+<pre><code class="language-python"> | Geohash(digit=10, base=&quot;0123456789bcdefghjkmnpqrstuvwxyz&quot;)
+</code></pre>
+<p>Convert coordinates to geohash.</p>
+<blockquote>
+<blockquote>
+<blockquote>
+<p>dublin.Geohash() # by default on 10 digit for metric precision
+gc7x3r04z7
+dublin.Geohash(14) # why not on 14 digit for millimetric precision
+gc7x3r04z77csw</p>
+</blockquote>
+</blockquote>
+</blockquote>
+<p><a name="Gryd.geodesy.Geodesic.Maidenhead"></a></p>
+<h4 id="maidenhead">Maidenhead</h4>
+<pre><code class="language-python"> | Maidenhead(level=4)
+</code></pre>
+<p>Convert coordinates to maidenhead.</p>
+<blockquote>
+<blockquote>
+<blockquote>
+<p>dublin.Maidenhead()
+'IO63ui72gq'
+dublin.Maidenhead(level=6)
+'IO63ui72gq19dh'</p>
+</blockquote>
+</blockquote>
+</blockquote>
+<p><a name="Gryd.geodesy.Geodesic.Georef"></a></p>
+<h4 id="georef">Georef</h4>
+<pre><code class="language-python"> | Georef(digit=8)
+</code></pre>
+<p>Convert coordinates to georef.</p>
+<blockquote>
+<blockquote>
+<blockquote>
+<p>dublin.Georef()
+'MKJJ43322037'
+dublin.Georef(digit=6)
+'MKJJ433203'</p>
+</blockquote>
+</blockquote>
+</blockquote>
+<p><a name="Gryd.geodesy.Geodesic.Gars"></a></p>
+<h4 id="gars">Gars</h4>
+<pre><code class="language-python"> | Gars()
+</code></pre>
+<p>Get the associated GARS Area.</p>
+<blockquote>
+<blockquote>
+<blockquote>
+<p>dublin.Gars()
+'348MY16'</p>
+</blockquote>
+</blockquote>
+</blockquote>
+<p><a name="Gryd.geodesy.from_geohash"></a></p>
+<h4 id="from_geohash">from_geohash</h4>
+<pre><code class="language-python">from_geohash(geohash, base=&quot;0123456789bcdefghjkmnpqrstuvwxyz&quot;)
+</code></pre>
+<p>return Geodesic object from geohash</p>
+<p><a name="Gryd.geodesy.from_maidenhead"></a></p>
+<h4 id="from_maidenhead">from_maidenhead</h4>
+<pre><code class="language-python">from_maidenhead(maidenhead)
+</code></pre>
+<p>Return Geodesic object from maidenhead.</p>
+<p><a name="Gryd.geodesy.from_georef"></a></p>
+<h4 id="from_georef">from_georef</h4>
+<pre><code class="language-python">from_georef(georef)
+</code></pre>
+<p>Return Geodesic object from georef.</p>
+<p><a name="Gryd.geodesy.from_gars"></a></p>
+<h4 id="from_gars">from_gars</h4>
+<pre><code class="language-python">from_gars(gars, anchor=&quot;&quot;)
+</code></pre>
+<p>Return Geodesic object from gars. Optional anchor value to define where to
+handle 5minx5min tile.</p>
+<p><a name="Gryd.geohash"></a></p>
+<h1 id="grydgeohash">Gryd.geohash</h1>
+<p>Efficient geohash computing library based on bitwise operation with python
+integer.</p>
+<pre><code class="language-python">&gt;&gt;&gt; from Gryd import geohash
+&gt;&gt;&gt; dublin = geohash.geoh(-6.272877, 53.344606, bits=50)
+&gt;&gt;&gt; dublin
+&lt;01111010110011111101000111011100000001001111100111&gt;
+&gt;&gt;&gt; geohash.as_str(dublin)
+'gc7x3r04z7'
+&gt;&gt;&gt; geohash.geohash(-6.272877, 53.344606, digit=10)
+'gc7x3r04z7'
+</code></pre>
+<p>Geohash can be encoded with a custom 32-element-sized base.</p>
+<pre><code class="language-python">&gt;&gt;&gt; import random
+&gt;&gt;&gt; base = list(&quot;0123456789bcdefghjkmnpqrstuvwxyz&quot;)
+&gt;&gt;&gt; random.shuffle(base)
+&gt;&gt;&gt; base = &quot;&quot;.join(base)
+&gt;&gt;&gt; base
+'tjcbwq2uev8n7r9gmdf1sy05kzxh4p63'
+&gt;&gt;&gt; geohash.geohash(-6.272877, 53.344606, digit=10, base=base)
+'gnupb5tw3u'
+</code></pre>
+<p><a name="Gryd.geohash.EARTH_RADIUS"></a></p>
+<h4 id="earth_radius">EARTH_RADIUS</h4>
+<p>Popular Visualisation Spheroid radius (epsg <code>7059</code> ellipsoid)</p>
+<p><a name="Gryd.geohash.GeoH"></a></p>
+<h2 id="geoh-objects">GeoH Objects</h2>
+<pre><code class="language-python">class GeoH(int)
+</code></pre>
+<p>Integer that keeps info about leading zero bits.</p>
+<p><a name="Gryd.geohash.GeoH.precision"></a></p>
+<h4 id="precision">precision</h4>
+<pre><code class="language-python"> | precision()
+</code></pre>
+<p>Return metter precision tuple for longitude and latitude based on
+Popular Visualisation Spheroid radius (epsg <code>7059</code> ellipsoid).</p>
+<p><a name="Gryd.geohash.geoh"></a></p>
+<h4 id="geoh">geoh</h4>
+<pre><code class="language-python">geoh(lon, lat, bits=25)
+</code></pre>
+<p>Return a python integer representing geohashed coordinates longitude and
+latitude with a given precision.</p>
+<p><strong>Arguments</strong>:</p>
+<ul>
+<li><code>lon</code> <em>float</em> - longitude</li>
+<li><code>lat</code> <em>float</em> - latitude</li>
+<li><code>bits</code> <em>int</em> - length of the geohash in bit</li>
+</ul>
+<p><strong>Returns</strong>:</p>
+<p><code>Gryd.geohash.GeoH</code></p>
+<p><a name="Gryd.geohash.lonlat"></a></p>
+<h4 id="lonlat">lonlat</h4>
+<pre><code class="language-python">lonlat(value, centered=False)
+</code></pre>
+<p>Return longitude and latitude and precision from a geohash integer.</p>
+<p><strong>Arguments</strong>:</p>
+<ul>
+<li><code>value</code> <em>Gryd.geohash.GeoH or int</em> - geohash value</li>
+<li><code>centered</code> <em>bool</em> - returns bottom-left corner (if <code>False</code>) or center (if
+  <code>True</code>) of geohash surface</li>
+</ul>
+<p><strong>Returns</strong>:</p>
+<p>longitude, latitude and precision as (dlon, dlat) tuple</p>
+<p><a name="Gryd.geohash.to_geohash"></a></p>
+<h4 id="to_geohash">to_geohash</h4>
+<p>backward compatibility</p>
+<p><a name="Gryd.geohash.from_geohash"></a></p>
+<h4 id="from_geohash_1">from_geohash</h4>
+<p>backward compatibility</p></div>
+            </div>
+        </div>
+
+        <footer class="col-md-12">
+            <hr>
+                <p>Copyright &copy; 2015-2021 THOORENS Bruno - BSD licence</p>
+            <p>Documentation built with <a href="https://www.mkdocs.org/">MkDocs</a>.</p>
+        </footer>
+        <script>
+            var base_url = "..",
+                shortcuts = {"help": 191, "next": 78, "previous": 80, "search": 83};
+        </script>
+        <script src="../js/base.js" defer></script>
+        <script src="../search/main.js" defer></script>
+
+        <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="searchModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="searchModalLabel">Search</h4>
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            </div>
+            <div class="modal-body">
+                <p>
+                    From here you can search these documents. Enter
+                    your search terms below.
+                </p>
+                <form>
+                    <div class="form-group">
+                        <input type="search" class="form-control" placeholder="Search..." id="mkdocs-search-query" title="Type search term here">
+                    </div>
+                </form>
+                <div id="mkdocs-search-results"></div>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div><div class="modal" id="mkdocs_keyboard_modal" tabindex="-1" role="dialog" aria-labelledby="keyboardModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="keyboardModalLabel">Keyboard Shortcuts</h4>
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            </div>
+            <div class="modal-body">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th style="width: 20%;">Keys</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="help shortcut"><kbd>?</kbd></td>
+                    <td>Open this help</td>
+                  </tr>
+                  <tr>
+                    <td class="next shortcut"><kbd>n</kbd></td>
+                    <td>Next page</td>
+                  </tr>
+                  <tr>
+                    <td class="prev shortcut"><kbd>p</kbd></td>
+                    <td>Previous page</td>
+                  </tr>
+                  <tr>
+                    <td class="search shortcut"><kbd>s</kbd></td>
+                    <td>Search</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+
+    </body>
+</html>

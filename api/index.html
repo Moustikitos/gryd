@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        
+        
+        <link rel="shortcut icon" href="../img/favicon.ico">
+        <title>API - The Gryd Project</title>
+        <link href="../css/bootstrap.min.css" rel="stylesheet">
+        <link href="../css/font-awesome.min.css" rel="stylesheet">
+        <link href="../css/base.css" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css">
+
+        <script src="../js/jquery-1.10.2.min.js" defer></script>
+        <script src="../js/bootstrap.min.js" defer></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+        <script>hljs.initHighlightingOnLoad();</script> 
+    </head>
+
+    <body>
+        <div class="navbar fixed-top navbar-expand-lg navbar-dark bg-primary">
+            <div class="container">
+                <a class="navbar-brand" href="..">The Gryd Project</a>
+                <!-- Expander button -->
+                <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbar-collapse">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <!-- Expanded navigation -->
+                <div id="navbar-collapse" class="navbar-collapse collapse">
+                        <!-- Main navigation -->
+                        <ul class="nav navbar-nav">
+                            <li class="navitem">
+                                <a href=".." class="nav-link">Home</a>
+                            </li>
+                            <li class="navitem active">
+                                <a href="./" class="nav-link">API</a>
+                            </li>
+                            <li class="navitem">
+                                <a href="../geodesy/" class="nav-link">Geodesy</a>
+                            </li>
+                            <li class="navitem">
+                                <a href="../grids/" class="nav-link">Grids</a>
+                            </li>
+                        </ul>
+
+                    <ul class="nav navbar-nav ml-auto">
+                        <li class="nav-item">
+                            <a href="#" class="nav-link" data-toggle="modal" data-target="#mkdocs_search_modal">
+                                <i class="fa fa-search"></i> Search
+                            </a>
+                        </li>
+                            <li class="nav-item">
+                                <a rel="prev" href=".." class="nav-link">
+                                    <i class="fa fa-arrow-left"></i> Previous
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a rel="next" href="../geodesy/" class="nav-link">
+                                    Next <i class="fa fa-arrow-right"></i>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="https://github.com/Moustikitos/Gryd/edit/master/docs/api.md" class="nav-link"><i class="fa fa-github"></i> Edit on GitHub</a>
+                            </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="row">
+                    <div class="col-md-3"><div class="navbar-light navbar-expand-md bs-sidebar hidden-print affix" role="complementary">
+    <div class="navbar-header">
+        <button type="button" class="navbar-toggler collapsed" data-toggle="collapse" data-target="#toc-collapse" title="Table of Contents">
+            <span class="fa fa-angle-down"></span>
+        </button>
+    </div>
+
+    
+    <div id="toc-collapse" class="navbar-collapse collapse card bg-secondary">
+        <ul class="nav flex-column">
+            
+            <li class="nav-item" data-level="1"><a href="#gryd" class="nav-link">Gryd</a>
+              <ul class="nav flex-column">
+            <li class="nav-item" data-level="2"><a href="#geocentric-objects" class="nav-link">Geocentric Objects</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-level="2"><a href="#point-objects" class="nav-link">Point Objects</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-level="2"><a href="#vincenty_dist-objects" class="nav-link">Vincenty_dist Objects</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-level="2"><a href="#vincenty_dest-objects" class="nav-link">Vincenty_dest Objects</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-level="2"><a href="#dms-objects" class="nav-link">Dms Objects</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-level="2"><a href="#dmm-objects" class="nav-link">Dmm Objects</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-level="2"><a href="#epsg-objects" class="nav-link">Epsg Objects</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-level="2"><a href="#unit-objects" class="nav-link">Unit Objects</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-level="2"><a href="#prime-objects" class="nav-link">Prime Objects</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-level="2"><a href="#ellipsoid-objects" class="nav-link">Ellipsoid Objects</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-level="2"><a href="#datum-objects" class="nav-link">Datum Objects</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-level="2"><a href="#crs-objects" class="nav-link">Crs Objects</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+              </ul>
+            </li>
+        </ul>
+    </div>
+</div></div>
+                    <div class="col-md-9" role="main">
+
+<p><a name="Gryd"></a></p>
+<h1 id="gryd">Gryd</h1>
+<p><strong>EPSG dataset</strong></p>
+<p>All epsg dataset linked to these projections are available through python API
+using epsg id or name:</p>
+<ul>
+<li>Mercator</li>
+<li>Transverse Mercator</li>
+<li>Lambert Conformal Conic.</li>
+<li>Oblique Mercator</li>
+<li>Miller</li>
+</ul>
+<p><strong>Grids</strong></p>
+<p>Four main grids are available:</p>
+<ul>
+<li>Universal Transverse Mercator</li>
+<li>Military Grid Reference System</li>
+<li>British National Grid</li>
+<li>Irish National Grid.</li>
+</ul>
+<p><strong>Image-map interpolation</strong></p>
+<p><code>Gryd.Crs</code> also provides functions for map coordinates interpolation using
+calibration <code>Points</code> (two minimum are required).</p>
+<p><strong>Quick view</strong></p>
+<pre><code class="language-python">&gt;&gt;&gt; import Gryd
+&gt;&gt;&gt; dublin = Gryd.Geodesic(-6.259437, 53.350765, 0.)
+&gt;&gt;&gt; dublin
+&lt;lon=-006Â°15'33.973&quot; lat=+053Â°21'2.754&quot; alt=0.000&gt;
+&gt;&gt;&gt; utm = Gryd.Crs(epsg=3395, projection=&quot;utm&quot;)
+&gt;&gt;&gt; utm(dublin)
+&lt;area=29U E=682406.211 N=5914792.531, alt=0.000&gt;
+&gt;&gt;&gt; mgrs = Gryd.Crs(epsg=3395, projection=&quot;mgrs&quot;)
+&gt;&gt;&gt; mgrs(dublin)
+&lt;area=29U PV E=82406.211 N=14792.531, alt=0.000&gt;
+&gt;&gt;&gt; bng = Gryd.Crs(projection=&quot;bng&quot;)
+&gt;&gt;&gt; bng(dublin)
+&lt;area=SG E=16572.029 N=92252.917, alt=0.000&gt;
+&gt;&gt;&gt; ing = Gryd.Crs(projection=&quot;ing&quot;)
+&gt;&gt;&gt; ing(dublin)
+&lt;area=O E=15890.887 N=34804.964, alt=0.000&gt;
+</code></pre>
+<p><a name="Gryd.EPSG_CON"></a></p>
+<h4 id="epsg_con">EPSG_CON</h4>
+<p>Connection to epsg database</p>
+<p><a name="Gryd.Geocentric"></a></p>
+<h2 id="geocentric-objects">Geocentric Objects</h2>
+<pre><code class="language-python">class Geocentric(ctypes.Structure)
+</code></pre>
+<p><code>ctypes</code> structure for geocentric coordinates. This reference is generaly
+used as a transition for datum conversion.</p>
+<p><strong>Attributes</strong>:</p>
+<ul>
+<li><code>x</code> <em>float</em> - X-axis value</li>
+<li><code>y</code> <em>float</em> - Y-axis value</li>
+<li><code>z</code> <em>float</em> - Z-axis value</li>
+</ul>
+<pre><code class="language-python">&gt;&gt;&gt; Gryd.Geocentric(4457584, 429216, 4526544)
+&lt;X=4457584.000 Y=429216.000 Z=4526544.000&gt;
+&gt;&gt;&gt; Gryd.Geocentric(x=4457584, y=429216, z=4526544)
+&lt;X=4457584.000 Y=429216.000 Z=4526544.000&gt;
+</code></pre>
+<p><a name="Gryd.Point"></a></p>
+<h2 id="point-objects">Point Objects</h2>
+<pre><code class="language-python">class Point(ctypes.Structure)
+</code></pre>
+<p><code>ctypes</code> structure for calibration point. It is used for coordinates
+interpolation on a referenced raster image. Two points minimum are
+required.</p>
+<p><strong>Attributes</strong>:</p>
+<ul>
+<li><code>px</code> <em>float</em> - pixel column position</li>
+<li><code>py</code> <em>float</em> - pixel row position</li>
+<li><code>lla</code> <em>Gryd.Geodesic</em> - geodesic coordinates associated to the pixel
+  coordinates</li>
+<li><code>xya</code> <em>Gryd.Geographic</em> - geographic coordinates associated to the pixel
+  coordinates</li>
+</ul>
+<p><a name="Gryd.Vincenty_dist"></a></p>
+<h2 id="vincenty_dist-objects">Vincenty_dist Objects</h2>
+<pre><code class="language-python">class Vincenty_dist(ctypes.Structure)
+</code></pre>
+<p>Great circle distance computation result using Vincenty formulae.
+<code>Vincenty_dist</code> structures are returned by <code>Gryd.Ellipsoid.distance</code>
+function.</p>
+<p><strong>Attributes</strong>:</p>
+<ul>
+<li><code>distance</code> <em>float</em> - great circle distance in meters</li>
+<li><code>initial_bearing</code> <em>float</em> - initial bearing in degrees</li>
+<li><code>final_bearing</code> <em>float</em> - final bearing in degrees</li>
+</ul>
+<pre><code class="language-python">&gt;&gt;&gt; wgs84 = Gryd.Ellipsoid(name=&quot;WGS 84&quot;) # WGS 84 ellipsoid
+&gt;&gt;&gt; london = Gryd.Geodesic(-0.127005, 51.518602, 0.)
+&gt;&gt;&gt; dublin = Gryd.Geodesic(-6.259437, 53.350765, 0.)
+&gt;&gt;&gt; vdist = wgs84.distance(dublin, london)
+&gt;&gt;&gt; vdist
+&lt;Distance 464.025km initial bearing=113.6 final bearing=118.5&gt;
+</code></pre>
+<p><a name="Gryd.Vincenty_dest"></a></p>
+<h2 id="vincenty_dest-objects">Vincenty_dest Objects</h2>
+<pre><code class="language-python">class Vincenty_dest(ctypes.Structure)
+</code></pre>
+<p>Great circle destination computation result using Vincenty formulae.
+<code>Vincenty_dist</code> structures are returned by <code>Gryd.Ellipsoid.destination</code>
+function.</p>
+<p><strong>Attributes</strong>:</p>
+<ul>
+<li><code>longitude</code> <em>float</em> - destinatin longitude in degrees</li>
+<li><code>latitude</code> <em>float</em> - destination latitude in degrees</li>
+<li><code>destination_bearing</code> <em>float</em> - destination bearing in degrees</li>
+</ul>
+<pre><code class="language-python">&gt;&gt;&gt; wgs84.destination(
+...     london, math.degrees(vdist.final_bearing) + 180, vdist.distance
+... )
+&lt;Destination lon=-006Â°15'33.973&quot; lat=+053Â°21'2.754&quot; end bearing=-66.4&gt;
+&gt;&gt;&gt; dublin
+&lt;lon=-006Â°15'33.973&quot; lat=+053Â°21'2.754&quot; alt=0.000&gt;
+</code></pre>
+<p><a name="Gryd.Dms"></a></p>
+<h2 id="dms-objects">Dms Objects</h2>
+<pre><code class="language-python">class Dms(ctypes.Structure)
+</code></pre>
+<p>Degrees Minutes Seconde value of a float value. <code>Dms</code> structure are
+returned by <code>Gryd.dms</code> function.</p>
+<pre><code class="language-python">&gt;&gt;&gt; d = Gryd.dms(-60.42286847222222)
+&gt;&gt;&gt; d
+-060Â°25'22.326&quot;
+&gt;&gt;&gt; float(d)
+-60.42286847222222
+</code></pre>
+<p><a name="Gryd.Dmm"></a></p>
+<h2 id="dmm-objects">Dmm Objects</h2>
+<pre><code class="language-python">class Dmm(ctypes.Structure)
+</code></pre>
+<p>Degrees Minutes value of a float value. <code>Dmm</code> structure are returned by
+<code>Gryd.dmm</code> function.</p>
+<pre><code class="language-python">&gt;&gt;&gt; d = Gryd.dmm(-60.42286847222222)
+&gt;&gt;&gt; d
+-060Â°25.372108'
+&gt;&gt;&gt; float(d)
+-60.42286847222222
+</code></pre>
+<p><a name="Gryd.Epsg"></a></p>
+<h2 id="epsg-objects">Epsg Objects</h2>
+<pre><code class="language-python">class Epsg(ctypes.Structure)
+</code></pre>
+<p><code>ctypes</code> structure with a sqlite connection to EPSG database for
+initialization purpose.</p>
+<p><a name="Gryd.Epsg.sqlite"></a></p>
+<h4 id="sqlite">sqlite</h4>
+<p>Shared sqlite database to be linked with</p>
+<p><a name="Gryd.Epsg.table"></a></p>
+<h4 id="table">table</h4>
+<p>The table database name where <code>__init__</code> will find data</p>
+<p><a name="Gryd.Epsg.__init__"></a></p>
+<h4 id="__init__">__init__</h4>
+<pre><code class="language-python"> | __init__(*args, **pairs)
+</code></pre>
+<p>If list of values is given as <code>*args</code>, structure members are
+initialized in the order of the field definition. If <code>*args</code> only
+contains one value:</p>
+<ul>
+<li>it is a <code>dict</code> then all fields are initialized</li>
+<li>it is an <code>int</code> then try to get a record from database using epsg id</li>
+<li>it is a <code>str</code> then try to get a record from database using epsg name</li>
+</ul>
+<p>All values in <code>**pairs</code> are merged before attributes initialization.</p>
+<p><a name="Gryd.Unit"></a></p>
+<h2 id="unit-objects">Unit Objects</h2>
+<pre><code class="language-python">class Unit(Epsg)
+</code></pre>
+<p>Unit ratio relative to meter.</p>
+<pre><code class="language-python">&gt;&gt;&gt; Gryd.Unit(9001)
+&lt;Unit epsg=9001 ratio=1.0&gt;
+&gt;&gt;&gt; Gryd.Unit(epsg=9001).name
+'metre'
+&gt;&gt;&gt; Gryd.Unit(name=&quot;foot&quot;)
+&lt;Unit epsg=9002 ratio=3.2808693302666354&gt;
+&gt;&gt;&gt; float(Gryd.Unit(name=&quot;foot&quot;))
+3.2808693302666354
+</code></pre>
+<p><a name="Gryd.Prime"></a></p>
+<h2 id="prime-objects">Prime Objects</h2>
+<pre><code class="language-python">class Prime(Epsg)
+</code></pre>
+<p>Prime meridian.</p>
+<pre><code class="language-python">&gt;&gt;&gt; prime = Gryd.Prime(epsg=8902)
+&gt;&gt;&gt; prime
+&lt;Prime meridian epsg=8902 longitude=-009Â°07'54.862&quot;&gt;
+&gt;&gt;&gt; prime.name
+'Lisbon'
+</code></pre>
+<p><a name="Gryd.Ellipsoid"></a></p>
+<h2 id="ellipsoid-objects">Ellipsoid Objects</h2>
+<pre><code class="language-python">class Ellipsoid(Epsg)
+</code></pre>
+<pre><code class="language-python">&gt;&gt;&gt; wgs84 = Gryd.Ellipsoid(&quot;WGS 84&quot;)
+&gt;&gt;&gt; wgs84
+&lt;Ellispoid epsg=7030 a=6378137.000000 1/f=298.25722356&gt;
+</code></pre>
+<p><a name="Gryd.Ellipsoid.distance"></a></p>
+<h4 id="distance">distance</h4>
+<pre><code class="language-python"> | distance(lla0, lla1)
+</code></pre>
+<pre><code>&gt;&gt;&gt; london = Gryd.Geodesic(-0.127005, 51.518602, 0.)
+&gt;&gt;&gt; dublin = Gryd.Geodesic(-6.259437, 53.350765, 0.)
+&gt;&gt;&gt; wgs84.distance(dublin, london)
+&lt;Distance 464.025km initial bearing=113.6 final bearing=118.5&gt;
+</code></pre>
+<p><a name="Gryd.Ellipsoid.destination"></a></p>
+<h4 id="destination">destination</h4>
+<pre><code class="language-python"> | destination(lla, bearing, distance)
+</code></pre>
+<pre><code class="language-python">&gt;&gt;&gt; wgs84.destination(
+...     london, math.degrees(vdist.final_bearing)+180, vdist.distance
+... )
+&lt;Destination lon=-006Â°15'33.973&quot; lat=+053Â°21'2.754&quot; end bearing=-66.4&gt;
+&gt;&gt;&gt; dublin
+&lt;lon=-006Â°15'33.973&quot; lat=+053Â°21'2.754&quot; alt=0.000&gt;
+</code></pre>
+<p><a name="Gryd.Ellipsoid.npoints"></a></p>
+<h4 id="npoints">npoints</h4>
+<pre><code class="language-python"> | npoints(lla0, lla1, n)
+</code></pre>
+<pre><code class="language-python">&gt;&gt;&gt; for p in wgs84.npoints(dublin, londre, 4): print(p)
+...
+&lt;Destination lon=-006Â°15'33.973&quot; lat=+053Â°21'2.754&quot; end bearing=113.6&gt;
+&lt;Destination lon=-004Â°59'32.422&quot; lat=+053Â°00'36.687&quot; end bearing=114.6&gt;
+&lt;Destination lon=-003Â°44'43.501&quot; lat=+052Â°39'22.715&quot; end bearing=115.6&gt;
+&lt;Destination lon=-002Â°31'7.792&quot; lat=+052Â°17'22.201&quot; end bearing=116.6&gt;
+&lt;Destination lon=-001Â°18'45.650&quot; lat=+051Â°54'36.502&quot; end bearing=117.5&gt;
+&lt;Destination lon=-000Â°07'37.218&quot; lat=+051Â°31'6.967&quot; end bearing=118.5&gt;
+</code></pre>
+<p><a name="Gryd.Datum"></a></p>
+<h2 id="datum-objects">Datum Objects</h2>
+<pre><code class="language-python">class Datum(Epsg)
+</code></pre>
+<blockquote>
+<blockquote>
+<blockquote>
+<p>Gryd.Datum(epsg=4326)
+&lt;Datum epsg=4326:
+    <Ellispoid epsg=7030 a=6378137.000000 1/f=298.25722356>
+    <Prime meridian epsg=8901 longitude=0.000000>
+    to wgs84: 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
+</p>
+</blockquote>
+</blockquote>
+</blockquote>
+<p><a name="Gryd.Datum.xyz"></a></p>
+<h4 id="xyz">xyz</h4>
+<pre><code class="language-python"> | xyz(lla)
+</code></pre>
+<pre><code class="language-python">&gt;&gt;&gt; wgs84.xyz(london)
+&lt;X=3977018.848 Y=-8815.695 Z=4969650.564&gt;
+</code></pre>
+<p><a name="Gryd.Datum.lla"></a></p>
+<h4 id="lla">lla</h4>
+<pre><code class="language-python"> | lla(xyz)
+</code></pre>
+<pre><code class="language-python">&gt;&gt;&gt; wgs84.lla(wgs84.xyz(london))
+&lt;lon=-000Â°07'37.218&quot; lat=+051Â°31'6.967&quot; alt=0.000&gt;
+&gt;&gt;&gt; london
+&lt;lon=-000Â°07'37.218&quot; lat=+051Â°31'6.967&quot; alt=0.000&gt;
+</code></pre>
+<p><a name="Gryd.Datum.transform"></a></p>
+<h4 id="transform">transform</h4>
+<pre><code class="language-python"> | transform(dst, lla)
+</code></pre>
+<pre><code class="language-python">&gt;&gt;&gt; airy = Gryd.Datum(epsg=4277)
+&gt;&gt;&gt; wgs84.transform(airy, london)
+&lt;lon=-000Â°07'31.431'' lat=+051Â°31'5.137'' alt=-46.118&gt;
+</code></pre>
+<p><a name="Gryd.Crs"></a></p>
+<h2 id="crs-objects">Crs Objects</h2>
+<pre><code class="language-python">class Crs(Epsg)
+</code></pre>
+<pre><code class="language-python">&gt;&gt;&gt; pvs = Gryd.Crs(epsg=3785)
+&gt;&gt;&gt; osgb36 = Gryd.Crs(epsg=27700)
+&gt;&gt;&gt; osgb36.datum.xyz(london)
+&lt;X=3976632.017 Y=-8814.837 Z=4969286.446&gt;
+&gt;&gt;&gt; osgb36.datum.ellipsoid.distance(dublin, london)
+&lt;Distance 463.981km initial bearing=113.6 final bearing=118.5&gt;
+&gt;&gt;&gt; osgb36
+&lt;Crs epsg=27700:
+&lt;Datum epsg=4277:
+&lt;Ellispoid epsg=7001 a=6377563.396000 1/f=299.32496460&gt;
+&lt;Prime meridian epsg=8901 longitude=0.000000&gt;
+to wgs84 446.45,-125.16,542.06,-20.49,0.15,0.25,0.84&gt;
+&gt;
+&lt;Unit epsg=9001 ratio=1.0&gt;
+&lt;Projection 'tmerc'&gt;
+&gt;
+</code></pre>
+<p><a name="Gryd.Crs.__call__"></a></p>
+<h4 id="__call__">__call__</h4>
+<pre><code class="language-python"> | __call__(element)
+</code></pre>
+<pre><code class="language-python">&gt;&gt;&gt; osgb36(london)  # projection of Geodesic point
+&lt;X=529939.106 Y=181680.962s alt=0.000&gt;
+&gt;&gt;&gt; osgb36(osgb36(london))  # deprojection of Geographic point
+&lt;lon=-000Â°07'37.218&quot; lat=+051Â°31'6.967&quot; alt=0.000&gt;
+</code></pre>
+<p><a name="Gryd.Crs.transform"></a></p>
+<h4 id="transform_1">transform</h4>
+<pre><code class="language-python"> | transform(dst, xya)
+</code></pre>
+<pre><code class="language-python">&gt;&gt;&gt; osgb36.transform(pvs, osgb36(london))
+&lt;X=-14317.072 Y=6680144.273s alt=-13015.770&gt;
+&gt;&gt;&gt; pvs.transform(osgb36, osgb36.transform(pvs, osgb36(london)))
+&lt;X=529939.101 Y=181680.963s alt=0.012&gt;
+&gt;&gt;&gt; osgb36(london)
+&lt;X=529939.106 Y=181680.962s alt=0.000&gt;
+</code></pre>
+<p><a name="Gryd.Crs.add_map_point"></a></p>
+<h4 id="add_map_point">add_map_point</h4>
+<pre><code class="language-python"> | add_map_point(px, py, point)
+</code></pre>
+<pre><code class="language-python">&gt;&gt;&gt; pvs.add_map_point(0,0, Geodesic(-179.999, 85))
+&gt;&gt;&gt; pvs.add_map_point(512,512, Geodesic(179.999, -85))
+</code></pre>
+<p><a name="Gryd.Crs.map2crs"></a></p>
+<h4 id="map2crs">map2crs</h4>
+<pre><code class="language-python"> | map2crs(px, py, geographic=False)
+</code></pre>
+<pre><code class="language-python">&gt;&gt;&gt; pvs.map2crs(256+128, 256+128)
+&lt;lon=+089Â°59'58.20'' lat=-066Â°23'43.74'' alt=0.000&gt;
+&gt;&gt;&gt; pvs.map2crs(256-128, 256+128, geographic=True)
+&lt;point X=-10018698.512 Y=-9985934.440s alt=0.000&gt;
+</code></pre>
+<p><a name="Gryd.Crs.crs2map"></a></p>
+<h4 id="crs2map">crs2map</h4>
+<pre><code class="language-python"> | crs2map(point)
+</code></pre>
+<pre><code class="language-python">&gt;&gt;&gt; pvs.crs2map(pvs.map2crs(256+128, 256+128))
+&lt;px=384 py=384
+- &lt;lon=+089Â°59'58.20'' lat=-066Â°23'43.74'' alt=0.000&gt;
+- &lt;X=10018698.512 Y=-9985934.440s alt=0.000&gt;
+&gt;
+</code></pre></div>
+            </div>
+        </div>
+
+        <footer class="col-md-12">
+            <hr>
+                <p>Copyright &copy; 2015-2021 THOORENS Bruno - BSD licence</p>
+            <p>Documentation built with <a href="https://www.mkdocs.org/">MkDocs</a>.</p>
+        </footer>
+        <script>
+            var base_url = "..",
+                shortcuts = {"help": 191, "next": 78, "previous": 80, "search": 83};
+        </script>
+        <script src="../js/base.js" defer></script>
+        <script src="../search/main.js" defer></script>
+
+        <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="searchModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="searchModalLabel">Search</h4>
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            </div>
+            <div class="modal-body">
+                <p>
+                    From here you can search these documents. Enter
+                    your search terms below.
+                </p>
+                <form>
+                    <div class="form-group">
+                        <input type="search" class="form-control" placeholder="Search..." id="mkdocs-search-query" title="Type search term here">
+                    </div>
+                </form>
+                <div id="mkdocs-search-results"></div>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div><div class="modal" id="mkdocs_keyboard_modal" tabindex="-1" role="dialog" aria-labelledby="keyboardModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="keyboardModalLabel">Keyboard Shortcuts</h4>
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            </div>
+            <div class="modal-body">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th style="width: 20%;">Keys</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="help shortcut"><kbd>?</kbd></td>
+                    <td>Open this help</td>
+                  </tr>
+                  <tr>
+                    <td class="next shortcut"><kbd>n</kbd></td>
+                    <td>Next page</td>
+                  </tr>
+                  <tr>
+                    <td class="prev shortcut"><kbd>p</kbd></td>
+                    <td>Previous page</td>
+                  </tr>
+                  <tr>
+                    <td class="search shortcut"><kbd>s</kbd></td>
+                    <td>Search</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+
+    </body>
+</html>
