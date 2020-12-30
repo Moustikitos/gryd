@@ -17,7 +17,7 @@
 `Gryd` package provides efficient great circle computation and projection library.
 
 ## Documentation
-[The Gryd Project [WIP]](https://moustikitos.github.io/Gryd/)
+[The Gryd Project [WIP]](https://moustikitos.github.io/gryd/)
 
 ## Installation
 TODO

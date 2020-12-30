@@ -114,15 +114,6 @@ function.
 - `distance` _float_ - great circle distance in meters
 - `initial_bearing` _float_ - initial bearing in degrees
 - `final_bearing` _float_ - final bearing in degrees
-  
-```python
->>> wgs84 = Gryd.Ellipsoid(name="WGS 84") # WGS 84 ellipsoid
->>> london = Gryd.Geodesic(-0.127005, 51.518602, 0.)
->>> dublin = Gryd.Geodesic(-6.259437, 53.350765, 0.)
->>> vdist = wgs84.distance(dublin, london)
->>> vdist
-<Distance 464.025km initial bearing=113.6 final bearing=118.5>
-```
 
 <a name="Gryd.Vincenty_dest"></a>
 ## Vincenty\_dest Objects
@@ -140,15 +131,6 @@ function.
 - `longitude` _float_ - destinatin longitude in degrees
 - `latitude` _float_ - destination latitude in degrees
 - `destination_bearing` _float_ - destination bearing in degrees
-  
-```python
->>> wgs84.destination(
-...     london, math.degrees(vdist.final_bearing) + 180, vdist.distance
-... )
-<Destination lon=-006Â°15'33.973" lat=+053Â°21'2.754" end bearing=-66.4>
->>> dublin
-<lon=-006Â°15'33.973" lat=+053Â°21'2.754" alt=0.000>
-```
 
 <a name="Gryd.Dms"></a>
 ## Dms Objects
@@ -296,9 +278,9 @@ class Ellipsoid(Epsg)
 
 ```python
 >>> wgs84.destination(
-...     london, math.degrees(vdist.final_bearing)+180, vdist.distance
+...     london, math.degrees(vdist.final_bearing) + 180, vdist.distance
 ... )
-<Destination lon=-006Â°15'33.973" lat=+053Â°21'2.754" end bearing=-66.4>
+<Destination lon=-006Â°15'33.973" lat=+053Â°21'2.754" end bearing=-66.4Â°>
 >>> dublin
 <lon=-006Â°15'33.973" lat=+053Â°21'2.754" alt=0.000>
 ```
@@ -330,10 +312,9 @@ class Datum(Epsg)
 
 >>> Gryd.Datum(epsg=4326)
 <Datum epsg=4326:
-    <Ellispoid epsg=7030 a=6378137.000000 1/f=298.25722356>
-    <Prime meridian epsg=8901 longitude=0.000000>
-    to wgs84: 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
->
+<Ellispoid epsg=7030 a=6378137.000000 1/f=298.25722356>
+<Prime meridian epsg=8901 longitude=0.000000>
+to wgs84: 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0>
 
 <a name="Gryd.Datum.xyz"></a>
 #### xyz
@@ -394,10 +375,8 @@ class Crs(Epsg)
 <Ellispoid epsg=7001 a=6377563.396000 1/f=299.32496460>
 <Prime meridian epsg=8901 longitude=0.000000>
 to wgs84 446.45,-125.16,542.06,-20.49,0.15,0.25,0.84>
->
 <Unit epsg=9001 ratio=1.0>
-<Projection 'tmerc'>
->
+Projection 'tmerc'>
 ```
 
 <a name="Gryd.Crs.__call__"></a>
