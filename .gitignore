@@ -104,3 +104,4 @@ $RECYCLE.BIN/
 # custom
 .vscode
 .generated-files.txt
+site/
