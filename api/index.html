@@ -231,13 +231,6 @@ function.</p>
 <li><code>initial_bearing</code> <em>float</em> - initial bearing in degrees</li>
 <li><code>final_bearing</code> <em>float</em> - final bearing in degrees</li>
 </ul>
-<pre><code class="language-python">&gt;&gt;&gt; wgs84 = Gryd.Ellipsoid(name=&quot;WGS 84&quot;) # WGS 84 ellipsoid
-&gt;&gt;&gt; london = Gryd.Geodesic(-0.127005, 51.518602, 0.)
-&gt;&gt;&gt; dublin = Gryd.Geodesic(-6.259437, 53.350765, 0.)
-&gt;&gt;&gt; vdist = wgs84.distance(dublin, london)
-&gt;&gt;&gt; vdist
-&lt;Distance 464.025km initial bearing=113.6 final bearing=118.5&gt;
-</code></pre>
 <p><a name="Gryd.Vincenty_dest"></a></p>
 <h2 id="vincenty_dest-objects">Vincenty_dest Objects</h2>
 <pre><code class="language-python">class Vincenty_dest(ctypes.Structure)
@@ -251,13 +244,6 @@ function.</p>
 <li><code>latitude</code> <em>float</em> - destination latitude in degrees</li>
 <li><code>destination_bearing</code> <em>float</em> - destination bearing in degrees</li>
 </ul>
-<pre><code class="language-python">&gt;&gt;&gt; wgs84.destination(
-...     london, math.degrees(vdist.final_bearing) + 180, vdist.distance
-... )
-&lt;Destination lon=-006Â°15'33.973&quot; lat=+053Â°21'2.754&quot; end bearing=-66.4&gt;
-&gt;&gt;&gt; dublin
-&lt;lon=-006Â°15'33.973&quot; lat=+053Â°21'2.754&quot; alt=0.000&gt;
-</code></pre>
 <p><a name="Gryd.Dms"></a></p>
 <h2 id="dms-objects">Dms Objects</h2>
 <pre><code class="language-python">class Dms(ctypes.Structure)
@@ -354,9 +340,9 @@ contains one value:</p>
 <pre><code class="language-python"> | destination(lla, bearing, distance)
 </code></pre>
 <pre><code class="language-python">&gt;&gt;&gt; wgs84.destination(
-...     london, math.degrees(vdist.final_bearing)+180, vdist.distance
+...     london, math.degrees(vdist.final_bearing) + 180, vdist.distance
 ... )
-&lt;Destination lon=-006Â°15'33.973&quot; lat=+053Â°21'2.754&quot; end bearing=-66.4&gt;
+&lt;Destination lon=-006Â°15'33.973&quot; lat=+053Â°21'2.754&quot; end bearing=-66.4Â°&gt;
 &gt;&gt;&gt; dublin
 &lt;lon=-006Â°15'33.973&quot; lat=+053Â°21'2.754&quot; alt=0.000&gt;
 </code></pre>
@@ -381,11 +367,10 @@ contains one value:</p>
 <blockquote>
 <blockquote>
 <p>Gryd.Datum(epsg=4326)
-&lt;Datum epsg=4326:
-    <Ellispoid epsg=7030 a=6378137.000000 1/f=298.25722356>
-    <Prime meridian epsg=8901 longitude=0.000000>
-    to wgs84: 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
-</p>
+<Datum epsg=4326:
+\<Ellispoid epsg=7030 a=6378137.000000 1/f=298.25722356>
+\<Prime meridian epsg=8901 longitude=0.000000>
+to wgs84: 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0></p>
 </blockquote>
 </blockquote>
 </blockquote>
@@ -429,10 +414,8 @@ contains one value:</p>
 &lt;Ellispoid epsg=7001 a=6377563.396000 1/f=299.32496460&gt;
 &lt;Prime meridian epsg=8901 longitude=0.000000&gt;
 to wgs84 446.45,-125.16,542.06,-20.49,0.15,0.25,0.84&gt;
-&gt;
 &lt;Unit epsg=9001 ratio=1.0&gt;
-&lt;Projection 'tmerc'&gt;
-&gt;
+Projection 'tmerc'&gt;
 </code></pre>
 <p><a name="Gryd.Crs.__call__"></a></p>
 <h4 id="__call__">__call__</h4>
