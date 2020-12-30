@@ -1,20 +1,21 @@
-# -*- encoding:utf-8 -*-
+# -*- coding: utf-8 -*-
 
 """
-Gryd package provides efficient great circle computation and projection
-library.
-
 # EPSG dataset
 
 All epsg dataset linked to these projections are available through python API
-using epsg id or name. Available projections are:
+using epsg id or name:
+
  + Mercator
  + Transverse Mercator
  + Lambert Conformal Conic.
+ + Oblique Mercator
+ + Miller
 
 # Grids
 
-The four main grids are available:
+Four main grids are available:
+
  + Universal Transverse Mercator
  + Military Grid Reference System
  + British National Grid
@@ -22,27 +23,29 @@ The four main grids are available:
 
 # Image-map interpolation
 
-`Gryd.Crs` class also provides functions for map coordinates interpolation
-using calibration points. Two points minimum are required.
+`Gryd.Crs` also provides functions for map coordinates interpolation using
+calibration `Points` (two minimum are required).
+
+# Quick view
+```python
+>>> import Gryd
+>>> dublin = Gryd.Geodesic(-6.259437, 53.350765, 0.)
+>>> dublin
+<lon=-006°15'33.973" lat=+053°21'2.754" alt=0.000>
+>>> utm = Gryd.Crs(epsg=3395, projection="utm")
+>>> utm(dublin)
+<area=29U E=682406.211 N=5914792.531, alt=0.000>
+>>> mgrs = Gryd.Crs(epsg=3395, projection="mgrs")
+>>> mgrs(dublin)
+<area=29U PV E=82406.211 N=14792.531, alt=0.000>
+>>> bng = Gryd.Crs(projection="bng")
+>>> bng(dublin)
+<area=SG E=16572.029 N=92252.917, alt=0.000>
+>>> ing = Gryd.Crs(projection="ing")
+>>> ing(dublin)
+<area=O E=15890.887 N=34804.964, alt=0.000>
+```
 """
-
-
-# ```python
-# >>> from Gryd import *
-# >>> dublin = Geodesic(-6.259437, 53.350765, 0.)
-# >>> utm = Crs(epsg=3395, projection="utm")
-# >>> utm(dublin)
-# Grid point area=29U E=682406.211 N=5914792.531, alt=0.000
-# >>> mgrs = Crs(epsg=3395, projection="mgrs")
-# >>> mgrs(dublin)
-# Grid point area=29U PV E=82406.211 N=14792.531, alt=0.000
-# >>> bng = Crs(projection="bng")
-# >>> bng(dublin)
-# Grid point area=SG E=16572.029 N=92252.917, alt=0.000
-# >>> ing = Crs(projection="ing")
-# >>> ing(dublin)
-# Grid point area=O E=15890.887 N=34804.964, alt=0.000
-# ```
 
 import os
 import sys
@@ -55,8 +58,8 @@ from Gryd.geodesy import Geodesic
 
 __author__ = "Bruno THOORENS"
 # Major.minor.micro version number. The micro number is bumped for API
-# changes, for new functionality, and for interim project releases.  The minor
-# number is bumped whenever there is a significant project release.  The major
+# changes, for new functionality, and for interim project releases. The minor
+# number is bumped whenever there is a significant project release. The major
 # number will be bumped when the project is feature-complete, and perhaps if
 # there is a major change in the design.
 __version__ = "1.2.1"
@@ -64,13 +67,6 @@ __version__ = "1.2.1"
 __c_proj__ = ["omerc", "tmerc", "merc", "lcc", "eqc", "miller"]
 # add python projection modules here
 __py_proj__ = ["utm", "mgrs", "bng", "ing"]
-# defining library name
-__dll_ext__ = "dll" if sys.platform.startswith("win") else \
-              "so" if sys.platform.startswith("linux") else \
-              "so"
-if not(2 ** 32 // 2 - 1 == sys.maxsize):
-    __dll_ext__ = "64." + __dll_ext__
-
 
 _TORAD = math.pi/180.0
 _TODEG = 180.0/math.pi
@@ -102,10 +98,8 @@ def get_data_file(name):
         raise IOError("%s data file not found" % name)
 
 
+# Create a table of n ctypes and return pointer
 def t_byref(ctype, n, *args):
-    """
-    Create a table of n ctypes and return pointer
-    """
     return ctypes.cast((ctype * n)(*args), ctypes.POINTER(ctype))
 
 
@@ -116,14 +110,17 @@ EPSG_CON.row_factory = sqlite3.Row
 
 class Geocentric(ctypes.Structure):
     """
-    `ctypes` structure for geocentric coordinates.
+    `ctypes` structure for geocentric coordinates. This reference is generaly
+    used as a transition for datum conversion.
 
-    Attributes :
-     + x: X-axis value
-     + y: Y-axis value
-     + z: Z-axis value
+    Attributes:
+        x (float): X-axis value
+        y (float): Y-axis value
+        z (float): Z-axis value
 
     ```python
+    >>> Gryd.Geocentric(4457584, 429216, 4526544)
+    <X=4457584.000 Y=429216.000 Z=4526544.000>
     >>> Gryd.Geocentric(x=4457584, y=429216, z=4526544)
     <X=4457584.000 Y=429216.000 Z=4526544.000>
     ```
@@ -143,14 +140,16 @@ class Geocentric(ctypes.Structure):
 class Geographic(ctypes.Structure):
     """
     `ctypes` structure for geographic coordinates. 2D coordinates on flattened
-    earth (usng a projection system) with altitude as third dimension.
+    earth (using a projection system) with elevation as third dimension.
 
-    Attributes :
-     + x: X-projection-axis value
-     + y: Y-projection-axis value
-     + altitude
+    Attributes:
+        x (float): X-projection-axis value
+        y (float): Y-projection-axis value
+        altitude (float): elevation in meters
 
     ```python
+    >>> Gryd.Geographic(5721186, 2948518, 105)
+    <X=5721186.000 Y=2948518.000 alt=105.000>
     >>> Gryd.Geographic(x=5721186, y=2948518, altitude=105)
     <X=5721186.000 Y=2948518.000 alt=105.000>
     ```
@@ -168,13 +167,14 @@ class Geographic(ctypes.Structure):
 class Grid(ctypes.Structure):
     """
     `ctypes` structure for grided coordinates. Another coordinates system
-    applied on flattened earth. It is defined by an area, a 2D coordinates and
-    altitude.
+    applied on flattened earth. It is defined by an area, 2D coordinates and
+    elevation.
 
-    Attributes :
-     + area: string region
-     + easting: X-grid-axis value
-     + northing: Y-grid-axis value
+    Attributes:
+        area (str): string region
+        easting (float): X-grid-axis value
+        northing (float): Y-grid-axis value
+        altitude (float): elevation in meters
 
     ```python
     >>> Gryd.Grid(area="31T", easting=925595, northing=5052949, altitude=105)
@@ -196,13 +196,17 @@ class Grid(ctypes.Structure):
 
 class Point(ctypes.Structure):
     """
-    `ctypes` structure for calibration point.
+    `ctypes` structure for calibration point. It is used for coordinates
+    interpolation on a referenced raster image. Two points minimum are
+    required.
 
-    Attributes :
-     + px: pixel column position
-     + py: pixel row position
-     + lla: `Gryd.Geodesic` associated to the pixel coordinates
-     + xya: `Gryd.Geographic` associated to the pixel coordinates
+    Attributes:
+        px (float): pixel column position
+        py (float): pixel row position
+        lla (Gryd.Geodesic): geodesic coordinates associated to the pixel
+                             coordinates
+        xya (Gryd.Geographic): geographic coordinates associated to the pixel
+                               coordinates
     """
     _fields_ = [
         ("px",  ctypes.c_double),
@@ -212,13 +216,22 @@ class Point(ctypes.Structure):
     ]
 
     def __repr__(self):
-        return "<px=%.0f py=%.0f\n- <%r>\n- <%r>\n>" % (
+        return "<px=%.0f py=%.0f\n%r\n%r\n>" % (
             self.px, self.py, self.lla, self.xya
         )
 
 
 class Vincenty_dist(ctypes.Structure):
     """
+    Great circle distance computation result using Vincenty formulae.
+    `Vincenty_dist` structures are returned by `Gryd.Ellipsoid.distance`
+    function.
+
+    Attributes:
+        distance (float): great circle distance in meters
+        initial_bearing (float): initial bearing in degrees
+        final_bearing (float): final bearing in degrees
+
     ```python
     >>> wgs84 = Gryd.Ellipsoid(name="WGS 84") # WGS 84 ellipsoid
     >>> london = Gryd.Geodesic(-0.127005, 51.518602, 0.)
@@ -226,8 +239,6 @@ class Vincenty_dist(ctypes.Structure):
     >>> vdist = wgs84.distance(dublin, london)
     >>> vdist
     <Distance 464.025km initial bearing=113.6 final bearing=118.5>
-    >>> vdist.distance, vdist.initial_bearing, vdist.final_bearing
-    (464025.2235062019, 1.9826304238310775, 2.0675106301597674)
     ```
     """
     _fields_ = [
@@ -237,25 +248,32 @@ class Vincenty_dist(ctypes.Structure):
     ]
 
     def __repr__(self):
-        return "<Distance %.3fkm initial bearing=%.1f final bearing=%.1f>" % (
-            self.distance/1000,
-            math.degrees(self.initial_bearing),
-            math.degrees(self.final_bearing)
-        )
+        return "<Distance %.3fkm initial bearing=%.1f° final bearing=%.1f°>" %\
+            (
+                self.distance/1000,
+                math.degrees(self.initial_bearing),
+                math.degrees(self.final_bearing)
+            )
 
 
 class Vincenty_dest(ctypes.Structure):
     """
+    Great circle destination computation result using Vincenty formulae.
+    `Vincenty_dist` structures are returned by `Gryd.Ellipsoid.destination`
+    function.
+
+    Attributes:
+        longitude (float): destinatin longitude in degrees
+        latitude (float): destination latitude in degrees
+        destination_bearing (float): destination bearing in degrees
+
     ```python
-    >>> vdest = wgs84.destination(
-    ...     london, math.degrees(vdist.final_bearing)+180, vdist.distance
+    >>> wgs84.destination(
+    ...     london, math.degrees(vdist.final_bearing) + 180, vdist.distance
     ... )
-    >>> vdest
     <Destination lon=-006°15'33.973" lat=+053°21'2.754" end bearing=-66.4>
     >>> dublin
     <lon=-006°15'33.973" lat=+053°21'2.754" alt=0.000>
-    >>> vdest.longitude, vdest.latitude, vdest.destination_bearing
-    (-0.10924778507143726, 0.9311465077339985, -1.1589622298392817)
     ```
     """
     _fields_ = [
@@ -265,7 +283,7 @@ class Vincenty_dest(ctypes.Structure):
     ]
 
     def __repr__(self):
-        return "<Destination lon=%r lat=%r end bearing=%.1f>" % (
+        return "<Destination lon=%r lat=%r end bearing=%.1f°>" % (
             dms(math.degrees(self.longitude)),
             dms(math.degrees(self.latitude)),
             math.degrees(self.destination_bearing)
@@ -274,12 +292,14 @@ class Vincenty_dest(ctypes.Structure):
 
 class Dms(ctypes.Structure):
     """
+    Degrees Minutes Seconde value of a float value. `Dms` structure are
+    returned by `Gryd.dms` function.
+
     ```python
-    >>> Gryd.Dms(sign=1, degree=60, minute=25, second=22.3265)
-    +060°25'22.33"
-    >>> Gryd.Dms(0, 60, 25, 22.3265)
-    -060°25'22.33"
-    >>> float(Gryd.Dms(0, 60, 25, 22.3265))
+    >>> d = Gryd.dms(-60.42286847222222)
+    >>> d
+    -060°25'22.326"
+    >>> float(d)
     -60.42286847222222
     ```
     """
@@ -304,12 +324,14 @@ class Dms(ctypes.Structure):
 
 class Dmm(ctypes.Structure):
     """
+    Degrees Minutes value of a float value. `Dmm` structure are returned by
+    `Gryd.dmm` function.
+
     ```python
-    >>> Gryd.Dmm(sign=1, degree=60, minute=25.372108333333188)
-    +060°25.3721083'
-    >>> Gryd.Dmm(0, 60, 25.372108333333188)
-    -060°25.3721083'
-    >>> float(Gryd.Dmm(0, 60, 25.372108333333188))
+    >>> d = Gryd.dmm(-60.42286847222222)
+    >>> d
+    -060°25.372108'
+    >>> float(d)
     -60.42286847222222
     ```
     """
@@ -331,58 +353,78 @@ class Dmm(ctypes.Structure):
         )
 
 
-class Structure(ctypes.Structure):
+class Epsg(ctypes.Structure):
     """
-    `ctypes` structure with a sqlite connection for initialization purpose.
+    `ctypes` structure with a sqlite connection to EPSG database for
+    initialization purpose.
     """
     #: Shared sqlite database to be linked with
     sqlite = EPSG_CON.cursor()
-    #: The table database name where __init__ will find data
+    #: The table database name where `__init__` will find data
     table = ""
 
     def __init__(self, *args, **pairs):
         """
-        If keyword argument is given, it searches in sqlite database an entry
-        matching the given pair. If list of values is given, structure members
-        are initialized in the order of the field definition.
+        If list of values is given as `*args`, structure members are
+        initialized in the order of the field definition. If `*args` only
+        contains one value:
+
+         + it is a `dict` then all fields are initialized
+         + it is an `int` then try to get a record from database using epsg id
+         + it is a `str` then try to get a record from database using epsg name
+
+        All values in `**pairs` are merged before attributes initialization.
         """
+        record = {}
+        # in case a dict is given at initialization
+        if len(args) == 1:
+            if isinstance(args[0], dict):
+                record = args[0]
+            elif isinstance(args[0], int):
+                pairs["epsg"] = args[0]
+            elif isinstance(args[0], (bytes, str)):
+                pairs["name"] = args[0]
+            args = ()
+        # try to find data in database using epsg or name
+        try:
+            if "epsg" in pairs:
+                record = Epsg.sqlite.execute(
+                    "SELECT * from %s WHERE epsg=?" % self.table,
+                    (pairs.pop("epsg"),)
+                ).fetchall()[0]
+            elif "name" in pairs:
+                record = Epsg.sqlite.execute(
+                    "SELECT * from %s WHERE name=?" % self.table,
+                    (pairs.pop("name"),)
+                ).fetchall()[0]
+        except IndexError:
+            pass
+
+        # merge database record with eventually given pairs
+        pairs = dict(record, **pairs)
+        # initialize in the order of _fields_ attribute
         ctypes.Structure.__init__(self, *args)
-
-        record = []
-        if "epsg" in pairs:
-            record = Structure.sqlite.execute(
-                "SELECT * from %s WHERE epsg=?" % self.table,
-                (pairs.pop("epsg"),)
-            ).fetchall()
-        elif "name" in pairs:
-            record = Structure.sqlite.execute(
-                "SELECT * from %s WHERE name=?" % self.table,
-                (pairs.pop("name"),)
-            ).fetchall()
-
-        if len(record) > 0:
-            pairs = dict(record[0], **pairs)
-            for key, value in sorted(pairs.items(), key=lambda e: e[0]):
-                if key == "lambda":
-                    key, value = "longitude", math.radians(value)
-                elif key in ["lambda0", "phi0", "phi1", "phi2", "azimut"]:
-                    value = math.radians(value)
-                elif key in ["rf", "1/f", "invf"]:
-                    key, value = ("f", 1./value) if value != 0. else ("f", 0.)
-                setattr(self, key, value)
+        for key, value in sorted(pairs.items(), key=lambda e: e[0]):
+            if key == "lambda":
+                key, value = "longitude", math.radians(value)
+            elif key in ["lambda0", "phi0", "phi1", "phi2", "azimut"]:
+                value = math.radians(value)
+            elif key in ["rf", "1/f", "invf"]:
+                key, value = ("f", 1./value) if value != 0. else ("f", 0.)
+            setattr(self, key, value)
 
 
-class Unit(Structure):
+class Unit(Epsg):
     """
+    Unit ratio relative to meter.
+
     ```python
-    >>> Gryd.Unit(epsg=9001)
+    >>> Gryd.Unit(9001)
     <Unit epsg=9001 ratio=1.0>
     >>> Gryd.Unit(epsg=9001).name
     'metre'
     >>> Gryd.Unit(name="foot")
     <Unit epsg=9002 ratio=3.2808693302666354>
-    >>> Gryd.Unit(epsg=9002).name
-    'foot'
     >>> float(Gryd.Unit(name="foot"))
     3.2808693302666354
     ```
@@ -400,17 +442,16 @@ class Unit(Structure):
         return self.ratio
 
 
-class Prime(Structure):
+class Prime(Epsg):
     """
+    Prime meridian.
+
     ```python
-    >>> Gryd.Prime(longitude=3.1416)
-    <Prime meridian epsg=0 longitude=180.000421>
-    >>> Gryd.Prime(epsg=8902)
-    <Prime meridian epsg=8902 longitude=-9.131906>
-    >>> Gryd.Prime(epsg=8902).name
+    >>> prime = Gryd.Prime(epsg=8902)
+    >>> prime
+    <Prime meridian epsg=8902 longitude=-009°07'54.862">
+    >>> prime.name
     'Lisbon'
-    >>> float(Gryd.Prime(epsg=8902))
-    -0.15938182862188002
     ```
     """
     table = "prime"
@@ -420,18 +461,15 @@ class Prime(Structure):
     ]
 
     def __repr__(self):
-        return "<Prime meridian epsg=%d longitude=%.6f>" % (
-            self.epsg, math.degrees(self.longitude)
+        return "<Prime meridian epsg=%d longitude=%r>" % (
+            self.epsg, dms(math.degrees(self.longitude))
         )
 
-    def __float__(self):
-        return self.longitude
 
-
-class Ellipsoid(Structure):
+class Ellipsoid(Epsg):
     """
     ```python
-    >>> wgs84 = Gryd.Ellipsoid(name="WGS 84")
+    >>> wgs84 = Gryd.Ellipsoid("WGS 84")
     >>> wgs84
     <Ellispoid epsg=7030 a=6378137.000000 1/f=298.25722356>
     ```
@@ -451,18 +489,18 @@ class Ellipsoid(Structure):
         )
 
     def __setattr__(self, attr, value):
-        Structure.__setattr__(self, attr, value)
+        Epsg.__setattr__(self, attr, value)
         if attr == "b":
-            Structure.__setattr__(self, "f", (self.a-value) / self.a)
-            Structure.__setattr__(self, "e", math.sqrt(2 * self.f - self.f**2))
+            Epsg.__setattr__(self, "f", (self.a-value) / self.a)
+            Epsg.__setattr__(self, "e", math.sqrt(2 * self.f - self.f**2))
         elif attr == "e":
-            Structure.__setattr__(
+            Epsg.__setattr__(
                 self, "b", math.sqrt(self.a**2 * (1 - value**2))
             )
-            Structure.__setattr__(self, "f", (self.a - self.b) / self.a)
+            Epsg.__setattr__(self, "f", (self.a - self.b) / self.a)
         elif attr == "f":
-            Structure.__setattr__(self, "e", math.sqrt(2 * value - value**2))
-            Structure.__setattr__(
+            Epsg.__setattr__(self, "e", math.sqrt(2 * value - value**2))
+            Epsg.__setattr__(
                 self, "b", math.sqrt(self.a**2 * (1 - self.e**2))
             )
 
@@ -512,13 +550,13 @@ class Ellipsoid(Structure):
         return result
 
 
-class Datum(Structure):
+class Datum(Epsg):
     """
     >>> Gryd.Datum(epsg=4326)
     <Datum epsg=4326:
-    - <Ellispoid epsg=7030 a=6378137.000000 1/f=298.25722356>
-    - <Prime meridian epsg=8901 longitude=0.000000>
-    - to wgs84 0.0,0.0,0.0,0.0,0.0,0.0,0.0
+        <Ellispoid epsg=7030 a=6378137.000000 1/f=298.25722356>
+        <Prime meridian epsg=8901 longitude=0.000000>
+        to wgs84: 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
     >
     """
     table = "datum"
@@ -536,35 +574,21 @@ class Datum(Structure):
     ]
 
     def __repr__(self):
-        return "<Datum epsg=%d:\n- <%r>\n- <%r>\n- to wgs84 %s\n>" % (
+        return "<Datum epsg=%d:\n%r\n%r\nto wgs84: %s\n>" % (
             self.epsg,
             self.ellipsoid,
             self.prime,
-            ",".join(str(getattr(self, attr)) for attr in [
+            ", ".join(str(getattr(self, attr)) for attr in [
                 "dx", "dy", "dz", "ds", "rx", "ry", "rz"
             ])
         )
 
     def __setattr__(self, attr, value):
-        if attr == "ellipsoid":
-            if isinstance(value, dict):
-                value = Ellipsoid(**value)
-            elif isinstance(value, int):
-                value = Ellipsoid(epsg=value)
-            elif isinstance(value, (str, bytes)):
-                value = Ellipsoid(name=value)
-            elif not isinstance(value, Ellipsoid):
-                raise Exception(
-                    "Cannot configure Datum with ellipsoid %r" % value
-                )
-        elif attr == "prime":
-            if isinstance(value, int):
-                value = Prime(epsg=value)
-            elif isinstance(value, (str, bytes)):
-                value = Prime(name=value)
-            elif not isinstance(value, Prime):
-                raise Exception("Cannot configure Datum with prime %r" % value)
-        Structure.__setattr__(self, attr, value)
+        if attr == "ellipsoid" and not isinstance(value, Ellipsoid):
+            value = Ellipsoid(value)
+        elif attr == "prime" and not isinstance(value, Prime):
+            value = Prime(value)
+        Epsg.__setattr__(self, attr, value)
 
     def xyz(self, lla):
         """
@@ -600,7 +624,7 @@ class Datum(Structure):
         return dst.lla(dat2dat(self, dst, self.xyz(lla)))
 
 
-class Crs(Structure):
+class Crs(Epsg):
     """
     ```python
     >>> pvs = Gryd.Crs(epsg=3785)
@@ -611,12 +635,13 @@ class Crs(Structure):
     <Distance 463.981km initial bearing=113.6 final bearing=118.5>
     >>> osgb36
     <Crs epsg=27700:
-    - <Datum epsg=4277:
-    - <Ellispoid epsg=7001 a=6377563.396000 1/f=299.32496460>
-    - <Prime meridian epsg=8901 longitude=0.000000>
-    - to wgs84 446.45,-125.16,542.06,-20.49,0.15,0.25,0.84>
-    - <Unit epsg=9001 ratio=1.0>
-    - <Projection 'tmerc'>
+    <Datum epsg=4277:
+    <Ellispoid epsg=7001 a=6377563.396000 1/f=299.32496460>
+    <Prime meridian epsg=8901 longitude=0.000000>
+    to wgs84 446.45,-125.16,542.06,-20.49,0.15,0.25,0.84>
+    >
+    <Unit epsg=9001 ratio=1.0>
+    <Projection 'tmerc'>
     >
     ```
     """
@@ -640,62 +665,47 @@ class Crs(Structure):
             self.__dict__.pop("forward")
         if hasattr(self, "inverse"):
             self.__dict__.pop("inverse")
-        return Structure.__reduce__(self)
+        return Epsg.__reduce__(self)
 
     def __repr__(self):
-        return "Crs epsg=%d:\n- <%r>\n- <%r>\n- <Projection %r>\n>" % (
-            self.epsg, self.datum, self.unit, self.projection
+        return "<Crs epsg=%d:\n%r\n<Projection %r>\n%r>" % (
+            self.epsg, self.unit, self.projection, self.datum
         )
 
     def __init__(self, *args, **kwargs):
         self._points = []
         self.projection = "latlong"
-        Structure.__init__(self, *args, **kwargs)
+        Epsg.__init__(self, *args, **kwargs)
         self.unit = kwargs.pop("unit", 9001)
 
     def __setattr__(self, attr, value):
-        if attr == "datum":
-            if isinstance(value, dict):
-                value = Datum(**value)
-            elif isinstance(value, int):
-                value = Datum(epsg=value)
-            elif isinstance(value, (str, bytes)):
-                value = Datum(name=value)
-            elif not isinstance(value, Datum):
-                raise Exception("Cannot configure Crs with datum %r" % value)
-        elif attr == "unit":
-            if isinstance(value, int):
-                value = Unit(epsg=value)
-            elif isinstance(value, (str, bytes)):
-                value = Unit(name=value)
-            elif not isinstance(value, Unit):
-                raise Exception("Cannot configure Crs with unit %r" % value)
+        if attr == "datum" and not isinstance(value, Datum):
+            value = Datum(value)
+        elif attr == "unit" and not isinstance(value, Unit):
+            value = Unit(value)
         elif attr == "projection":
-            record = Structure.sqlite.execute(
+            record = Epsg.sqlite.execute(
                 "SELECT * from projection WHERE epsg=%r;" % value
             ).fetchall()
             if len(record) > 0:
                 value = record[0]["typeproj"]
             if value in __c_proj__:
-                eval(
-                    'Structure.__setattr__(self, "forward", %s_forward)' %
-                    value
-                )
-                eval(
-                    'Structure.__setattr__(self, "inverse", %s_inverse)' %
-                    value
-                )
+                Epsg.__setattr__(self, "forward", getattr(
+                    sys.modules[__name__], value + "_forward"
+                ))
+                Epsg.__setattr__(self, "inverse", getattr(
+                    sys.modules[__name__], value + "_inverse"
+                ))
             elif value in __py_proj__:
                 module = __import__(
-                    'Gryd.'+value, globals(), locals(), [value], 0
+                    'Gryd.' + value, globals(), locals(), [value], 0
                 )
-                Structure.__setattr__(self, "forward", module.forward)
-                Structure.__setattr__(self, "inverse", module.inverse)
+                Epsg.__setattr__(self, "forward", module.forward)
+                Epsg.__setattr__(self, "inverse", module.inverse)
             else:
                 value = "latlong"
-                Structure.__setattr__(
-                    self,
-                    "forward",
+                Epsg.__setattr__(
+                    self, "forward",
                     lambda ellps, lla, o=self:
                         Geographic(
                             lla.longitude * ellps.a,
@@ -703,9 +713,8 @@ class Crs(Structure):
                             lla.altitude
                         )
                 )
-                Structure.__setattr__(
-                    self,
-                    "inverse",
+                Epsg.__setattr__(
+                    self, "inverse",
                     lambda ellps, xya, o=self:
                         Geodesic(
                             xya.x / ellps.a,
@@ -713,7 +722,7 @@ class Crs(Structure):
                             xya.altitude
                         )
                 )
-        Structure.__setattr__(self, attr, value)
+        Epsg.__setattr__(self, attr, value)
 
     def __call__(self, element):
         """
@@ -831,7 +840,7 @@ class Crs(Structure):
             point = self(point)
         elif isinstance(point, Grid):
             raise Exception(
-                "only works with Geographic or Geodesic points  "
+                "only works with Geographic or Geodesic points "
                 "(Grid points given instead)"
             )
 
@@ -872,45 +881,60 @@ def _Geodesic__repr(obj):
 setattr(Geodesic, "__repr__", _Geodesic__repr)
 
 
-# loading libgeoid library
+#######################
+# loading C libraries #
+#######################
+# defining library name
+__dll_ext__ = "dll" if sys.platform.startswith("win") else \
+              "so" if sys.platform.startswith("linux") else \
+              "so"
+if not(2 ** 32 // 2 - 1 == sys.maxsize):
+    __dll_ext__ = "64." + __dll_ext__
 geoid = ctypes.CDLL(get_data_file("lib/geoid.%s" % __dll_ext__))
-# shortcuts
+proj = ctypes.CDLL(get_data_file("lib/proj.%s" % __dll_ext__))
+
+# shortcuts to C functions
 dms = geoid.dms
-dmm = geoid.dmm
-geocentric = geoid.geocentric
-geodesic = geoid.geodesic
-distance = geoid.distance
-destination = geoid.destination
-dat2dat = geoid.dat2dat
-npoints = geoid.npoints
-lagrange = geoid.lagrange
-# prototypes
 dms.argtypes = [ctypes.c_double]
 dms.restype = Dms
+
+dmm = geoid.dmm
 dmm.argtypes = [ctypes.c_double]
 dmm.restype = Dmm
+
+geocentric = geoid.geocentric
 geocentric.argtypes = [ctypes.POINTER(Ellipsoid), ctypes.POINTER(Geodesic)]
 geocentric.restype = Geocentric
+
+geodesic = geoid.geodesic
 geodesic.argtypes = [ctypes.POINTER(Ellipsoid), ctypes.POINTER(Geocentric)]
 geodesic.restype = Geodesic
+
+distance = geoid.distance
 distance.argtypes = [
     ctypes.POINTER(Ellipsoid),
     ctypes.POINTER(Geodesic),
     ctypes.POINTER(Geodesic)
 ]
 distance.restype = Vincenty_dist
+
+destination = geoid.destination
 destination.argtypes = [
     ctypes.POINTER(Ellipsoid),
     ctypes.POINTER(Geodesic),
     ctypes.POINTER(Vincenty_dist)
 ]
 destination.restype = Vincenty_dest
+
+dat2dat = geoid.dat2dat
 dat2dat.argtypes = [
     ctypes.POINTER(Datum),
     ctypes.POINTER(Datum),
     ctypes.POINTER(Geocentric)
 ]
 dat2dat.restype = Geocentric
+
+npoints = geoid.npoints
 npoints.argtypes = [
     ctypes.POINTER(Ellipsoid),
     ctypes.POINTER(Geodesic),
@@ -918,6 +942,8 @@ npoints.argtypes = [
     ctypes.c_int
 ]
 npoints.restype = ctypes.POINTER(Vincenty_dest)
+
+lagrange = geoid.lagrange
 lagrange.argtypes = [
     ctypes.c_double,
     ctypes.POINTER(ctypes.c_double),
@@ -925,14 +951,21 @@ lagrange.argtypes = [
     ctypes.c_int
 ]
 lagrange.restype = ctypes.c_double
-# loading projection library
-proj = ctypes.CDLL(get_data_file("lib/proj.%s" % __dll_ext__))
+
 for name in __c_proj__:
-    exec("""
-%(name)s_forward = proj.%(name)s_forward
-%(name)s_forward.argtypes = [ctypes.POINTER(Crs), ctypes.POINTER(Geodesic)]
-%(name)s_forward.restype = Geographic
-%(name)s_inverse = proj.%(name)s_inverse
-%(name)s_inverse.argtypes = [ctypes.POINTER(Crs), ctypes.POINTER(Geographic)]
-%(name)s_inverse.restype = Geodesic
-""" % {"name": name})
+    forward_name = name + "_forward"
+    inverse_name = name + "_inverse"
+
+    setattr(
+        getattr(proj, forward_name), "argtypes",
+        [ctypes.POINTER(Crs), ctypes.POINTER(Geodesic)]
+    )
+    setattr(getattr(proj, forward_name), "restype", Geographic)
+    setattr(sys.modules[__name__], forward_name, getattr(proj, forward_name))
+
+    setattr(
+        getattr(proj, inverse_name), "argtypes",
+        [ctypes.POINTER(Crs), ctypes.POINTER(Geographic)]
+    )
+    setattr(getattr(proj, inverse_name), "restype", Geodesic)
+    setattr(sys.modules[__name__], inverse_name, getattr(proj, inverse_name))
