@@ -1,0 +1,339 @@
+<html>
+
+<head>
+<title>Map File Format</title>
+<meta name="GENERATOR" content="Microsoft FrontPage 5.0">
+</head>
+
+<body BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#0000FF" VLINK="#0000FF">
+
+<p><font color="#0000FF"><big><strong>Map File Format</strong></big></font></p>
+
+<p>In the text below the lines in the map file are marked with a dot.</p>
+
+<p>Only those parameters which can be modified/created by the user are 
+described, parameters which are used for special cases are not described.</p>
+
+<p><b><font color="#008000">The lines in green are optional </font></b> </p>
+
+<p><strong><font color="#0000FF">The Map File</font></strong></p>
+
+<p>The lines are in the order they are in the map file.</p>
+
+<hr>
+
+<p>Header and Version of File 
+
+<ul>
+  <li>OziExplorer Map Data File Version 2.1</li>
+</ul>
+
+<hr>
+
+<p>Title of Map - any text string 
+
+<ul>
+  <li>Brisbane Region</li>
+</ul>
+
+<hr>
+
+<p>Link to map image file 
+
+<ul>
+  <li>D:\OziMaps\regional\south.ozf2</li>
+</ul>
+
+<p>Can be 1 of 2 things 
+
+<ul>
+  <li>1 TIFF scale factor - redundant, no longer used and has been replaced by 
+  line below</li>
+  <li>1 ,Map Code, - only used for special types of maps - <b>Note</b> - cannot 
+  be modified by the user but must be there.</li>
+</ul>
+
+<hr>
+
+<p>Datum settings 
+
+<ul>
+  <li>WGS 84,, 0.0000, 0.0000,WGS 84 - <b>Note</b> - for normal maps only the 
+  datum in the first field is used the rest of the parameters are for datum shifts and 
+  there is normally no need for these to be modified by the user.</li>
+</ul>
+
+<hr>
+
+<p>Reserved fields, the lines must be there 
+
+<ul>
+  <li>Reserved 1</li>
+  <li>Reserved 2</li>
+</ul>
+
+<hr>
+
+<p>Magnetic Variation entry - degrees,minutes 
+
+<ul>
+  <li>Magnetic Variation,,,E</li>
+</ul>
+
+<hr>
+
+<p>Map Projection 
+
+<ul>
+  <li>Map Projection,Lambert Conformal Conic,PolyCal,No,AutoCalOnly,No,BSBUseWPX,Yes</li>
+</ul>
+
+<p>Parameters</p>
+<ol>
+  <li>Map Projection - must match the projection name used in OziExplorer</li>
+  <li>PolyCal - the next parameter is Yes if Polynomial calibration is used and 
+  No if not</li>
+  <li>AutoCalOnly - Yes if calibration cannot be adjusted by the user No if it 
+  can</li>
+  <li>BSBUseWPX - For BSB images only, Yes if the calibration equations 
+  contained in the BSB file are used.</li>
+</ol>
+<hr>
+
+<p>Calibration points, there are always 30<br>
+Only 9 points can be modified from within OziExplorer but OziExplorer will use 
+the full 30 if they exist in the .map file.<ul>
+  <li>Point01,xy, 494, 235,in, deg, 24, 0,S, 148, 0,E, grid, , , ,S</li>
+  <li>Point02,xy, 4076, 238,in, deg, 24, 0,S, 154, 0,E, grid, , , ,S</li>
+  <li>Point03,xy, 4011, 2854,in, deg, 28, 0,S, 154, 0,E, grid, , , ,S</li>
+  <li>Point04,xy, 550, 2851,in, deg, 28, 0,S, 148, 0,E, grid, , , ,S</li>
+  <li>Point05,xy, , ,in, deg, , ,S, , ,E, grid, , , ,S</li>
+  <li>Point06,xy, , ,in, deg, , ,S, , ,E, grid, , , ,S</li>
+  <li>...</li>
+  <li>Point30,xy, , ,in, deg, , ,N, , ,W, grid, , , ,N</li>
+</ul>
+
+<hr>
+
+<p>Projection setup parmeters, all on one line. 
+
+<ul>
+  <li>Projection Setup, 0.000000000, 152.000000000, 1.000000000, 2500000.00, 100000.00,
+    -24.666667000, -27.333333000,,,</li>
+</ul>
+
+<p>Parameters</p>
+<ol>
+  <li>Latitude Origin</li>
+  <li>Longitude Origin</li>
+  <li>K Factor</li>
+  <li>False Easting</li>
+  <li>False Northing</li>
+  <li>Latitude 1</li>
+  <li>Latitude 2</li>
+  <li>Height - used in the Vertical Near-Sided Perspective Projection</li>
+  <li>Sat - not used</li>
+  <li>Path - not used</li>
+</ol>
+<hr>
+
+<p>A marker line, it contains no information but is used as a file marker, must be there 
+
+<ul>
+  <li>Map Feature = MF ; Map Comment = MC These follow if they exist</li>
+</ul>
+
+<p><font color="#008000">Map Features, there are 3 lines per feature</font><p><font color="#008000">Line 1 Parameters</font><ol>
+  <li><font color="#008000">Number</font></li>
+  <li><font color="#008000">Name</font></li>
+  <li><font color="#008000">Latitude</font></li>
+  <li><font color="#008000">Longitude</font></li>
+  <li><font color="#008000">Show Format - not used</font></li>
+  <li><font color="#008000">Fore Color</font></li>
+  <li><font color="#008000">Back Color</font></li>
+  <li><font color="#008000">Symbol Name</font></li>
+  <li><font color="#008000">Create Waypoint</font></li>
+  <li><font color="#008000">Waypoint Name</font></li>
+  <li><font color="#008000">Format Type - internal use</font></li>
+  </ol>
+
+<p><font color="#008000">Line 2 - the link to the picture, if there is no picture a blank line must be there<br>
+Line 3 - the description of the feature, if no description the blank line must be there</font>
+
+<ul>
+  <li><font color="#008000">MF, 1,MF 1 , -26.557302, 152.679007, 0, 16777215, 16711680, ,1,MF1
+    </font></li>
+  <li><font color="#008000">c:\pictures\photo5.jpg</font></li>
+  <li><font color="#008000">This is a good camping spot</font></li>
+  <li><font color="#008000">MF, 2,MF 7 , -26.713354, 153.249176, 0, 16777215,
+    16711680,Asterisk.bmp ,1,MF7 </font></li>
+</ul>
+
+<p><font color="#008000">Map Comments, there are 2 lines per comment</font><p><font color="#008000">Line 1 Parameters</font><ol>
+    <li><font color="#008000">Number</li>
+    <li>Latitude</li>
+    <li>Longitude</li>
+    <li>Show Format - not used</li>
+    <li>Fore Color</li>
+    <li>Back Color</li>
+    <li>Width</li>
+    <li>Height</li>
+    <li>Font Size</li>
+    <li>Font Style</font></li>
+    </ol>
+
+<p><font color="#008000">Line 2 - The text for the comment</font> 
+
+<ul>
+  <li><font color="#008000">MC, 1, -26.572626, 152.512726, 0, 0, 65280, 68,20,6,0</font></li>
+  <li><font color="#008000">Map Comment 1</font></li>
+  <li><font color="#008000">MC, 2, -26.661532, 152.633450, 0, 0, 13158342, 182,82,13,1</font></li>
+  <li><font color="#008000">Map Comment 2 This is a large map comment</font></li>
+  <li><font color="#008000">MC, 3, -26.659946, 152.634492, 0, 0, 13158342, 182,82,13,1</font></li>
+  <li><font color="#008000">Map Comment 3</font></li>
+</ul>
+
+<p><font color="#008000">Attached file marker, .plt, .wpt, .evt, .pnt files can be
+included</font> 
+
+<ul>
+  <li><font color="#008000">Track File = TF These follow if they exist</font></li>
+</ul>
+
+<p><font color="#008000">The attached files - not limited to just track files</font><ul>
+  <li><font color="#008000">TF,e:\GpsMap\Data\000_2.plt</font></li>
+  <li><font color="#008000">TF,e:\GpsMap\Data\aa_demo1.plt</font></li>
+  <li><font color="#008000">TF,e:\GpsMap\Data\000_test.plt</font></li>
+  <li><font color="#008000">TF,e:\GpsMap\Data\001_test.plt</font></li>
+  <li><font color="#008000">TF,e:\GpsMap\Data\aaa.pnt</font></li>
+  <li><font color="#008000">TF,e:\GpsMap\Data\names.pnt</font></li>
+</ul>
+
+    <hr>
+
+<p>The Moving Map section marker 
+
+<ul>
+  <li>Moving Map Parameters = MM? These follow if they exist</li>
+</ul>
+
+<p>Use in Moving Map, if this parameter is set to No then the map will be excluded when
+looking for a new map to change to when using moving map mode. It does not affect other
+map find functions. 
+
+<ul>
+  <li>MM0,Yes</li>
+</ul>
+
+<p>Number of Map border points (corner markers)<br>
+Only 4 points can be set graphically in OziExplorer but up to 100 points can be used when
+derived from other sources, such as importing BSB charts. 
+
+<ul>
+  <li>MMPNUM,4</li>
+</ul>
+
+<p>The x, y pixel location of each border point, there must be an entry for each border
+point.<br>
+These are used by OziExplorer as the map loads to determine the map border points. 
+
+<ul>
+  <li>MMPXY,1,494,234</li>
+  <li>MMPXY,2,4076,238</li>
+  <li>MMPXY,3,4012,2855</li>
+  <li>MMPXY,4,549,2852</li>
+</ul>
+
+<p>The lat, lon position of each border point, there must be an entry for each border
+point.<br>
+These values are used in the map find and moving map functions when looking for maps.<br>
+If these values are not there then the map will never be found.<br>
+If these values do not agree with the MMPXY points (after map calibration is 
+applied) then map finding in moving map will not function correctly.<br>
+These values will be overwritten by the calculated value from the above x, y points every
+time the map is saved. 
+
+<ul>
+  <li>MMPLL,1, 147.999332, -23.998496</li>
+  <li>MMPLL,2, 154.000701, -23.999946</li>
+  <li>MMPLL,3, 154.001025, -28.001546</li>
+  <li>MMPLL,4, 147.998983, -28.001469</li>
+</ul>
+
+<p>The scale of the image meters/pixel, its calculated in the left / right image 
+direction.<br>
+It is calculated each time OziExplorer is run, the value in the file is used when
+searching for maps of &quot;more detailed&quot; scale. 
+
+<ul>
+  <li>MM1B,170.352987</li>
+</ul>
+
+    <hr>
+
+<p><font color="#008000">The lat/lon grid setup</font> 
+
+<ul>
+  <li><font color="#008000">LL Grid Setup</font></li>
+  <li><font color="#008000">LLGRID,No,10 Min,Yes,8421504,255,16711935,10
+    Min,16777215,8421504,9,1,Yes,x</font></li>
+</ul>
+
+    <p><font color="#008000">Parameters</p>
+    <ol>
+      <li>LLGRID - identifier</li>
+      <li>Grid On - Yes = display grid</li>
+      <li>Grid spacing - number and unit</li>
+      <li>Autoscale - Yes = autoscale on</li>
+      <li>Degree line color</li>
+      <li>Minute line color</li>
+      <li>second line color</li>
+      <li>label spacing - number and unit</li>
+      <li>label fore color</li>
+      <li>label back color</li>
+      <li>label size</li>
+      <li>label - show on all screens</li>
+      <li>x - ignore</font></li>
+    </ol>
+
+<p><font color="#008000">The Other grid setup</font> 
+
+<ul>
+  <li><font color="#008000">Other Grid Setup</font></li>
+  <li><font color="#008000">GRGRID,No,10 Km,Yes,255,16711680,10
+    Km,16711680,16777215,9,1,Yes,Yes,No,x</font></li>
+</ul>
+
+    <font color="#008000">
+    <ol>
+      <li>GRGRID - identifier</li>
+      <li>Grid On - Yes = display grid</li>
+      <li>Grid spacing - number and unit</li>
+      <li>Autoscale - Yes = autoscale on</li>
+      <li>Km line color</li>
+      <li>Meter line color</li>
+      <li>label spacing - number and unit</li>
+      <li>label fore color</li>
+      <li>label back color</li>
+      <li>label size</li>
+      <li>label - show on all screens</li>
+      <li>Clip to neat line</li>
+      <li>No meters shown in label ??</li>
+      <li>Show last 3 digits in label ??</li>
+      <li>x - ignore</font></li>
+    </ol>
+
+<p><font color="#008000">The position the map will display when it is opened</font> 
+
+<ul>
+  <li><font color="#008000">MOP,Map Open Position,3008,2324</font></li>
+</ul>
+
+<p><font color="#008000">The map image width and height - not used, just for 
+information</font><ul>
+  <li><font color="#008000">IWH,Map Image Width/Height,4440,3590</font></li>
+</ul>
+
+<p>&nbsp;</p>
+</body>
+</html>
