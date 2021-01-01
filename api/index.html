@@ -150,7 +150,6 @@ using epsg id or name:</p>
 <li>Mercator</li>
 <li>Transverse Mercator</li>
 <li>Lambert Conformal Conic.</li>
-<li>Oblique Mercator</li>
 <li>Miller</li>
 </ul>
 <p><strong>Grids</strong></p>
@@ -168,7 +167,7 @@ calibration <code>Points</code> (two minimum are required).</p>
 <pre><code class="language-python">&gt;&gt;&gt; import Gryd
 &gt;&gt;&gt; dublin = Gryd.Geodesic(-6.259437, 53.350765, 0.)
 &gt;&gt;&gt; dublin
-&lt;lon=-006°15'33.973&quot; lat=+053°21'2.754&quot; alt=0.000&gt;
+&lt;lon=-006Â°15'33.973&quot; lat=+053Â°21'2.754&quot; alt=0.000&gt;
 &gt;&gt;&gt; utm = Gryd.Crs(epsg=3395, projection=&quot;utm&quot;)
 &gt;&gt;&gt; utm(dublin)
 &lt;area=29U E=682406.211 N=5914792.531, alt=0.000&gt;
@@ -252,7 +251,7 @@ function.</p>
 returned by <code>Gryd.dms</code> function.</p>
 <pre><code class="language-python">&gt;&gt;&gt; d = Gryd.dms(-60.42286847222222)
 &gt;&gt;&gt; d
--060°25'22.326&quot;
+-060Â°25'22.326&quot;
 &gt;&gt;&gt; float(d)
 -60.42286847222222
 </code></pre>
@@ -264,7 +263,7 @@ returned by <code>Gryd.dms</code> function.</p>
 <code>Gryd.dmm</code> function.</p>
 <pre><code class="language-python">&gt;&gt;&gt; d = Gryd.dmm(-60.42286847222222)
 &gt;&gt;&gt; d
--060°25.372108'
+-060Â°25.372108'
 &gt;&gt;&gt; float(d)
 -60.42286847222222
 </code></pre>
@@ -315,7 +314,7 @@ initialization.</p>
 <p>Prime meridian.</p>
 <pre><code class="language-python">&gt;&gt;&gt; prime = Gryd.Prime(epsg=8902)
 &gt;&gt;&gt; prime
-&lt;Prime meridian epsg=8902 longitude=-009°07'54.862&quot;&gt;
+&lt;Prime meridian epsg=8902 longitude=-009Â°07'54.862&quot;&gt;
 &gt;&gt;&gt; prime.name
 'Lisbon'
 </code></pre>
@@ -323,6 +322,8 @@ initialization.</p>
 <h2 id="ellipsoid-objects">Ellipsoid Objects</h2>
 <pre><code class="language-python">class Ellipsoid(Epsg)
 </code></pre>
+<p>Ellipsoid model. If initialized with no args nor keyword args, it is a
+6378137-meters-radius sphere.</p>
 <pre><code class="language-python">&gt;&gt;&gt; wgs84 = Gryd.Ellipsoid(&quot;WGS 84&quot;)
 &gt;&gt;&gt; wgs84
 &lt;Ellispoid epsg=7030 a=6378137.000000 1/f=298.25722356&gt;
@@ -331,34 +332,52 @@ initialization.</p>
 <h4 id="distance">distance</h4>
 <pre><code class="language-python"> | distance(lla0, lla1)
 </code></pre>
+<p>Return Vincenty distance between two geodesic points.</p>
 <pre><code>&gt;&gt;&gt; london = Gryd.Geodesic(-0.127005, 51.518602, 0.)
 &gt;&gt;&gt; dublin = Gryd.Geodesic(-6.259437, 53.350765, 0.)
 &gt;&gt;&gt; wgs84.distance(dublin, london)
 &lt;Distance 464.025km initial bearing=113.6 final bearing=118.5&gt;
 </code></pre>
+<p><strong>Arguments</strong>:</p>
+<ul>
+<li><code>lla0</code> <em>Gryd.Geodesic</em> - point A</li>
+<li><code>lla1</code> <em>Gryd.Geodesic</em> - point B</li>
+</ul>
+<p><strong>Returns</strong>:</p>
+<p><code>Gryd.Vincenty_dist</code> structure</p>
 <p><a name="Gryd.Ellipsoid.destination"></a></p>
 <h4 id="destination">destination</h4>
 <pre><code class="language-python"> | destination(lla, bearing, distance)
 </code></pre>
+<p>Return Vincenty destination from geodesic start point folowing
+specific bearing for a determined distance.</p>
 <pre><code class="language-python">&gt;&gt;&gt; wgs84.destination(
 ...     london, math.degrees(vdist.final_bearing) + 180, vdist.distance
 ... )
-&lt;Destination lon=-006°15'33.973&quot; lat=+053°21'2.754&quot; end bearing=-66.4°&gt;
+&lt;Destination lon=-006Â°15'33.973&quot; lat=+053Â°21'2.754&quot; end bearing=-66.4Â°&gt;
 &gt;&gt;&gt; dublin
-&lt;lon=-006°15'33.973&quot; lat=+053°21'2.754&quot; alt=0.000&gt;
+&lt;lon=-006Â°15'33.973&quot; lat=+053Â°21'2.754&quot; alt=0.000&gt;
 </code></pre>
+<p><strong>Arguments</strong>:</p>
+<ul>
+<li><code>lla</code> <em>Gryd.Geodesic</em> - start point</li>
+<li><code>bearing</code> <em>float</em> - start bearing in degrees</li>
+<li><code>distance</code> <em>float</em> - distance in meters</li>
+</ul>
+<p><strong>Returns</strong>:</p>
+<p><code>Gryd.Vincenty_dest</code> structure</p>
 <p><a name="Gryd.Ellipsoid.npoints"></a></p>
 <h4 id="npoints">npoints</h4>
 <pre><code class="language-python"> | npoints(lla0, lla1, n)
 </code></pre>
 <pre><code class="language-python">&gt;&gt;&gt; for p in wgs84.npoints(dublin, londre, 4): print(p)
 ...
-&lt;Destination lon=-006°15'33.973&quot; lat=+053°21'2.754&quot; end bearing=113.6&gt;
-&lt;Destination lon=-004°59'32.422&quot; lat=+053°00'36.687&quot; end bearing=114.6&gt;
-&lt;Destination lon=-003°44'43.501&quot; lat=+052°39'22.715&quot; end bearing=115.6&gt;
-&lt;Destination lon=-002°31'7.792&quot; lat=+052°17'22.201&quot; end bearing=116.6&gt;
-&lt;Destination lon=-001°18'45.650&quot; lat=+051°54'36.502&quot; end bearing=117.5&gt;
-&lt;Destination lon=-000°07'37.218&quot; lat=+051°31'6.967&quot; end bearing=118.5&gt;
+&lt;Destination lon=-006Â°15'33.973&quot; lat=+053Â°21'2.754&quot; end bearing=113.6&gt;
+&lt;Destination lon=-004Â°59'32.422&quot; lat=+053Â°00'36.687&quot; end bearing=114.6&gt;
+&lt;Destination lon=-003Â°44'43.501&quot; lat=+052Â°39'22.715&quot; end bearing=115.6&gt;
+&lt;Destination lon=-002Â°31'7.792&quot; lat=+052Â°17'22.201&quot; end bearing=116.6&gt;
+&lt;Destination lon=-001Â°18'45.650&quot; lat=+051Â°54'36.502&quot; end bearing=117.5&gt;
+&lt;Destination lon=-000Â°07'37.218&quot; lat=+051Â°31'6.967&quot; end bearing=118.5&gt;
 </code></pre>
 <p><a name="Gryd.Datum"></a></p>
 <h2 id="datum-objects">Datum Objects</h2>
@@ -382,9 +401,9 @@ to wgs84: 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0&gt;
 <pre><code class="language-python"> | lla(xyz)
 </code></pre>
 <pre><code class="language-python">&gt;&gt;&gt; wgs84.lla(wgs84.xyz(london))
-&lt;lon=-000°07'37.218&quot; lat=+051°31'6.967&quot; alt=0.000&gt;
+&lt;lon=-000Â°07'37.218&quot; lat=+051Â°31'6.967&quot; alt=0.000&gt;
 &gt;&gt;&gt; london
-&lt;lon=-000°07'37.218&quot; lat=+051°31'6.967&quot; alt=0.000&gt;
+&lt;lon=-000Â°07'37.218&quot; lat=+051Â°31'6.967&quot; alt=0.000&gt;
 </code></pre>
 <p><a name="Gryd.Datum.transform"></a></p>
 <h4 id="transform">transform</h4>
@@ -392,7 +411,7 @@ to wgs84: 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0&gt;
 </code></pre>
 <pre><code class="language-python">&gt;&gt;&gt; airy = Gryd.Datum(epsg=4277)
 &gt;&gt;&gt; wgs84.transform(airy, london)
-&lt;lon=-000°07'31.431'' lat=+051°31'5.137'' alt=-46.118&gt;
+&lt;lon=-000Â°07'31.431'' lat=+051Â°31'5.137'' alt=-46.118&gt;
 </code></pre>
 <p><a name="Gryd.Crs"></a></p>
 <h2 id="crs-objects">Crs Objects</h2>
@@ -413,6 +432,11 @@ to wgs84 446.45,-125.16,542.06,-20.49,0.15,0.25,0.84&gt;
 &lt;Unit epsg=9001 ratio=1.0&gt;
 Projection 'tmerc'&gt;
 </code></pre>
+<p><a name="Gryd.Crs.__reduce__"></a></p>
+<h4 id="__reduce__">__reduce__</h4>
+<pre><code class="language-python"> | __reduce__()
+</code></pre>
+<p>special method that allows <code>Gryd.Crs</code> instance to be pickled</p>
 <p><a name="Gryd.Crs.__call__"></a></p>
 <h4 id="__call__">__call__</h4>
 <pre><code class="language-python"> | __call__(element)
@@ -420,7 +444,7 @@ Projection 'tmerc'&gt;
 <pre><code class="language-python">&gt;&gt;&gt; osgb36(london)  # projection of Geodesic point
 &lt;X=529939.106 Y=181680.962s alt=0.000&gt;
 &gt;&gt;&gt; osgb36(osgb36(london))  # deprojection of Geographic point
-&lt;lon=-000°07'37.218&quot; lat=+051°31'6.967&quot; alt=0.000&gt;
+&lt;lon=-000Â°07'37.218&quot; lat=+051Â°31'6.967&quot; alt=0.000&gt;
 </code></pre>
 <p><a name="Gryd.Crs.transform"></a></p>
 <h4 id="transform_1">transform</h4>
@@ -445,7 +469,7 @@ Projection 'tmerc'&gt;
 <pre><code class="language-python"> | map2crs(px, py, geographic=False)
 </code></pre>
 <pre><code class="language-python">&gt;&gt;&gt; pvs.map2crs(256+128, 256+128)
-&lt;lon=+089°59'58.20'' lat=-066°23'43.74'' alt=0.000&gt;
+&lt;lon=+089Â°59'58.20'' lat=-066Â°23'43.74'' alt=0.000&gt;
 &gt;&gt;&gt; pvs.map2crs(256-128, 256+128, geographic=True)
 &lt;point X=-10018698.512 Y=-9985934.440s alt=0.000&gt;
 </code></pre>
@@ -455,7 +479,7 @@ Projection 'tmerc'&gt;
 </code></pre>
 <pre><code class="language-python">&gt;&gt;&gt; pvs.crs2map(pvs.map2crs(256+128, 256+128))
 &lt;px=384 py=384
-- &lt;lon=+089°59'58.20'' lat=-066°23'43.74'' alt=0.000&gt;
+- &lt;lon=+089Â°59'58.20'' lat=-066Â°23'43.74'' alt=0.000&gt;
 - &lt;X=10018698.512 Y=-9985934.440s alt=0.000&gt;
 &gt;
 </code></pre></div>

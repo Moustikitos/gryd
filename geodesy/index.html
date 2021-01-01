@@ -126,7 +126,7 @@
 </ul>
 <pre><code class="language-python">&gt;&gt;&gt; dublin = Gryd.Geodesic(-6.272877, 53.344606, 105.)
 &gt;&gt;&gt; dublin
-&lt;lon=-006°16'22.357&quot; lat=+053°20'40.582&quot; alt=105.000&gt;
+&lt;lon=-006Â°16'22.357&quot; lat=+053Â°20'40.582&quot; alt=105.000&gt;
 </code></pre>
 <p><a name="Gryd.geodesy.Geodesic.encrypt"></a></p>
 <h4 id="encrypt">encrypt</h4>
@@ -187,9 +187,9 @@ b'\xbda\xe0\xa3\xe9\xbd\x1d\x86\xe0_a1\x8bV2\xe0aV\xbd2\xcd\xe0\xe0'
 </code></pre>
 <p>Return Geodesic object geohash.</p>
 <pre><code class="language-python">&gt;&gt;&gt; Gryd.Geodesic.from_geohash('gc7x3r04z7')
-&lt;lon=-006°16'22.347&quot; lat=+053°20'40.590&quot; alt=0.000&gt;
+&lt;lon=-006Â°16'22.347&quot; lat=+053Â°20'40.590&quot; alt=0.000&gt;
 &gt;&gt;&gt; Gryd.Geodesic.from_geohash('gc7x3r04z77csw')
-&lt;lon=-006°16'22.357&quot; lat=+053°20'40.582&quot; alt=0.000&gt;
+&lt;lon=-006Â°16'22.357&quot; lat=+053Â°20'40.582&quot; alt=0.000&gt;
 </code></pre>
 <p><strong>Arguments</strong>:</p>
 <ul>
@@ -248,9 +248,9 @@ b'\xbda\xe0\xa3\xe9\xbd\x1d\x86\xe0_a1\x8bV2\xe0aV\xbd2\xcd\xe0\xe0'
 </code></pre>
 <p>Return Geodesic object from georef.</p>
 <pre><code class="language-python">&gt;&gt;&gt; Gryd.Geodesic.from_georef('MKJJ43322037')
-&lt;lon=-006°16'21.900&quot; lat=+053°20'41.100&quot; alt=0.000&gt;
+&lt;lon=-006Â°16'21.900&quot; lat=+053Â°20'41.100&quot; alt=0.000&gt;
 &gt;&gt;&gt; Gryd.Geodesic.from_georef('MKJJ433220')    
-&lt;lon=-006°15'57.000&quot; lat=+053°22'45.000&quot; alt=0.000&gt;
+&lt;lon=-006Â°15'57.000&quot; lat=+053Â°22'45.000&quot; alt=0.000&gt;
 </code></pre>
 <p><strong>Arguments</strong>:</p>
 <ul>
@@ -274,9 +274,9 @@ b'\xbda\xe0\xa3\xe9\xbd\x1d\x86\xe0_a1\x8bV2\xe0aV\xbd2\xcd\xe0\xe0'
 <p>Return Geodesic object from gars. Optional anchor value to define
 where to handle 5minx5min tile.</p>
 <pre><code class="language-python">&gt;&gt;&gt; Gryd.Geodesic.from_gars('348MY16', anchor=&quot;nw&quot;)
-&lt;lon=-006°20'0.000&quot; lat=+053°25'0.000&quot; alt=0.000&gt;
+&lt;lon=-006Â°20'0.000&quot; lat=+053Â°25'0.000&quot; alt=0.000&gt;
 &gt;&gt;&gt; Gryd.Geodesic.from_gars('348MY16')
-&lt;lon=-006°17'30.000&quot; lat=+053°22'30.000&quot; alt=0.000&gt;
+&lt;lon=-006Â°17'30.000&quot; lat=+053Â°22'30.000&quot; alt=0.000&gt;
 </code></pre>
 <p><strong>Arguments</strong>:</p>
 <ul>
@@ -295,8 +295,6 @@ integer.</p>
 &lt;01111010110011111101000111011100000001001111100111&gt;
 &gt;&gt;&gt; geohash.as_str(dublin)
 'gc7x3r04z7'
-&gt;&gt;&gt; geohash.geohash(-6.272877, 53.344606, digit=10)
-'gc7x3r04z7'
 </code></pre>
 <p>Geohash can be encoded with a custom 32-element-sized base.</p>
 <pre><code class="language-python">&gt;&gt;&gt; import random
@@ -305,8 +303,12 @@ integer.</p>
 &gt;&gt;&gt; base = &quot;&quot;.join(base)
 &gt;&gt;&gt; base
 'tjcbwq2uev8n7r9gmdf1sy05kzxh4p63'
-&gt;&gt;&gt; geohash.geohash(-6.272877, 53.344606, digit=10, base=base)
+&gt;&gt;&gt; geohash.as_str(dublin, base=base)
 'gnupb5tw3u'
+&gt;&gt;&gt; geohash.as_int('gnupb5tw3u', base=base)
+&lt;01111010110011111101000111011100000001001111100111&gt;
+&gt;&gt;&gt; dublin
+&lt;01111010110011111101000111011100000001001111100111&gt;
 </code></pre>
 <p><a name="Gryd.geohash.EARTH_RADIUS"></a></p>
 <h4 id="earth_radius">EARTH_RADIUS</h4>
