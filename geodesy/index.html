@@ -108,6 +108,11 @@
 
 <p><a name="Gryd.geodesy"></a></p>
 <h1 id="grydgeodesy">Gryd.geodesy</h1>
+<p><a name="Gryd.geodesy.base32"></a></p>
+<h4 id="base32">base32</h4>
+<pre><code class="language-python">base32(secret)
+</code></pre>
+<p>Return a 32-length of unique bytes from secret hash.</p>
 <p><a name="Gryd.geodesy.Geodesic"></a></p>
 <h2 id="geodesic-objects">Geodesic Objects</h2>
 <pre><code class="language-python">class Geodesic(ctypes.Structure)
@@ -115,98 +120,171 @@
 <p><code>ctypes</code> structure for geodesic coordinates</p>
 <p><strong>Attributes</strong>:</p>
 <ul>
-<li>longitude</li>
-<li>latitude</li>
-<li>altitude</li>
+<li><code>longitude</code> <em>float</em> - longitude value of geodesic coordinates in degrees</li>
+<li><code>latitude</code> <em>float</em> - latitude value of geodesic coordinates in degrees</li>
+<li><code>altitude</code> <em>float</em> - elevation of the geodesic coordinates in meters</li>
 </ul>
-<pre><code class="language-python">&gt;&gt;&gt; dublin = Gryd.Geodesic(-6.272877, 53.344606, 0.)
+<pre><code class="language-python">&gt;&gt;&gt; dublin = Gryd.Geodesic(-6.272877, 53.344606, 105.)
 &gt;&gt;&gt; dublin
-&gt;&gt;&gt; Gryd.Geodesic(45.5, 5.5, 105)
+&lt;lon=-006°16'22.357&quot; lat=+053°20'40.582&quot; alt=105.000&gt;
 </code></pre>
-<p><a name="Gryd.geodesy.Geodesic.__init__"></a></p>
-<h4 id="__init__">__init__</h4>
-<pre><code class="language-python"> | __init__(*args, **kwargs)
+<p><a name="Gryd.geodesy.Geodesic.encrypt"></a></p>
+<h4 id="encrypt">encrypt</h4>
+<pre><code class="language-python"> | encrypt(digit, secret)
 </code></pre>
-<p>Angular value must be given in degree here (more human values).</p>
-<p><a name="Gryd.geodesy.Geodesic.Geohash"></a></p>
-<h4 id="geohash">Geohash</h4>
-<pre><code class="language-python"> | Geohash(digit=10, base=&quot;0123456789bcdefghjkmnpqrstuvwxyz&quot;)
+<p>Encrypt geodesic coordinates. It uses geohash with a custom
+32-length base initialized by <code>Gryd.geodesy.base32</code>.</p>
+<pre><code class="language-python">&gt;&gt;&gt; g = Gryd.geodesy.Geodesic(-5.412300, 45.632100)
+&gt;&gt;&gt; g.encrypt(23, &quot;secret&quot;)
+b'\xbda\xe0\xa3\xe9\xbd\x1d\x86\xe0_a1\x8bV2\xe0aV\xbd2\xcd\xe0\xe0'
+</code></pre>
+<p><strong>Arguments</strong>:</p>
+<ul>
+<li><code>digit</code> <em>int</em> - result bytes-length</li>
+<li><code>secret</code> <em>bytes or str</em> - secret used to encrypt geodesic coordinates</li>
+</ul>
+<p><strong>Returns</strong>:</p>
+<p><code>bytes</code> data</p>
+<p><a name="Gryd.geodesy.Geodesic.decrypt"></a></p>
+<h4 id="decrypt">decrypt</h4>
+<pre><code class="language-python"> | @staticmethod
+ | decrypt(encrypted, secret)
+</code></pre>
+<p>Decrypt geodesic from encrypted. It uses geohash with a custem
+32-length base initialized by <code>Gryd.geodesy.base32</code>.</p>
+<pre><code class="language-python">&gt;&gt;&gt; enc = b'\xbda\xe0\xa3\xe9\xbd\x1d\x86\xe0_a1\x8bV2\xe0aV\xbd2\xcd'\
+...       b'\xe0\xe0'
+&gt;&gt;&gt; geo.Geodesic.decrypt(enc, &quot;secret&quot;)
+&lt;lon=-5.412300 lat=45.632100 alt=0.000&gt;
+</code></pre>
+<p><strong>Arguments</strong>:</p>
+<ul>
+<li><code>encrypted</code> <em>bytes</em> - encrypted geodesic coordinates</li>
+<li><code>secret</code> <em>bytes or str</em> - secret used to encrypt geodesic coordinates</li>
+</ul>
+<p><strong>Returns</strong>:</p>
+<p><code>Gryd.geodesy.Geodesic</code> coordinates</p>
+<p><a name="Gryd.geodesy.Geodesic.geohash"></a></p>
+<h4 id="geohash">geohash</h4>
+<pre><code class="language-python"> | geohash(digit=10)
 </code></pre>
 <p>Convert coordinates to geohash.</p>
-<blockquote>
-<blockquote>
-<blockquote>
-<p>dublin.Geohash() # by default on 10 digit for metric precision
-gc7x3r04z7
-dublin.Geohash(14) # why not on 14 digit for millimetric precision
-gc7x3r04z77csw</p>
-</blockquote>
-</blockquote>
-</blockquote>
-<p><a name="Gryd.geodesy.Geodesic.Maidenhead"></a></p>
-<h4 id="maidenhead">Maidenhead</h4>
-<pre><code class="language-python"> | Maidenhead(level=4)
+<pre><code class="language-python">&gt;&gt;&gt; dublin.geohash() # by default on 10 digit for metric precision
+'gc7x3r04z7'
+&gt;&gt;&gt; dublin.geohash(14) # why not on 14 digit for millimetric precision
+'gc7x3r04z77csw'
+</code></pre>
+<p><strong>Arguments</strong>:</p>
+<ul>
+<li><code>digit</code> <em>int</em> - total digit to use in the geohash</li>
+</ul>
+<p><strong>Returns</strong>:</p>
+<p>Geohash <code>str</code></p>
+<p><a name="Gryd.geodesy.Geodesic.from_geohash"></a></p>
+<h4 id="from_geohash">from_geohash</h4>
+<pre><code class="language-python"> | @staticmethod
+ | from_geohash(geoh)
+</code></pre>
+<p>Return Geodesic object geohash.</p>
+<pre><code class="language-python">&gt;&gt;&gt; Gryd.Geodesic.from_geohash('gc7x3r04z7')
+&lt;lon=-006°16'22.347&quot; lat=+053°20'40.590&quot; alt=0.000&gt;
+&gt;&gt;&gt; Gryd.Geodesic.from_geohash('gc7x3r04z77csw')
+&lt;lon=-006°16'22.357&quot; lat=+053°20'40.582&quot; alt=0.000&gt;
+</code></pre>
+<p><strong>Arguments</strong>:</p>
+<ul>
+<li><code>geoh</code> <em>str</em> - georef string</li>
+</ul>
+<p><strong>Returns</strong>:</p>
+<p><code>Gryd.geodesy.Geodesic</code> coordinates</p>
+<p><a name="Gryd.geodesy.Geodesic.maidenhead"></a></p>
+<h4 id="maidenhead">maidenhead</h4>
+<pre><code class="language-python"> | maidenhead(level=4)
 </code></pre>
 <p>Convert coordinates to maidenhead.</p>
-<blockquote>
-<blockquote>
-<blockquote>
-<p>dublin.Maidenhead()
+<pre><code class="language-python">&gt;&gt;&gt; dublin.maidenhead()
 'IO63ui72gq'
-dublin.Maidenhead(level=6)
-'IO63ui72gq19dh'</p>
-</blockquote>
-</blockquote>
-</blockquote>
-<p><a name="Gryd.geodesy.Geodesic.Georef"></a></p>
-<h4 id="georef">Georef</h4>
-<pre><code class="language-python"> | Georef(digit=8)
+&gt;&gt;&gt; dublin.maidenhead(level=6)
+'IO63ui72gq19dh'
+</code></pre>
+<p><strong>Arguments</strong>:</p>
+<ul>
+<li><code>level</code> <em>int</em> - precision level of maidenhead</li>
+</ul>
+<p><strong>Returns</strong>:</p>
+<p>Maidenhead <code>str</code></p>
+<p><a name="Gryd.geodesy.Geodesic.from_maidenhead"></a></p>
+<h4 id="from_maidenhead">from_maidenhead</h4>
+<pre><code class="language-python"> | @staticmethod
+ | from_maidenhead(maidenhead)
+</code></pre>
+<p>Return Geodesic object from maidenhead string.</p>
+<p><strong>Arguments</strong>:</p>
+<ul>
+<li><code>maidenhead</code> <em>str</em> - maidenhead string</li>
+</ul>
+<p><strong>Returns</strong>:</p>
+<p><code>Gryd.geodesy.Geodesic</code> coordinates</p>
+<p><a name="Gryd.geodesy.Geodesic.georef"></a></p>
+<h4 id="georef">georef</h4>
+<pre><code class="language-python"> | georef(digit=8)
 </code></pre>
 <p>Convert coordinates to georef.</p>
-<blockquote>
-<blockquote>
-<blockquote>
-<p>dublin.Georef()
+<pre><code class="language-python">&gt;&gt;&gt; dublin.georef()
 'MKJJ43322037'
-dublin.Georef(digit=6)
-'MKJJ433203'</p>
-</blockquote>
-</blockquote>
-</blockquote>
-<p><a name="Gryd.geodesy.Geodesic.Gars"></a></p>
-<h4 id="gars">Gars</h4>
-<pre><code class="language-python"> | Gars()
+&gt;&gt;&gt; dublin.georef(digit=6)
+'MKJJ433203'
 </code></pre>
-<p>Get the associated GARS Area.</p>
-<blockquote>
-<blockquote>
-<blockquote>
-<p>dublin.Gars()
-'348MY16'</p>
-</blockquote>
-</blockquote>
-</blockquote>
-<p><a name="Gryd.geodesy.from_geohash"></a></p>
-<h4 id="from_geohash">from_geohash</h4>
-<pre><code class="language-python">from_geohash(geohash, base=&quot;0123456789bcdefghjkmnpqrstuvwxyz&quot;)
-</code></pre>
-<p>return Geodesic object from geohash</p>
-<p><a name="Gryd.geodesy.from_maidenhead"></a></p>
-<h4 id="from_maidenhead">from_maidenhead</h4>
-<pre><code class="language-python">from_maidenhead(maidenhead)
-</code></pre>
-<p>Return Geodesic object from maidenhead.</p>
-<p><a name="Gryd.geodesy.from_georef"></a></p>
+<p><strong>Arguments</strong>:</p>
+<ul>
+<li><code>digit</code> <em>int</em> - digit number of georef (can be 4, 6 or 8)</li>
+</ul>
+<p><strong>Returns</strong>:</p>
+<p>Georef <code>str</code></p>
+<p><a name="Gryd.geodesy.Geodesic.from_georef"></a></p>
 <h4 id="from_georef">from_georef</h4>
-<pre><code class="language-python">from_georef(georef)
+<pre><code class="language-python"> | @staticmethod
+ | from_georef(georef)
 </code></pre>
 <p>Return Geodesic object from georef.</p>
-<p><a name="Gryd.geodesy.from_gars"></a></p>
-<h4 id="from_gars">from_gars</h4>
-<pre><code class="language-python">from_gars(gars, anchor=&quot;&quot;)
+<pre><code class="language-python">&gt;&gt;&gt; Gryd.Geodesic.from_georef('MKJJ43322037')
+&lt;lon=-006°16'21.900&quot; lat=+053°20'41.100&quot; alt=0.000&gt;
+&gt;&gt;&gt; Gryd.Geodesic.from_georef('MKJJ433220')    
+&lt;lon=-006°15'57.000&quot; lat=+053°22'45.000&quot; alt=0.000&gt;
 </code></pre>
-<p>Return Geodesic object from gars. Optional anchor value to define where to
-handle 5minx5min tile.</p>
+<p><strong>Arguments</strong>:</p>
+<ul>
+<li><code>georef</code> <em>str</em> - georef string</li>
+</ul>
+<p><strong>Returns</strong>:</p>
+<p><code>Gryd.geodesy.Geodesic</code> coordinates</p>
+<p><a name="Gryd.geodesy.Geodesic.gars"></a></p>
+<h4 id="gars">gars</h4>
+<pre><code class="language-python"> | gars()
+</code></pre>
+<p>Get the associated GARS Area (5minx5min tile).</p>
+<pre><code class="language-python">&gt;&gt;&gt; dublin.gars()
+'348MY16'
+</code></pre>
+<p><a name="Gryd.geodesy.Geodesic.from_gars"></a></p>
+<h4 id="from_gars">from_gars</h4>
+<pre><code class="language-python"> | @staticmethod
+ | from_gars(gars, anchor=&quot;&quot;)
+</code></pre>
+<p>Return Geodesic object from gars. Optional anchor value to define
+where to handle 5minx5min tile.</p>
+<pre><code class="language-python">&gt;&gt;&gt; Gryd.Geodesic.from_gars('348MY16', anchor=&quot;nw&quot;)
+&lt;lon=-006°20'0.000&quot; lat=+053°25'0.000&quot; alt=0.000&gt;
+&gt;&gt;&gt; Gryd.Geodesic.from_gars('348MY16')
+&lt;lon=-006°17'30.000&quot; lat=+053°22'30.000&quot; alt=0.000&gt;
+</code></pre>
+<p><strong>Arguments</strong>:</p>
+<ul>
+<li><code>gars</code> <em>str</em> - gars string</li>
+<li><code>anchor</code> <em>str</em> - tile anchor (nesw)</li>
+</ul>
+<p><strong>Returns</strong>:</p>
+<p><code>Gryd.geodesy.Geodesic</code> coordinates</p>
 <p><a name="Gryd.geohash"></a></p>
 <h1 id="grydgeohash">Gryd.geohash</h1>
 <p>Efficient geohash computing library based on bitwise operation with python

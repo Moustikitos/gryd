@@ -168,7 +168,7 @@ calibration <code>Points</code> (two minimum are required).</p>
 <pre><code class="language-python">&gt;&gt;&gt; import Gryd
 &gt;&gt;&gt; dublin = Gryd.Geodesic(-6.259437, 53.350765, 0.)
 &gt;&gt;&gt; dublin
-&lt;lon=-006Â°15'33.973&quot; lat=+053Â°21'2.754&quot; alt=0.000&gt;
+&lt;lon=-006°15'33.973&quot; lat=+053°21'2.754&quot; alt=0.000&gt;
 &gt;&gt;&gt; utm = Gryd.Crs(epsg=3395, projection=&quot;utm&quot;)
 &gt;&gt;&gt; utm(dublin)
 &lt;area=29U E=682406.211 N=5914792.531, alt=0.000&gt;
@@ -252,7 +252,7 @@ function.</p>
 returned by <code>Gryd.dms</code> function.</p>
 <pre><code class="language-python">&gt;&gt;&gt; d = Gryd.dms(-60.42286847222222)
 &gt;&gt;&gt; d
--060Â°25'22.326&quot;
+-060°25'22.326&quot;
 &gt;&gt;&gt; float(d)
 -60.42286847222222
 </code></pre>
@@ -264,7 +264,7 @@ returned by <code>Gryd.dms</code> function.</p>
 <code>Gryd.dmm</code> function.</p>
 <pre><code class="language-python">&gt;&gt;&gt; d = Gryd.dmm(-60.42286847222222)
 &gt;&gt;&gt; d
--060Â°25.372108'
+-060°25.372108'
 &gt;&gt;&gt; float(d)
 -60.42286847222222
 </code></pre>
@@ -288,11 +288,12 @@ initialization purpose.</p>
 initialized in the order of the field definition. If <code>*args</code> only
 contains one value:</p>
 <ul>
-<li>it is a <code>dict</code> then all fields are initialized</li>
+<li>it is a <code>dict</code> then it is used as a reccord</li>
 <li>it is an <code>int</code> then try to get a record from database using epsg id</li>
 <li>it is a <code>str</code> then try to get a record from database using epsg name</li>
 </ul>
-<p>All values in <code>**pairs</code> are merged before attributes initialization.</p>
+<p>All values in <code>**pairs</code> are merged in the record before attributes
+initialization.</p>
 <p><a name="Gryd.Unit"></a></p>
 <h2 id="unit-objects">Unit Objects</h2>
 <pre><code class="language-python">class Unit(Epsg)
@@ -314,7 +315,7 @@ contains one value:</p>
 <p>Prime meridian.</p>
 <pre><code class="language-python">&gt;&gt;&gt; prime = Gryd.Prime(epsg=8902)
 &gt;&gt;&gt; prime
-&lt;Prime meridian epsg=8902 longitude=-009Â°07'54.862&quot;&gt;
+&lt;Prime meridian epsg=8902 longitude=-009°07'54.862&quot;&gt;
 &gt;&gt;&gt; prime.name
 'Lisbon'
 </code></pre>
@@ -342,9 +343,9 @@ contains one value:</p>
 <pre><code class="language-python">&gt;&gt;&gt; wgs84.destination(
 ...     london, math.degrees(vdist.final_bearing) + 180, vdist.distance
 ... )
-&lt;Destination lon=-006Â°15'33.973&quot; lat=+053Â°21'2.754&quot; end bearing=-66.4Â°&gt;
+&lt;Destination lon=-006°15'33.973&quot; lat=+053°21'2.754&quot; end bearing=-66.4°&gt;
 &gt;&gt;&gt; dublin
-&lt;lon=-006Â°15'33.973&quot; lat=+053Â°21'2.754&quot; alt=0.000&gt;
+&lt;lon=-006°15'33.973&quot; lat=+053°21'2.754&quot; alt=0.000&gt;
 </code></pre>
 <p><a name="Gryd.Ellipsoid.npoints"></a></p>
 <h4 id="npoints">npoints</h4>
@@ -352,28 +353,23 @@ contains one value:</p>
 </code></pre>
 <pre><code class="language-python">&gt;&gt;&gt; for p in wgs84.npoints(dublin, londre, 4): print(p)
 ...
-&lt;Destination lon=-006Â°15'33.973&quot; lat=+053Â°21'2.754&quot; end bearing=113.6&gt;
-&lt;Destination lon=-004Â°59'32.422&quot; lat=+053Â°00'36.687&quot; end bearing=114.6&gt;
-&lt;Destination lon=-003Â°44'43.501&quot; lat=+052Â°39'22.715&quot; end bearing=115.6&gt;
-&lt;Destination lon=-002Â°31'7.792&quot; lat=+052Â°17'22.201&quot; end bearing=116.6&gt;
-&lt;Destination lon=-001Â°18'45.650&quot; lat=+051Â°54'36.502&quot; end bearing=117.5&gt;
-&lt;Destination lon=-000Â°07'37.218&quot; lat=+051Â°31'6.967&quot; end bearing=118.5&gt;
+&lt;Destination lon=-006°15'33.973&quot; lat=+053°21'2.754&quot; end bearing=113.6&gt;
+&lt;Destination lon=-004°59'32.422&quot; lat=+053°00'36.687&quot; end bearing=114.6&gt;
+&lt;Destination lon=-003°44'43.501&quot; lat=+052°39'22.715&quot; end bearing=115.6&gt;
+&lt;Destination lon=-002°31'7.792&quot; lat=+052°17'22.201&quot; end bearing=116.6&gt;
+&lt;Destination lon=-001°18'45.650&quot; lat=+051°54'36.502&quot; end bearing=117.5&gt;
+&lt;Destination lon=-000°07'37.218&quot; lat=+051°31'6.967&quot; end bearing=118.5&gt;
 </code></pre>
 <p><a name="Gryd.Datum"></a></p>
 <h2 id="datum-objects">Datum Objects</h2>
 <pre><code class="language-python">class Datum(Epsg)
 </code></pre>
-<blockquote>
-<blockquote>
-<blockquote>
-<p>Gryd.Datum(epsg=4326)
-<Datum epsg=4326:
-\<Ellispoid epsg=7030 a=6378137.000000 1/f=298.25722356>
-\<Prime meridian epsg=8901 longitude=0.000000>
-to wgs84: 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0></p>
-</blockquote>
-</blockquote>
-</blockquote>
+<pre><code class="language-python">&gt;&gt;&gt; Gryd.Datum(epsg=4326)
+&lt;Datum epsg=4326:
+&lt;Ellispoid epsg=7030 a=6378137.000000 1/f=298.25722356&gt;
+&lt;Prime meridian epsg=8901 longitude=0.000000&gt;
+to wgs84: 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0&gt;
+</code></pre>
 <p><a name="Gryd.Datum.xyz"></a></p>
 <h4 id="xyz">xyz</h4>
 <pre><code class="language-python"> | xyz(lla)
@@ -386,9 +382,9 @@ to wgs84: 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0></p>
 <pre><code class="language-python"> | lla(xyz)
 </code></pre>
 <pre><code class="language-python">&gt;&gt;&gt; wgs84.lla(wgs84.xyz(london))
-&lt;lon=-000Â°07'37.218&quot; lat=+051Â°31'6.967&quot; alt=0.000&gt;
+&lt;lon=-000°07'37.218&quot; lat=+051°31'6.967&quot; alt=0.000&gt;
 &gt;&gt;&gt; london
-&lt;lon=-000Â°07'37.218&quot; lat=+051Â°31'6.967&quot; alt=0.000&gt;
+&lt;lon=-000°07'37.218&quot; lat=+051°31'6.967&quot; alt=0.000&gt;
 </code></pre>
 <p><a name="Gryd.Datum.transform"></a></p>
 <h4 id="transform">transform</h4>
@@ -396,7 +392,7 @@ to wgs84: 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0></p>
 </code></pre>
 <pre><code class="language-python">&gt;&gt;&gt; airy = Gryd.Datum(epsg=4277)
 &gt;&gt;&gt; wgs84.transform(airy, london)
-&lt;lon=-000Â°07'31.431'' lat=+051Â°31'5.137'' alt=-46.118&gt;
+&lt;lon=-000°07'31.431'' lat=+051°31'5.137'' alt=-46.118&gt;
 </code></pre>
 <p><a name="Gryd.Crs"></a></p>
 <h2 id="crs-objects">Crs Objects</h2>
@@ -424,7 +420,7 @@ Projection 'tmerc'&gt;
 <pre><code class="language-python">&gt;&gt;&gt; osgb36(london)  # projection of Geodesic point
 &lt;X=529939.106 Y=181680.962s alt=0.000&gt;
 &gt;&gt;&gt; osgb36(osgb36(london))  # deprojection of Geographic point
-&lt;lon=-000Â°07'37.218&quot; lat=+051Â°31'6.967&quot; alt=0.000&gt;
+&lt;lon=-000°07'37.218&quot; lat=+051°31'6.967&quot; alt=0.000&gt;
 </code></pre>
 <p><a name="Gryd.Crs.transform"></a></p>
 <h4 id="transform_1">transform</h4>
@@ -449,7 +445,7 @@ Projection 'tmerc'&gt;
 <pre><code class="language-python"> | map2crs(px, py, geographic=False)
 </code></pre>
 <pre><code class="language-python">&gt;&gt;&gt; pvs.map2crs(256+128, 256+128)
-&lt;lon=+089Â°59'58.20'' lat=-066Â°23'43.74'' alt=0.000&gt;
+&lt;lon=+089°59'58.20'' lat=-066°23'43.74'' alt=0.000&gt;
 &gt;&gt;&gt; pvs.map2crs(256-128, 256+128, geographic=True)
 &lt;point X=-10018698.512 Y=-9985934.440s alt=0.000&gt;
 </code></pre>
@@ -459,7 +455,7 @@ Projection 'tmerc'&gt;
 </code></pre>
 <pre><code class="language-python">&gt;&gt;&gt; pvs.crs2map(pvs.map2crs(256+128, 256+128))
 &lt;px=384 py=384
-- &lt;lon=+089Â°59'58.20'' lat=-066Â°23'43.74'' alt=0.000&gt;
+- &lt;lon=+089°59'58.20'' lat=-066°23'43.74'' alt=0.000&gt;
 - &lt;X=10018698.512 Y=-9985934.440s alt=0.000&gt;
 &gt;
 </code></pre></div>
