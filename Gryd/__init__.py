@@ -450,6 +450,9 @@ class Prime(Epsg):
 
 class Ellipsoid(Epsg):
     """
+    Ellipsoid model. If initialized with no args nor keyword args, it is a
+    6378137-meters-radius sphere.
+
     ```python
     >>> wgs84 = Gryd.Ellipsoid("WGS 84")
     >>> wgs84
@@ -464,6 +467,11 @@ class Ellipsoid(Epsg):
         ("e",    ctypes.c_double),
         ("f",    ctypes.c_double)
     ]
+
+    def __init__(self, *args, **pairs):
+        if len(args) == len(pairs) == 0:
+            pairs["a"] = pairs["b"] = 6378137.
+        Epsg.__init__(self, *args, **pairs)
 
     def __repr__(self):
         return "<Ellispoid epsg=%d a=%.6f 1/f=%.8f>" % (
@@ -488,17 +496,28 @@ class Ellipsoid(Epsg):
 
     def distance(self, lla0, lla1):
         """
+        Return Vincenty distance between two geodesic points.
+
         ```
         >>> london = Gryd.Geodesic(-0.127005, 51.518602, 0.)
         >>> dublin = Gryd.Geodesic(-6.259437, 53.350765, 0.)
         >>> wgs84.distance(dublin, london)
         <Distance 464.025km initial bearing=113.6 final bearing=118.5>
         ```
+
+        Arguments:
+            lla0 (Gryd.Geodesic): point A
+            lla1 (Gryd.Geodesic): point B
+        Returns:
+            `Gryd.Vincenty_dist` structure
         """
         return distance(self, lla0, lla1)
 
     def destination(self, lla, bearing, distance):
         """
+        Return Vincenty destination from geodesic start point folowing
+        specific bearing for a determined distance.
+
         ```python
         >>> wgs84.destination(
         ...     london, math.degrees(vdist.final_bearing) + 180, vdist.distance
@@ -507,6 +526,13 @@ class Ellipsoid(Epsg):
         >>> dublin
         <lon=-006°15'33.973" lat=+053°21'2.754" alt=0.000>
         ```
+
+        Arguments:
+            lla (Gryd.Geodesic): start point
+            bearing (float): start bearing in degrees
+            distance (float): distance in meters
+        Returns:
+            `Gryd.Vincenty_dest` structure
         """
         return destination(
             self, lla, Vincenty_dist(distance, math.radians(bearing))

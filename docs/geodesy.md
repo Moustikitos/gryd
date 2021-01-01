@@ -28,7 +28,7 @@ class Geodesic(ctypes.Structure)
 ```python
 >>> dublin = Gryd.Geodesic(-6.272877, 53.344606, 105.)
 >>> dublin
-<lon=-006°16'22.357" lat=+053°20'40.582" alt=105.000>
+<lon=-006Â°16'22.357" lat=+053Â°20'40.582" alt=105.000>
 ```
 
 <a name="Gryd.geodesy.Geodesic.encrypt"></a>
@@ -123,9 +123,9 @@ Return Geodesic object geohash.
 
 ```python
 >>> Gryd.Geodesic.from_geohash('gc7x3r04z7')
-<lon=-006°16'22.347" lat=+053°20'40.590" alt=0.000>
+<lon=-006Â°16'22.347" lat=+053Â°20'40.590" alt=0.000>
 >>> Gryd.Geodesic.from_geohash('gc7x3r04z77csw')
-<lon=-006°16'22.357" lat=+053°20'40.582" alt=0.000>
+<lon=-006Â°16'22.357" lat=+053Â°20'40.582" alt=0.000>
 ```
 
 **Arguments**:
@@ -217,9 +217,9 @@ Return Geodesic object from georef.
 
 ```python
 >>> Gryd.Geodesic.from_georef('MKJJ43322037')
-<lon=-006°16'21.900" lat=+053°20'41.100" alt=0.000>
+<lon=-006Â°16'21.900" lat=+053Â°20'41.100" alt=0.000>
 >>> Gryd.Geodesic.from_georef('MKJJ433220')    
-<lon=-006°15'57.000" lat=+053°22'45.000" alt=0.000>
+<lon=-006Â°15'57.000" lat=+053Â°22'45.000" alt=0.000>
 ```
 
 **Arguments**:
@@ -258,9 +258,9 @@ where to handle 5minx5min tile.
 
 ```python
 >>> Gryd.Geodesic.from_gars('348MY16', anchor="nw")
-<lon=-006°20'0.000" lat=+053°25'0.000" alt=0.000>
+<lon=-006Â°20'0.000" lat=+053Â°25'0.000" alt=0.000>
 >>> Gryd.Geodesic.from_gars('348MY16')
-<lon=-006°17'30.000" lat=+053°22'30.000" alt=0.000>
+<lon=-006Â°17'30.000" lat=+053Â°22'30.000" alt=0.000>
 ```
 
 **Arguments**:
@@ -285,8 +285,6 @@ integer.
 <01111010110011111101000111011100000001001111100111>
 >>> geohash.as_str(dublin)
 'gc7x3r04z7'
->>> geohash.geohash(-6.272877, 53.344606, digit=10)
-'gc7x3r04z7'
 ```
 
 Geohash can be encoded with a custom 32-element-sized base.
@@ -298,8 +296,12 @@ Geohash can be encoded with a custom 32-element-sized base.
 >>> base = "".join(base)
 >>> base
 'tjcbwq2uev8n7r9gmdf1sy05kzxh4p63'
->>> geohash.geohash(-6.272877, 53.344606, digit=10, base=base)
+>>> geohash.as_str(dublin, base=base)
 'gnupb5tw3u'
+>>> geohash.as_int('gnupb5tw3u', base=base)
+<01111010110011111101000111011100000001001111100111>
+>>> dublin
+<01111010110011111101000111011100000001001111100111>
 ```
 
 <a name="Gryd.geohash.EARTH_RADIUS"></a>
