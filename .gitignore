@@ -16,7 +16,7 @@ lib64/
 parts/
 sdist/
 var/
-test/
+test/misc/
 Gryd/map
 *.egg-info/
 .installed.cfg
