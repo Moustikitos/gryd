@@ -10,6 +10,9 @@ _TODEG = 180.0 / math.pi
 
 
 def base32(secret):
+    """
+    Return a 32-length of unique bytes from secret hash.
+    """
     secret = secret if isinstance(secret, bytes) else secret.encode("utf-8")
     base = bytearray(b"0123456789bcdefghjkmnpqrstuvwxyz")
     h = bytearray(hashlib.sha256(secret).digest())
