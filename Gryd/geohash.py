@@ -257,8 +257,8 @@ def geohash(lon, lat, digit=10, base="0123456789bcdefghjkmnpqrstuvwxyz"):
     return as_str(geoh(lon, lat, digit * 5), base)
 
 
-def geodesic(geoh, base="0123456789bcdefghjkmnpqrstuvwxyz"):
-    return lonlat(as_int(geoh, base))
+def geodesic(geoh, base="0123456789bcdefghjkmnpqrstuvwxyz", centered=True):
+    return lonlat(as_int(geoh, base), centered=centered)
 
 
 #: backward compatibility

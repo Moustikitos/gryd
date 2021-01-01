@@ -231,15 +231,6 @@ class Vincenty_dist(ctypes.Structure):
         distance (float): great circle distance in meters
         initial_bearing (float): initial bearing in degrees
         final_bearing (float): final bearing in degrees
-
-    ```python
-    >>> wgs84 = Gryd.Ellipsoid(name="WGS 84") # WGS 84 ellipsoid
-    >>> london = Gryd.Geodesic(-0.127005, 51.518602, 0.)
-    >>> dublin = Gryd.Geodesic(-6.259437, 53.350765, 0.)
-    >>> vdist = wgs84.distance(dublin, london)
-    >>> vdist
-    <Distance 464.025km initial bearing=113.6 final bearing=118.5>
-    ```
     """
     _fields_ = [
         ("distance",        ctypes.c_double),
@@ -266,15 +257,6 @@ class Vincenty_dest(ctypes.Structure):
         longitude (float): destinatin longitude in degrees
         latitude (float): destination latitude in degrees
         destination_bearing (float): destination bearing in degrees
-
-    ```python
-    >>> wgs84.destination(
-    ...     london, math.degrees(vdist.final_bearing) + 180, vdist.distance
-    ... )
-    <Destination lon=-006°15'33.973" lat=+053°21'2.754" end bearing=-66.4>
-    >>> dublin
-    <lon=-006°15'33.973" lat=+053°21'2.754" alt=0.000>
-    ```
     """
     _fields_ = [
         ("longitude",           ctypes.c_double),
@@ -369,11 +351,12 @@ class Epsg(ctypes.Structure):
         initialized in the order of the field definition. If `*args` only
         contains one value:
 
-         + it is a `dict` then all fields are initialized
+         + it is a `dict` then it is used as a reccord
          + it is an `int` then try to get a record from database using epsg id
          + it is a `str` then try to get a record from database using epsg name
 
-        All values in `**pairs` are merged before attributes initialization.
+        All values in `**pairs` are merged in the record before attributes
+        initialization.
         """
         record = {}
         # in case a dict is given at initialization
@@ -519,9 +502,9 @@ class Ellipsoid(Epsg):
         """
         ```python
         >>> wgs84.destination(
-        ...     london, math.degrees(vdist.final_bearing)+180, vdist.distance
+        ...     london, math.degrees(vdist.final_bearing) + 180, vdist.distance
         ... )
-        <Destination lon=-006°15'33.973" lat=+053°21'2.754" end bearing=-66.4>
+        <Destination lon=-006°15'33.973" lat=+053°21'2.754" end bearing=-66.4°>
         >>> dublin
         <lon=-006°15'33.973" lat=+053°21'2.754" alt=0.000>
         ```
@@ -552,12 +535,14 @@ class Ellipsoid(Epsg):
 
 class Datum(Epsg):
     """
+
+    ```python
     >>> Gryd.Datum(epsg=4326)
     <Datum epsg=4326:
-        <Ellispoid epsg=7030 a=6378137.000000 1/f=298.25722356>
-        <Prime meridian epsg=8901 longitude=0.000000>
-        to wgs84: 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
-    >
+    <Ellispoid epsg=7030 a=6378137.000000 1/f=298.25722356>
+    <Prime meridian epsg=8901 longitude=0.000000>
+    to wgs84: 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0>
+    ```
     """
     table = "datum"
     _fields_ = [
@@ -574,7 +559,7 @@ class Datum(Epsg):
     ]
 
     def __repr__(self):
-        return "<Datum epsg=%d:\n%r\n%r\nto wgs84: %s\n>" % (
+        return "<Datum epsg=%d:\n%r\n%r\nto wgs84: %s>" % (
             self.epsg,
             self.ellipsoid,
             self.prime,
@@ -639,10 +624,8 @@ class Crs(Epsg):
     <Ellispoid epsg=7001 a=6377563.396000 1/f=299.32496460>
     <Prime meridian epsg=8901 longitude=0.000000>
     to wgs84 446.45,-125.16,542.06,-20.49,0.15,0.25,0.84>
-    >
     <Unit epsg=9001 ratio=1.0>
-    <Projection 'tmerc'>
-    >
+    Projection 'tmerc'>
     ```
     """
     table = "grid"
@@ -668,8 +651,8 @@ class Crs(Epsg):
         return Epsg.__reduce__(self)
 
     def __repr__(self):
-        return "<Crs epsg=%d:\n%r\n<Projection %r>\n%r>" % (
-            self.epsg, self.unit, self.projection, self.datum
+        return "<Crs epsg=%d:\n%r\n%r\nProjection %r>" % (
+            self.epsg, self.unit, self.datum, self.projection
         )
 
     def __init__(self, *args, **kwargs):
@@ -888,12 +871,9 @@ setattr(Geodesic, "__repr__", _Geodesic__repr)
 __dll_ext__ = "dll" if sys.platform.startswith("win") else \
               "so" if sys.platform.startswith("linux") else \
               "so"
-if not(2 ** 32 // 2 - 1 == sys.maxsize):
-    __dll_ext__ = "64." + __dll_ext__
-geoid = ctypes.CDLL(get_data_file("lib/geoid.%s" % __dll_ext__))
-proj = ctypes.CDLL(get_data_file("lib/proj.%s" % __dll_ext__))
+geoid = ctypes.CDLL(get_data_file("geoid.%s" % __dll_ext__))
+proj = ctypes.CDLL(get_data_file("proj.%s" % __dll_ext__))
 
-# shortcuts to C functions
 dms = geoid.dms
 dms.argtypes = [ctypes.c_double]
 dms.restype = Dms
