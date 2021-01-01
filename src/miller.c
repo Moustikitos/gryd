@@ -1,4 +1,4 @@
-// Copyright (c) 2015-2016, THOORENS Bruno
+// Copyright (c) 2015-2021, THOORENS Bruno
 // All rights reserved.
 #include "./geoid.h"
 

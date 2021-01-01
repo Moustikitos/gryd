@@ -1,4 +1,4 @@
-// Copyright (c) 2016, THOORENS Bruno
+// Copyright (c) 2015-2021, THOORENS Bruno
 // All rights reserved.
 #include "./geoid.h"
 
@@ -39,7 +39,6 @@ EXPORT Coef omerc_coef(double a, double e, double lambda0, double phi0, double k
 
 	return result;
 }
-
 
 EXPORT Geographic omerc_forward(Crs *crs, Geodesic *lla){
 	Geographic xya;

@@ -64,7 +64,7 @@ __author__ = "Bruno THOORENS"
 # there is a major change in the design.
 __version__ = "1.2.1"
 # add C projection functions here
-__c_proj__ = ["omerc", "tmerc", "merc", "lcc", "eqc", "miller"]
+__c_proj__ = ["tmerc", "merc", "lcc", "eqc", "miller"]
 # add python projection modules here
 __py_proj__ = ["utm", "mgrs", "bng", "ing"]
 

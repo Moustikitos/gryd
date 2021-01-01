@@ -1,4 +1,4 @@
-// Copyright (c) 2015-2016, THOORENS Bruno
+// Copyright (c) 2015-2021, THOORENS Bruno
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without modification,
@@ -27,7 +27,9 @@
 #include "./geoid.h"
 #include <stdlib.h>
 
-EXPORT double MD(double a, double e, double latitude){return meridian_distance(a,e,latitude);}
+EXPORT double MD(double a, double e, double latitude){
+	return meridian_distance(a,e,latitude);
+}
 
 EXPORT Dms dms(double value){
 	Dms result;
@@ -74,7 +76,7 @@ EXPORT Dmm dmm(double value){
 /*
 Source :
 The Mercator projections, Peter Osborne, 2008
-� Chapter 5. The geometry of the ellipsoid
+§ Chapter 5. The geometry of the ellipsoid
 */
 EXPORT Geocentric geocentric(Ellipsoid *ellps, Geodesic *lla){
 	Geocentric result;
@@ -201,7 +203,6 @@ EXPORT Vincenty_dest destination(Ellipsoid *ellps, Geodesic *start, Vincenty_dis
 	return result;
 }
 
-// EXPORT Geodesic dat2dat(Datum *src, Ellipsoid *ellps_src, Datum *dst, Ellipsoid *ellps_dst, Geodesic *lla){
 EXPORT Geocentric dat2dat(Datum *src, Datum *dst, Geocentric *xyz){
 	Geocentric result;
 	double rx, ry, rz, ds;
