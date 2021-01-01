@@ -59,7 +59,7 @@ class GeoH(int):
 
     def precision(self):
         """
-        Return metter precision tuple for longitude and latitude based on
+        Return meter precision tuple for longitude and latitude based on
         Popular Visualisation Spheroid radius (epsg #7059 ellipsoid).
         """
         if not hasattr(self, "_precision"):

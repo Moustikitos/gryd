@@ -325,7 +325,7 @@ Integer that keeps info about leading zero bits.
  | precision()
 ```
 
-Return metter precision tuple for longitude and latitude based on
+Return meter precision tuple for longitude and latitude based on
 Popular Visualisation Spheroid radius (epsg `7059` ellipsoid).
 
 <a name="Gryd.geohash.geoh"></a>
