@@ -65,7 +65,6 @@ kw = {
             extra_compile_args=[],
             include_dirs=['src/'],
             sources=[
-                "src/omerc.c",
                 "src/tmerc.c",
                 "src/miller.c",
                 "src/eqc.c",
