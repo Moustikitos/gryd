@@ -9,7 +9,6 @@ using epsg id or name:
  + Mercator
  + Transverse Mercator
  + Lambert Conformal Conic.
- + Oblique Mercator
  + Miller
 
 # Grids
@@ -644,6 +643,9 @@ class Crs(Epsg):
     ]
 
     def __reduce__(self):
+        """
+        special method that allows `Gryd.Crs` instance to be pickled
+        """
         if hasattr(self, "forward"):
             self.__dict__.pop("forward")
         if hasattr(self, "inverse"):
