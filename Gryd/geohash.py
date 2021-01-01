@@ -11,8 +11,6 @@ integer.
 <01111010110011111101000111011100000001001111100111>
 >>> geohash.as_str(dublin)
 'gc7x3r04z7'
->>> geohash.geohash(-6.272877, 53.344606, digit=10)
-'gc7x3r04z7'
 ```
 
 Geohash can be encoded with a custom 32-element-sized base.
@@ -24,8 +22,12 @@ Geohash can be encoded with a custom 32-element-sized base.
 >>> base = "".join(base)
 >>> base
 'tjcbwq2uev8n7r9gmdf1sy05kzxh4p63'
->>> geohash.geohash(-6.272877, 53.344606, digit=10, base=base)
+>>> geohash.as_str(dublin, base=base)
 'gnupb5tw3u'
+>>> geohash.as_int('gnupb5tw3u', base=base)
+<01111010110011111101000111011100000001001111100111>
+>>> dublin
+<01111010110011111101000111011100000001001111100111>
 ```
 """
 
