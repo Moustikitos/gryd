@@ -253,7 +253,7 @@ class Vincenty_dest(ctypes.Structure):
     function.
 
     Attributes:
-        longitude (float): destinatin longitude in degrees
+        longitude (float): destination longitude in degrees
         latitude (float): destination latitude in degrees
         destination_bearing (float): destination bearing in degrees
     """
@@ -283,6 +283,12 @@ class Dms(ctypes.Structure):
     >>> float(d)
     -60.42286847222222
     ```
+
+    Attributes:
+        sign (int): 0 if negative, 1 if positive
+        degree (float): integer parts of value
+        minute (float): 1/60 fractions of value
+        second (float): 1/3600 fractions of value
     """
     _fields_ = [
         ("sign",   ctypes.c_short),
@@ -315,6 +321,11 @@ class Dmm(ctypes.Structure):
     >>> float(d)
     -60.42286847222222
     ```
+
+    Attributes:
+        sign (int): 0 if negative, 1 if positive
+        degree (float): integer parts of value
+        minute (float): 1/60 fractions of value
     """
     _fields_ = [
         ("sign",   ctypes.c_short),
@@ -356,6 +367,9 @@ class Epsg(ctypes.Structure):
 
         All values in `**pairs` are merged in the record before attributes
         initialization.
+
+        if an attribute is not defined in the `_fields_` list, it is set to the
+        python part of the class, not the `ctypes` structure.
         """
         record = {}
         # in case a dict is given at initialization
@@ -410,6 +424,10 @@ class Unit(Epsg):
     >>> float(Gryd.Unit(name="foot"))
     3.2808693302666354
     ```
+
+    Attributes:
+        epsg (int): EPSG reference
+        ratio (float): coeficient to apply for metter conversion
     """
     table = "unit"
     _fields_ = [
@@ -435,6 +453,10 @@ class Prime(Epsg):
     >>> prime.name
     'Lisbon'
     ```
+
+    Attributes:
+        epsg (int): EPSG reference
+        longitude (float): latitude value
     """
     table = "prime"
     _fields_ = [
@@ -458,6 +480,13 @@ class Ellipsoid(Epsg):
     >>> wgs84
     <Ellispoid epsg=7030 a=6378137.000000 1/f=298.25722356>
     ```
+
+    Attributes:
+        epsg (int): EPSG reference
+        a (float): semi major axis
+        b (float): semi minor axis
+        e (float): exentricity
+        f (float): flattening
     """
     table = "ellipsoid"
     _fields_ = [
@@ -515,7 +544,7 @@ class Ellipsoid(Epsg):
 
     def destination(self, lla, bearing, distance):
         """
-        Return Vincenty destination from geodesic start point folowing
+        Return Vincenty destination from geodesic start point following
         specific bearing for a determined distance.
 
         ```python
@@ -540,6 +569,9 @@ class Ellipsoid(Epsg):
 
     def npoints(self, lla0, lla1, n):
         """
+        Return number of intermediary geodesic coordinates points between two
+        points using Vincenty formulae.
+
         ```python
         >>> for p in wgs84.npoints(dublin, londre, 4): print(p)
         ...
@@ -550,6 +582,12 @@ class Ellipsoid(Epsg):
         <Destination lon=-001°18'45.650" lat=+051°54'36.502" end bearing=117.5>
         <Destination lon=-000°07'37.218" lat=+051°31'6.967" end bearing=118.5>
         ```
+        Arguments:
+            lla0 (Gryd.Geodesic): start point
+            lla1 (Gryd.Geodesic): end point
+            n (int): number uf intermediary points
+        Returns:
+            list of `Gryd.Vincenty_dest`
         """
         result = ()
         pts = npoints(self, lla0, lla1, n)
@@ -560,6 +598,8 @@ class Ellipsoid(Epsg):
 
 class Datum(Epsg):
     """
+    Datum is defined by an ellipsoid, a prime meridian and a set of seven
+    parameters to convert geodesic coordinates to wgs84.
 
     ```python
     >>> Gryd.Datum(epsg=4326)
@@ -568,6 +608,18 @@ class Datum(Epsg):
     <Prime meridian epsg=8901 longitude=0.000000>
     to wgs84: 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0>
     ```
+
+    Attributes:
+        epsg (int): EPSG reference
+        prime (Gryd.Prime): prime meridian
+        ellispoid (Gryd.Ellipsoid): ellipsoid
+        ds (float): expansion coef
+        dx (float): x-axis translation coef
+        dy (float): y-axis translation coef
+        dz (float): z-axis translation coef
+        rx (float): x-axis rotation coef
+        ry (float): y-axis rotation coef
+        rz (float): z-axis rotation coef
     """
     table = "datum"
     _fields_ = [
@@ -602,34 +654,58 @@ class Datum(Epsg):
 
     def xyz(self, lla):
         """
+        Convert geodesic coordinates to geocentric coordinates.
+
         ```python
         >>> wgs84.xyz(london)
         <X=3977018.848 Y=-8815.695 Z=4969650.564>
         ```
+
+        Arguments:
+            lla (Gryd.Geodesic): geodesic coordinates
+        Returns:
+            `Gryd.Geocentric` coordinates
         """
         lla.longitude += self.prime.longitude
         return geocentric(self.ellipsoid, lla)
+    geocentric = xyz
 
     def lla(self, xyz):
         """
+        Convert geocentric coordinates to geodesic coordinates.
+
         ```python
         >>> wgs84.lla(wgs84.xyz(london))
         <lon=-000°07'37.218" lat=+051°31'6.967" alt=0.000>
         >>> london
         <lon=-000°07'37.218" lat=+051°31'6.967" alt=0.000>
         ```
+
+        Arguments:
+            xyz (Gryd.Geodesic): geocentric coordinates
+        Returns:
+            `Gryd.Geodesic` coordinates
         """
         lla = geodesic(self.ellipsoid, xyz)
         lla.longitude -= self.prime.longitude
         return lla
+    geodesic = lla
 
     def transform(self, dst, lla):
         """
+        Transform a geodesic from datum to another one.
+
         ```python
         >>> airy = Gryd.Datum(epsg=4277)
         >>> wgs84.transform(airy, london)
         <lon=-000°07'31.431'' lat=+051°31'5.137'' alt=-46.118>
         ```
+
+        Arguments:
+            dst (Gryd.Datum): destination datum
+            lla (Gryd.Geodesic): geodesic coordinates to transform
+        Returns:
+            `Gryd.Geodesic` coordinates
         """
         return dst.lla(dat2dat(self, dst, self.xyz(lla)))
 
@@ -652,6 +728,19 @@ class Crs(Epsg):
     <Unit epsg=9001 ratio=1.0>
     Projection 'tmerc'>
     ```
+
+    Attributes:
+        epsg (int): EPSG reference
+        datum (Gryd.Datum): prime used in crs
+        unit (Gryd.Unit): unit used in crs
+        lambda0 (float): tmerc projection coef
+        phi0 (float): tmerc and omerc projection coef
+        phi1 (float): lcc projection coef
+        phi2 (float): lcc projection coef
+        k0 (float): tmerc projection coef
+        x0 (float): false northing
+        y0 (float): false easting
+        azimut (float): omerc projection coef
     """
     table = "grid"
     _fields_ = [
@@ -737,12 +826,20 @@ class Crs(Epsg):
 
     def __call__(self, element):
         """
+        Heuristic transformation according to crs properties.
+
         ```python
         >>> osgb36(london)  # projection of Geodesic point
         <X=529939.106 Y=181680.962s alt=0.000>
         >>> osgb36(osgb36(london))  # deprojection of Geographic point
         <lon=-000°07'37.218" lat=+051°31'6.967" alt=0.000>
         ```
+
+        Arguments:
+            element (Gryd.Geodesic or Gryd.Geographic): coordinates to be
+                                                        transformed
+        Returns:
+            `Gryd.Geographic` or `Gryd.Geodesic` coordinates
         """
         try:
             ratio = self.unit.ratio

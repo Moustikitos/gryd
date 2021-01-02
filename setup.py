@@ -4,6 +4,7 @@ from distutils.core import setup, Extension
 from distutils.command.build_ext import build_ext
 
 
+#: to build a pure .so or .dll file to be used within ctypes
 class CTypes(Extension):
     pass
 
@@ -11,6 +12,7 @@ class CTypes(Extension):
 class build_ctypes_ext(build_ext):
 
     def build_extension(self, ext):
+        # identify extension type
         self._ctypes = isinstance(ext, CTypes)
         return super().build_extension(ext)
 
