@@ -34,7 +34,7 @@ __Quick view__
 >>> import Gryd
 >>> dublin = Gryd.Geodesic(-6.259437, 53.350765, 0.)
 >>> dublin
-<lon=-006Â°15'33.973" lat=+053Â°21'2.754" alt=0.000>
+<lon=-006°15'33.973" lat=+053°21'2.754" alt=0.000>
 >>> utm = Gryd.Crs(epsg=3395, projection="utm")
 >>> utm(dublin)
 <area=29U E=682406.211 N=5914792.531, alt=0.000>
@@ -144,7 +144,7 @@ returned by `Gryd.dms` function.
 ```python
 >>> d = Gryd.dms(-60.42286847222222)
 >>> d
--060Â°25'22.326"
+-060°25'22.326"
 >>> float(d)
 -60.42286847222222
 ```
@@ -162,7 +162,7 @@ Degrees Minutes value of a float value. `Dmm` structure are returned by
 ```python
 >>> d = Gryd.dmm(-60.42286847222222)
 >>> d
--060Â°25.372108'
+-060°25.372108'
 >>> float(d)
 -60.42286847222222
 ```
@@ -237,7 +237,7 @@ Prime meridian.
 ```python
 >>> prime = Gryd.Prime(epsg=8902)
 >>> prime
-<Prime meridian epsg=8902 longitude=-009Â°07'54.862">
+<Prime meridian epsg=8902 longitude=-009°07'54.862">
 >>> prime.name
 'Lisbon'
 ```
@@ -299,9 +299,9 @@ specific bearing for a determined distance.
 >>> wgs84.destination(
 ...     london, math.degrees(vdist.final_bearing) + 180, vdist.distance
 ... )
-<Destination lon=-006Â°15'33.973" lat=+053Â°21'2.754" end bearing=-66.4Â°>
+<Destination lon=-006°15'33.973" lat=+053°21'2.754" end bearing=-66.4°>
 >>> dublin
-<lon=-006Â°15'33.973" lat=+053Â°21'2.754" alt=0.000>
+<lon=-006°15'33.973" lat=+053°21'2.754" alt=0.000>
 ```
 
 **Arguments**:
@@ -324,12 +324,12 @@ specific bearing for a determined distance.
 ```python
 >>> for p in wgs84.npoints(dublin, londre, 4): print(p)
 ...
-<Destination lon=-006Â°15'33.973" lat=+053Â°21'2.754" end bearing=113.6>
-<Destination lon=-004Â°59'32.422" lat=+053Â°00'36.687" end bearing=114.6>
-<Destination lon=-003Â°44'43.501" lat=+052Â°39'22.715" end bearing=115.6>
-<Destination lon=-002Â°31'7.792" lat=+052Â°17'22.201" end bearing=116.6>
-<Destination lon=-001Â°18'45.650" lat=+051Â°54'36.502" end bearing=117.5>
-<Destination lon=-000Â°07'37.218" lat=+051Â°31'6.967" end bearing=118.5>
+<Destination lon=-006°15'33.973" lat=+053°21'2.754" end bearing=113.6>
+<Destination lon=-004°59'32.422" lat=+053°00'36.687" end bearing=114.6>
+<Destination lon=-003°44'43.501" lat=+052°39'22.715" end bearing=115.6>
+<Destination lon=-002°31'7.792" lat=+052°17'22.201" end bearing=116.6>
+<Destination lon=-001°18'45.650" lat=+051°54'36.502" end bearing=117.5>
+<Destination lon=-000°07'37.218" lat=+051°31'6.967" end bearing=118.5>
 ```
 
 <a name="Gryd.Datum"></a>
@@ -368,9 +368,9 @@ to wgs84: 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0>
 
 ```python
 >>> wgs84.lla(wgs84.xyz(london))
-<lon=-000Â°07'37.218" lat=+051Â°31'6.967" alt=0.000>
+<lon=-000°07'37.218" lat=+051°31'6.967" alt=0.000>
 >>> london
-<lon=-000Â°07'37.218" lat=+051Â°31'6.967" alt=0.000>
+<lon=-000°07'37.218" lat=+051°31'6.967" alt=0.000>
 ```
 
 <a name="Gryd.Datum.transform"></a>
@@ -383,7 +383,7 @@ to wgs84: 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0>
 ```python
 >>> airy = Gryd.Datum(epsg=4277)
 >>> wgs84.transform(airy, london)
-<lon=-000Â°07'31.431'' lat=+051Â°31'5.137'' alt=-46.118>
+<lon=-000°07'31.431'' lat=+051°31'5.137'' alt=-46.118>
 ```
 
 <a name="Gryd.Crs"></a>
@@ -430,7 +430,7 @@ special method that allows `Gryd.Crs` instance to be pickled
 >>> osgb36(london)  # projection of Geodesic point
 <X=529939.106 Y=181680.962s alt=0.000>
 >>> osgb36(osgb36(london))  # deprojection of Geographic point
-<lon=-000Â°07'37.218" lat=+051Â°31'6.967" alt=0.000>
+<lon=-000°07'37.218" lat=+051°31'6.967" alt=0.000>
 ```
 
 <a name="Gryd.Crs.transform"></a>
@@ -470,7 +470,7 @@ special method that allows `Gryd.Crs` instance to be pickled
 
 ```python
 >>> pvs.map2crs(256+128, 256+128)
-<lon=+089Â°59'58.20'' lat=-066Â°23'43.74'' alt=0.000>
+<lon=+089°59'58.20'' lat=-066°23'43.74'' alt=0.000>
 >>> pvs.map2crs(256-128, 256+128, geographic=True)
 <point X=-10018698.512 Y=-9985934.440s alt=0.000>
 ```
@@ -485,7 +485,7 @@ special method that allows `Gryd.Crs` instance to be pickled
 ```python
 >>> pvs.crs2map(pvs.map2crs(256+128, 256+128))
 <px=384 py=384
-- <lon=+089Â°59'58.20'' lat=-066Â°23'43.74'' alt=0.000>
+- <lon=+089°59'58.20'' lat=-066°23'43.74'' alt=0.000>
 - <X=10018698.512 Y=-9985934.440s alt=0.000>
 >
 ```

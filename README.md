@@ -48,7 +48,7 @@ Guidance words: keep it simple and solid!
 
 ### 2.0.0
  + documentation API change
- + binary source release
+ + binary source released
  + dump location api change
 
 ```python
