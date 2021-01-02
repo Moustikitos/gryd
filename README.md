@@ -1,4 +1,4 @@
-# `Gryd`
+# Gryd
 
 [![pypi](https://img.shields.io/pypi/l/Gryd.svg?style=flat-square)](https://htmlpreview.github.io/?https://github.com/Moustikitos/gryd/blob/master/gryd.html)
 

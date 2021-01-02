@@ -1,7 +1,16 @@
 # -*- encoding:utf-8 -*-
+
+import io
 import math
 import hashlib
 import ctypes
+
+try:
+    from urllib.request import urlopen
+    from io import BytesIO as StringIO
+except ImportError:
+    from urllib import urlopen
+    from cStringIO import StringIO
 
 from Gryd import geohash as geoH
 
@@ -285,7 +294,7 @@ class Geodesic(ctypes.Structure):
         ```python
         >>> Gryd.Geodesic.from_georef('MKJJ43322037')
         <lon=-006°16'21.900" lat=+053°20'41.100" alt=0.000>
-        >>> Gryd.Geodesic.from_georef('MKJJ433220')    
+        >>> Gryd.Geodesic.from_georef('MKJJ433220')
         <lon=-006°15'57.000" lat=+053°22'45.000" alt=0.000>
         ```
 
@@ -399,15 +408,55 @@ class Geodesic(ctypes.Structure):
 
         return Geodesic(longitude=longitude - 180, latitude=latitude - 90)
 
+    def url_load_location(self, url, **kwargs):
+        """
+        Return a static map image data from map provider.
 
-    # def dump_location(self, tilename, zoom=15, size="256x256", mcolor="0xff00ff", format="png", scale=1):
-    #     latitude, longitude = self.latitude, self.longitude
-    #     try:
-    #         urllib.urlretrieve(
-    #             "https://maps.googleapis.com/maps/api/staticmap?center=%s,%s&zoom=%s&size=%s&markers=color:%s%%7C%s,%s&format=%s&scale=%s" % (
-    #                 latitude, longitude, zoom, size, mcolor, latitude, longitude, format, scale
-    #             ),
-    #             os.path.splitext(tilename)[0] + "."+format
-    #         )
-    #     except:
-    #         pass
+        ```python
+        >>> # below a mapbox-static-map url centered on [lon, lat] with a red
+        >>> # pin, width, height and zoom to be specified on call
+        >>> url = "https://api.mapbox.com/styles/v1/mapbox/outdoors-v11/static"
+        ... "/pin-s+f74e4e(%(lon)f,%(lat)f)/%(lon)f,%(lat)f,%(zoom)d,0"
+        ... "/%(width)dx%(height)d?access_token=%(token)s"
+        >>> data = dublin.url_load_location(
+        ...    url, zoom=15, width=600, height=400, token="xx-xxxxxx-xx"
+        ... )
+        >>> # see `Gryd.geodesy.Geodesic.dump_location`
+        >>> with io.open("dump.png", "wb") as f:
+        ...    f.write(data)
+        ```
+
+        Arguments:
+            url (str): map provider url containing `%(lon)f` and `%(lat)f`
+                       format expression to be replaced by longitude and
+                       latitude found in GPS data
+            **kwargs (dict): key-value pairs to match entries in url according
+                             to python string formatting
+        Returns:
+            Image data as `bytes` (py3) or `str` (py2)
+        """
+        kwargs.update(
+            lon=self.longitude * _TODEG,
+            lat=self.latitude * _TODEG
+        )
+        try:
+            opener = urlopen(url % kwargs)
+        except Exception as error:
+            print("%r" % error)
+        else:
+            return opener.read()
+
+    def dump_location(self, name, url, **kwargs):
+        """
+        Dump a static map image from map provider into filesystem.
+
+        Arguments:
+            name (str): a valid filepath
+            url (str): map provider url containing `%(lon)f` and `%(lat)f`
+                       format expression to be replaced by longitude and
+                       latitude found in GPS data
+            **kwargs (dict): key-value pairs to match entries in url according
+                             to python string formatting
+        """
+        with io.open(name, "wb") as fileobj:
+            fileobj.write(self.url_load_location(url, **kwargs))

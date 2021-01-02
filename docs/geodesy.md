@@ -28,7 +28,7 @@ class Geodesic(ctypes.Structure)
 ```python
 >>> dublin = Gryd.Geodesic(-6.272877, 53.344606, 105.)
 >>> dublin
-<lon=-006Â°16'22.357" lat=+053Â°20'40.582" alt=105.000>
+<lon=-006°16'22.357" lat=+053°20'40.582" alt=105.000>
 ```
 
 <a name="Gryd.geodesy.Geodesic.encrypt"></a>
@@ -123,9 +123,9 @@ Return Geodesic object geohash.
 
 ```python
 >>> Gryd.Geodesic.from_geohash('gc7x3r04z7')
-<lon=-006Â°16'22.347" lat=+053Â°20'40.590" alt=0.000>
+<lon=-006°16'22.347" lat=+053°20'40.590" alt=0.000>
 >>> Gryd.Geodesic.from_geohash('gc7x3r04z77csw')
-<lon=-006Â°16'22.357" lat=+053Â°20'40.582" alt=0.000>
+<lon=-006°16'22.357" lat=+053°20'40.582" alt=0.000>
 ```
 
 **Arguments**:
@@ -217,9 +217,9 @@ Return Geodesic object from georef.
 
 ```python
 >>> Gryd.Geodesic.from_georef('MKJJ43322037')
-<lon=-006Â°16'21.900" lat=+053Â°20'41.100" alt=0.000>
->>> Gryd.Geodesic.from_georef('MKJJ433220')    
-<lon=-006Â°15'57.000" lat=+053Â°22'45.000" alt=0.000>
+<lon=-006°16'21.900" lat=+053°20'41.100" alt=0.000>
+>>> Gryd.Geodesic.from_georef('MKJJ433220')
+<lon=-006°15'57.000" lat=+053°22'45.000" alt=0.000>
 ```
 
 **Arguments**:
@@ -258,9 +258,9 @@ where to handle 5minx5min tile.
 
 ```python
 >>> Gryd.Geodesic.from_gars('348MY16', anchor="nw")
-<lon=-006Â°20'0.000" lat=+053Â°25'0.000" alt=0.000>
+<lon=-006°20'0.000" lat=+053°25'0.000" alt=0.000>
 >>> Gryd.Geodesic.from_gars('348MY16')
-<lon=-006Â°17'30.000" lat=+053Â°22'30.000" alt=0.000>
+<lon=-006°17'30.000" lat=+053°22'30.000" alt=0.000>
 ```
 
 **Arguments**:
@@ -271,6 +271,60 @@ where to handle 5minx5min tile.
 **Returns**:
 
   `Gryd.geodesy.Geodesic` coordinates
+
+<a name="Gryd.geodesy.Geodesic.url_load_location"></a>
+#### url\_load\_location
+
+```python
+ | url_load_location(url, **kwargs)
+```
+
+Return a static map image data from map provider.
+
+
+```python
+>>> # below a mapbox-static-map url centered on [lon, lat] with a red
+>>> # pin, width, height and zoom to be specified on call
+>>> url = "https://api.mapbox.com/styles/v1/mapbox/outdoors-v11/static"
+... "/pin-s+f74e4e(%(lon)f,%(lat)f)/%(lon)f,%(lat)f,%(zoom)d,0"
+... "/%(width)dx%(height)d?access_token=%(token)s"
+>>> data = dublin.url_load_location(
+...    url, zoom=15, width=600, height=400, token="xx-xxxxxx-xx"
+... )
+>>> # see `Gryd.geodesy.Geodesic.dump_location`
+>>> with io.open("dump.png", "wb") as f:
+...    f.write(data)
+```
+
+**Arguments**:
+
+- `url` _str_ - map provider url containing `%(lon)f` and `%(lat)f`
+  format expression to be replaced by longitude and
+  latitude found in GPS data
+- `**kwargs` _dict_ - key-value pairs to match entries in url according
+  to python string formatting
+
+**Returns**:
+
+  Image data as `bytes` (py3) or `str` (py2)
+
+<a name="Gryd.geodesy.Geodesic.dump_location"></a>
+#### dump\_location
+
+```python
+ | dump_location(name, url, **kwargs)
+```
+
+Dump a static map image from map provider into filesystem.
+
+**Arguments**:
+
+- `name` _str_ - a valid filepath
+- `url` _str_ - map provider url containing `%(lon)f` and `%(lat)f`
+  format expression to be replaced by longitude and
+  latitude found in GPS data
+- `**kwargs` _dict_ - key-value pairs to match entries in url according
+  to python string formatting
 
 <a name="Gryd.geohash"></a>
 # Gryd.geohash
