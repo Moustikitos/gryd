@@ -42,9 +42,6 @@
                             <li class="navitem">
                                 <a href="geodesy/" class="nav-link">Geodesy</a>
                             </li>
-                            <li class="navitem">
-                                <a href="grids/" class="nav-link">Grids</a>
-                            </li>
                         </ul>
 
                     <ul class="nav navbar-nav ml-auto">
@@ -153,8 +150,21 @@
 <h3 id="200">2.0.0</h3>
 <ul>
 <li>documentation API change</li>
-<li>binary source release</li>
+<li>binary source released</li>
 <li>dump location api change</li>
+</ul>
+<pre><code class="language-python">&gt;&gt;&gt; import Gryd
+&gt;&gt;&gt; dublin = Gryd.Geodesic(-6.272877, 53.344606, 105.)
+&gt;&gt;&gt; # mapbox static map api url
+&gt;&gt;&gt; url = &quot;https://api.mapbox.com/styles/v1/mapbox/outdoors-v11/static/&quot;\
+...       &quot;pin-s+f74e4e(%(lon)f,%(lat)f)/%(lon)f,%(lat)f,%(zoom)d,0/&quot;\
+...       &quot;%(width)dx%(height)d?access_token=%(token)s&quot;
+&gt;&gt;&gt; # see https://docs.mapbox.com/api/overview/#access-tokens-and-token-scopes
+&gt;&gt;&gt; token = &quot;pk.eyJ1IjoibW91c2lr[...]nJtcHlyejFrNXd4In0.JIyrV6sWjehsRHKVMBDFaw&quot;
+&gt;&gt;&gt; dublin.dump_location(&quot;test/dublin.png&quot;, url, zoom=15, width=600, height=400, token=token)
+</code></pre>
+<p><img alt="Here is Dublin" src="https://raw.githubusercontent.com/Moustikitos/gryd/master/test/dublin.png" /></p>
+<ul>
 <li><code>geohash</code> module improvement</li>
 <li>implementation based on python integers</li>
 <li>better encryption interface</li>
@@ -338,5 +348,5 @@ Ellispoid epsg=7030 a=6378137.000000 1/f=298.25722356
 
 <!--
 MkDocs version : 1.1.2
-Build Date UTC : 2021-01-02 08:52:38.744895+00:00
+Build Date UTC : 2021-01-02 09:57:39.746483+00:00
 -->
