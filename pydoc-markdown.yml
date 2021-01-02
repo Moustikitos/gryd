@@ -30,12 +30,12 @@ renderer:
       contents:
         - Gryd.geodesy*
         - Gryd.geohash*
-    - title: Grids
-      contents:
-        - Gryd.utm*
-        - Gryd.mgrs*
-        - Gryd.bng*
-        - Gryd.ing*
+    # - title: Grids
+    #   contents:
+    #     - Gryd.utm*
+    #     - Gryd.mgrs*
+    #     - Gryd.bng*
+    #     - Gryd.ing*
   mkdocs_config:
     site_name: The Gryd Project
     repo_url: https://github.com/Moustikitos/Gryd

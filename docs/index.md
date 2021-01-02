@@ -48,8 +48,23 @@ Guidance words: keep it simple and solid!
 
 ### 2.0.0
  + documentation API change
- + binary source release
+ + binary source released
  + dump location api change
+
+```python
+>>> import Gryd
+>>> dublin = Gryd.Geodesic(-6.272877, 53.344606, 105.)
+>>> # mapbox static map api url
+>>> url = "https://api.mapbox.com/styles/v1/mapbox/outdoors-v11/static/"\
+...       "pin-s+f74e4e(%(lon)f,%(lat)f)/%(lon)f,%(lat)f,%(zoom)d,0/"\
+...       "%(width)dx%(height)d?access_token=%(token)s"
+>>> # see https://docs.mapbox.com/api/overview/#access-tokens-and-token-scopes
+>>> token = "pk.eyJ1IjoibW91c2lr[...]nJtcHlyejFrNXd4In0.JIyrV6sWjehsRHKVMBDFaw"
+>>> dublin.dump_location("test/dublin.png", url, zoom=15, width=600, height=400, token=token)
+```
+
+![Here is Dublin](https://raw.githubusercontent.com/Moustikitos/gryd/master/test/dublin.png)
+
  + `geohash` module improvement
    * implementation based on python integers
    * better encryption interface
