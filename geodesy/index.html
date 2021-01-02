@@ -126,7 +126,7 @@
 </ul>
 <pre><code class="language-python">&gt;&gt;&gt; dublin = Gryd.Geodesic(-6.272877, 53.344606, 105.)
 &gt;&gt;&gt; dublin
-&lt;lon=-006Â°16'22.357&quot; lat=+053Â°20'40.582&quot; alt=105.000&gt;
+&lt;lon=-006°16'22.357&quot; lat=+053°20'40.582&quot; alt=105.000&gt;
 </code></pre>
 <p><a name="Gryd.geodesy.Geodesic.encrypt"></a></p>
 <h4 id="encrypt">encrypt</h4>
@@ -187,9 +187,9 @@ b'\xbda\xe0\xa3\xe9\xbd\x1d\x86\xe0_a1\x8bV2\xe0aV\xbd2\xcd\xe0\xe0'
 </code></pre>
 <p>Return Geodesic object geohash.</p>
 <pre><code class="language-python">&gt;&gt;&gt; Gryd.Geodesic.from_geohash('gc7x3r04z7')
-&lt;lon=-006Â°16'22.347&quot; lat=+053Â°20'40.590&quot; alt=0.000&gt;
+&lt;lon=-006°16'22.347&quot; lat=+053°20'40.590&quot; alt=0.000&gt;
 &gt;&gt;&gt; Gryd.Geodesic.from_geohash('gc7x3r04z77csw')
-&lt;lon=-006Â°16'22.357&quot; lat=+053Â°20'40.582&quot; alt=0.000&gt;
+&lt;lon=-006°16'22.357&quot; lat=+053°20'40.582&quot; alt=0.000&gt;
 </code></pre>
 <p><strong>Arguments</strong>:</p>
 <ul>
@@ -248,9 +248,9 @@ b'\xbda\xe0\xa3\xe9\xbd\x1d\x86\xe0_a1\x8bV2\xe0aV\xbd2\xcd\xe0\xe0'
 </code></pre>
 <p>Return Geodesic object from georef.</p>
 <pre><code class="language-python">&gt;&gt;&gt; Gryd.Geodesic.from_georef('MKJJ43322037')
-&lt;lon=-006Â°16'21.900&quot; lat=+053Â°20'41.100&quot; alt=0.000&gt;
-&gt;&gt;&gt; Gryd.Geodesic.from_georef('MKJJ433220')    
-&lt;lon=-006Â°15'57.000&quot; lat=+053Â°22'45.000&quot; alt=0.000&gt;
+&lt;lon=-006°16'21.900&quot; lat=+053°20'41.100&quot; alt=0.000&gt;
+&gt;&gt;&gt; Gryd.Geodesic.from_georef('MKJJ433220')
+&lt;lon=-006°15'57.000&quot; lat=+053°22'45.000&quot; alt=0.000&gt;
 </code></pre>
 <p><strong>Arguments</strong>:</p>
 <ul>
@@ -274,9 +274,9 @@ b'\xbda\xe0\xa3\xe9\xbd\x1d\x86\xe0_a1\x8bV2\xe0aV\xbd2\xcd\xe0\xe0'
 <p>Return Geodesic object from gars. Optional anchor value to define
 where to handle 5minx5min tile.</p>
 <pre><code class="language-python">&gt;&gt;&gt; Gryd.Geodesic.from_gars('348MY16', anchor=&quot;nw&quot;)
-&lt;lon=-006Â°20'0.000&quot; lat=+053Â°25'0.000&quot; alt=0.000&gt;
+&lt;lon=-006°20'0.000&quot; lat=+053°25'0.000&quot; alt=0.000&gt;
 &gt;&gt;&gt; Gryd.Geodesic.from_gars('348MY16')
-&lt;lon=-006Â°17'30.000&quot; lat=+053Â°22'30.000&quot; alt=0.000&gt;
+&lt;lon=-006°17'30.000&quot; lat=+053°22'30.000&quot; alt=0.000&gt;
 </code></pre>
 <p><strong>Arguments</strong>:</p>
 <ul>
@@ -285,6 +285,47 @@ where to handle 5minx5min tile.</p>
 </ul>
 <p><strong>Returns</strong>:</p>
 <p><code>Gryd.geodesy.Geodesic</code> coordinates</p>
+<p><a name="Gryd.geodesy.Geodesic.url_load_location"></a></p>
+<h4 id="url_load_location">url_load_location</h4>
+<pre><code class="language-python"> | url_load_location(url, **kwargs)
+</code></pre>
+<p>Return a static map image data from map provider.</p>
+<pre><code class="language-python">&gt;&gt;&gt; # below a mapbox-static-map url centered on [lon, lat] with a red
+&gt;&gt;&gt; # pin, width, height and zoom to be specified on call
+&gt;&gt;&gt; url = &quot;https://api.mapbox.com/styles/v1/mapbox/outdoors-v11/static&quot;
+... &quot;/pin-s+f74e4e(%(lon)f,%(lat)f)/%(lon)f,%(lat)f,%(zoom)d,0&quot;
+... &quot;/%(width)dx%(height)d?access_token=%(token)s&quot;
+&gt;&gt;&gt; data = dublin.url_load_location(
+...    url, zoom=15, width=600, height=400, token=&quot;xx-xxxxxx-xx&quot;
+... )
+&gt;&gt;&gt; # see `Gryd.geodesy.Geodesic.dump_location`
+&gt;&gt;&gt; with io.open(&quot;dump.png&quot;, &quot;wb&quot;) as f:
+...    f.write(data)
+</code></pre>
+<p><strong>Arguments</strong>:</p>
+<ul>
+<li><code>url</code> <em>str</em> - map provider url containing <code>%(lon)f</code> and <code>%(lat)f</code>
+  format expression to be replaced by longitude and
+  latitude found in GPS data</li>
+<li><code>**kwargs</code> <em>dict</em> - key-value pairs to match entries in url according
+  to python string formatting</li>
+</ul>
+<p><strong>Returns</strong>:</p>
+<p>Image data as <code>bytes</code> (py3) or <code>str</code> (py2)</p>
+<p><a name="Gryd.geodesy.Geodesic.dump_location"></a></p>
+<h4 id="dump_location">dump_location</h4>
+<pre><code class="language-python"> | dump_location(name, url, **kwargs)
+</code></pre>
+<p>Dump a static map image from map provider into filesystem.</p>
+<p><strong>Arguments</strong>:</p>
+<ul>
+<li><code>name</code> <em>str</em> - a valid filepath</li>
+<li><code>url</code> <em>str</em> - map provider url containing <code>%(lon)f</code> and <code>%(lat)f</code>
+  format expression to be replaced by longitude and
+  latitude found in GPS data</li>
+<li><code>**kwargs</code> <em>dict</em> - key-value pairs to match entries in url according
+  to python string formatting</li>
+</ul>
 <p><a name="Gryd.geohash"></a></p>
 <h1 id="grydgeohash">Gryd.geohash</h1>
 <p>Efficient geohash computing library based on bitwise operation with python
