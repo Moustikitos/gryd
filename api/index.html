@@ -236,7 +236,7 @@ function.</p>
 function.</p>
 <p><strong>Attributes</strong>:</p>
 <ul>
-<li><code>longitude</code> <em>float</em> - destinatin longitude in degrees</li>
+<li><code>longitude</code> <em>float</em> - destination longitude in degrees</li>
 <li><code>latitude</code> <em>float</em> - destination latitude in degrees</li>
 <li><code>destination_bearing</code> <em>float</em> - destination bearing in degrees</li>
 </ul>
@@ -252,6 +252,13 @@ returned by <code>Gryd.dms</code> function.</p>
 &gt;&gt;&gt; float(d)
 -60.42286847222222
 </code></pre>
+<p><strong>Attributes</strong>:</p>
+<ul>
+<li><code>sign</code> <em>int</em> - 0 if negative, 1 if positive</li>
+<li><code>degree</code> <em>float</em> - integer parts of value</li>
+<li><code>minute</code> <em>float</em> - 1/60 fractions of value</li>
+<li><code>second</code> <em>float</em> - 1/3600 fractions of value</li>
+</ul>
 <p><a name="Gryd.Dmm"></a></p>
 <h2 id="dmm-objects">Dmm Objects</h2>
 <pre><code class="language-python">class Dmm(ctypes.Structure)
@@ -264,6 +271,12 @@ returned by <code>Gryd.dms</code> function.</p>
 &gt;&gt;&gt; float(d)
 -60.42286847222222
 </code></pre>
+<p><strong>Attributes</strong>:</p>
+<ul>
+<li><code>sign</code> <em>int</em> - 0 if negative, 1 if positive</li>
+<li><code>degree</code> <em>float</em> - integer parts of value</li>
+<li><code>minute</code> <em>float</em> - 1/60 fractions of value</li>
+</ul>
 <p><a name="Gryd.Epsg"></a></p>
 <h2 id="epsg-objects">Epsg Objects</h2>
 <pre><code class="language-python">class Epsg(ctypes.Structure)
@@ -290,6 +303,8 @@ contains one value:</p>
 </ul>
 <p>All values in <code>**pairs</code> are merged in the record before attributes
 initialization.</p>
+<p>if an attribute is not defined in the <code>_fields_</code> list, it is set to the
+python part of the class, not the <code>ctypes</code> structure.</p>
 <p><a name="Gryd.Unit"></a></p>
 <h2 id="unit-objects">Unit Objects</h2>
 <pre><code class="language-python">class Unit(Epsg)
@@ -304,6 +319,11 @@ initialization.</p>
 &gt;&gt;&gt; float(Gryd.Unit(name=&quot;foot&quot;))
 3.2808693302666354
 </code></pre>
+<p><strong>Attributes</strong>:</p>
+<ul>
+<li><code>epsg</code> <em>int</em> - EPSG reference</li>
+<li><code>ratio</code> <em>float</em> - coeficient to apply for metter conversion</li>
+</ul>
 <p><a name="Gryd.Prime"></a></p>
 <h2 id="prime-objects">Prime Objects</h2>
 <pre><code class="language-python">class Prime(Epsg)
@@ -315,6 +335,11 @@ initialization.</p>
 &gt;&gt;&gt; prime.name
 'Lisbon'
 </code></pre>
+<p><strong>Attributes</strong>:</p>
+<ul>
+<li><code>epsg</code> <em>int</em> - EPSG reference</li>
+<li><code>longitude</code> <em>float</em> - latitude value</li>
+</ul>
 <p><a name="Gryd.Ellipsoid"></a></p>
 <h2 id="ellipsoid-objects">Ellipsoid Objects</h2>
 <pre><code class="language-python">class Ellipsoid(Epsg)
@@ -325,6 +350,14 @@ initialization.</p>
 &gt;&gt;&gt; wgs84
 &lt;Ellispoid epsg=7030 a=6378137.000000 1/f=298.25722356&gt;
 </code></pre>
+<p><strong>Attributes</strong>:</p>
+<ul>
+<li><code>epsg</code> <em>int</em> - EPSG reference</li>
+<li><code>a</code> <em>float</em> - semi major axis</li>
+<li><code>b</code> <em>float</em> - semi minor axis</li>
+<li><code>e</code> <em>float</em> - exentricity</li>
+<li><code>f</code> <em>float</em> - flattening</li>
+</ul>
 <p><a name="Gryd.Ellipsoid.distance"></a></p>
 <h4 id="distance">distance</h4>
 <pre><code class="language-python"> | distance(lla0, lla1)
@@ -346,7 +379,7 @@ initialization.</p>
 <h4 id="destination">destination</h4>
 <pre><code class="language-python"> | destination(lla, bearing, distance)
 </code></pre>
-<p>Return Vincenty destination from geodesic start point folowing
+<p>Return Vincenty destination from geodesic start point following
 specific bearing for a determined distance.</p>
 <pre><code class="language-python">&gt;&gt;&gt; wgs84.destination(
 ...     london, math.degrees(vdist.final_bearing) + 180, vdist.distance
@@ -367,6 +400,8 @@ specific bearing for a determined distance.</p>
 <h4 id="npoints">npoints</h4>
 <pre><code class="language-python"> | npoints(lla0, lla1, n)
 </code></pre>
+<p>Return number of intermediary geodesic coordinates points between two
+points using Vincenty formulae.</p>
 <pre><code class="language-python">&gt;&gt;&gt; for p in wgs84.npoints(dublin, londre, 4): print(p)
 ...
 &lt;Destination lon=-006°15'33.973&quot; lat=+053°21'2.754&quot; end bearing=113.6&gt;
@@ -376,40 +411,85 @@ specific bearing for a determined distance.</p>
 &lt;Destination lon=-001°18'45.650&quot; lat=+051°54'36.502&quot; end bearing=117.5&gt;
 &lt;Destination lon=-000°07'37.218&quot; lat=+051°31'6.967&quot; end bearing=118.5&gt;
 </code></pre>
+<p><strong>Arguments</strong>:</p>
+<ul>
+<li><code>lla0</code> <em>Gryd.Geodesic</em> - start point</li>
+<li><code>lla1</code> <em>Gryd.Geodesic</em> - end point</li>
+<li><code>n</code> <em>int</em> - number uf intermediary points</li>
+</ul>
+<p><strong>Returns</strong>:</p>
+<p>list of <code>Gryd.Vincenty_dest</code></p>
 <p><a name="Gryd.Datum"></a></p>
 <h2 id="datum-objects">Datum Objects</h2>
 <pre><code class="language-python">class Datum(Epsg)
 </code></pre>
+<p>Datum is defined by an ellipsoid, a prime meridian and a set of seven
+parameters to convert geodesic coordinates to wgs84.</p>
 <pre><code class="language-python">&gt;&gt;&gt; Gryd.Datum(epsg=4326)
 &lt;Datum epsg=4326:
 &lt;Ellispoid epsg=7030 a=6378137.000000 1/f=298.25722356&gt;
 &lt;Prime meridian epsg=8901 longitude=0.000000&gt;
 to wgs84: 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0&gt;
 </code></pre>
+<p><strong>Attributes</strong>:</p>
+<ul>
+<li><code>epsg</code> <em>int</em> - EPSG reference</li>
+<li><code>prime</code> <em>Gryd.Prime</em> - prime meridian</li>
+<li><code>ellispoid</code> <em>Gryd.Ellipsoid</em> - ellipsoid</li>
+<li><code>ds</code> <em>float</em> - expansion coef</li>
+<li><code>dx</code> <em>float</em> - x-axis translation coef</li>
+<li><code>dy</code> <em>float</em> - y-axis translation coef</li>
+<li><code>dz</code> <em>float</em> - z-axis translation coef</li>
+<li><code>rx</code> <em>float</em> - x-axis rotation coef</li>
+<li><code>ry</code> <em>float</em> - y-axis rotation coef</li>
+<li><code>rz</code> <em>float</em> - z-axis rotation coef</li>
+</ul>
 <p><a name="Gryd.Datum.xyz"></a></p>
 <h4 id="xyz">xyz</h4>
 <pre><code class="language-python"> | xyz(lla)
 </code></pre>
+<p>Convert geodesic coordinates to geocentric coordinates.</p>
 <pre><code class="language-python">&gt;&gt;&gt; wgs84.xyz(london)
 &lt;X=3977018.848 Y=-8815.695 Z=4969650.564&gt;
 </code></pre>
+<p><strong>Arguments</strong>:</p>
+<ul>
+<li><code>lla</code> <em>Gryd.Geodesic</em> - geodesic coordinates</li>
+</ul>
+<p><strong>Returns</strong>:</p>
+<p><code>Gryd.Geocentric</code> coordinates</p>
 <p><a name="Gryd.Datum.lla"></a></p>
 <h4 id="lla">lla</h4>
 <pre><code class="language-python"> | lla(xyz)
 </code></pre>
+<p>Convert geocentric coordinates to geodesic coordinates.</p>
 <pre><code class="language-python">&gt;&gt;&gt; wgs84.lla(wgs84.xyz(london))
 &lt;lon=-000°07'37.218&quot; lat=+051°31'6.967&quot; alt=0.000&gt;
 &gt;&gt;&gt; london
 &lt;lon=-000°07'37.218&quot; lat=+051°31'6.967&quot; alt=0.000&gt;
 </code></pre>
+<p><strong>Arguments</strong>:</p>
+<ul>
+<li><code>xyz</code> <em>Gryd.Geodesic</em> - geocentric coordinates</li>
+</ul>
+<p><strong>Returns</strong>:</p>
+<p><code>Gryd.Geodesic</code> coordinates</p>
 <p><a name="Gryd.Datum.transform"></a></p>
 <h4 id="transform">transform</h4>
 <pre><code class="language-python"> | transform(dst, lla)
 </code></pre>
+<p>Transform a geodesic from datum to another one.</p>
 <pre><code class="language-python">&gt;&gt;&gt; airy = Gryd.Datum(epsg=4277)
 &gt;&gt;&gt; wgs84.transform(airy, london)
 &lt;lon=-000°07'31.431'' lat=+051°31'5.137'' alt=-46.118&gt;
 </code></pre>
+<p><strong>Arguments</strong>:</p>
+<ul>
+<li><code>dst</code> <em>Gryd.Datum</em> - destination datum</li>
+<li><code>lla</code> <em>Gryd.Geodesic</em> - geodesic coordinates to transform</li>
+</ul>
+<p><strong>Returns</strong>:</p>
+<p><code>Gryd.Geodesic</code> coordinates</p>
 <p><a name="Gryd.Crs"></a></p>
 <h2 id="crs-objects">Crs Objects</h2>
 <pre><code class="language-python">class Crs(Epsg)
@@ -429,6 +509,20 @@ to wgs84 446.45,-125.16,542.06,-20.49,0.15,0.25,0.84&gt;
 &lt;Unit epsg=9001 ratio=1.0&gt;
 Projection 'tmerc'&gt;
 </code></pre>
+<p><strong>Attributes</strong>:</p>
+<ul>
+<li><code>epsg</code> <em>int</em> - EPSG reference</li>
+<li><code>datum</code> <em>Gryd.Datum</em> - prime used in crs</li>
+<li><code>unit</code> <em>Gryd.Unit</em> - unit used in crs</li>
+<li><code>lambda0</code> <em>float</em> - tmerc projection coef</li>
+<li><code>phi0</code> <em>float</em> - tmerc and omerc projection coef</li>
+<li><code>phi1</code> <em>float</em> - lcc projection coef</li>
+<li><code>phi2</code> <em>float</em> - lcc projection coef</li>
+<li><code>k0</code> <em>float</em> - tmerc projection coef</li>
+<li><code>x0</code> <em>float</em> - false northing</li>
+<li><code>y0</code> <em>float</em> - false easting</li>
+<li><code>azimut</code> <em>float</em> - omerc projection coef</li>
+</ul>
 <p><a name="Gryd.Crs.__reduce__"></a></p>
 <h4 id="__reduce__">__reduce__</h4>
 <pre><code class="language-python"> | __reduce__()
@@ -438,11 +532,19 @@ Projection 'tmerc'&gt;
 <h4 id="__call__">__call__</h4>
 <pre><code class="language-python"> | __call__(element)
 </code></pre>
+<p>Heuristic transformation according to crs properties.</p>
 <pre><code class="language-python">&gt;&gt;&gt; osgb36(london)  # projection of Geodesic point
 &lt;X=529939.106 Y=181680.962s alt=0.000&gt;
 &gt;&gt;&gt; osgb36(osgb36(london))  # deprojection of Geographic point
 &lt;lon=-000°07'37.218&quot; lat=+051°31'6.967&quot; alt=0.000&gt;
 </code></pre>
+<p><strong>Arguments</strong>:</p>
+<ul>
+<li><code>element</code> <em>Gryd.Geodesic or Gryd.Geographic</em> - coordinates to be
+  transformed</li>
+</ul>
+<p><strong>Returns</strong>:</p>
+<p><code>Gryd.Geographic</code> or <code>Gryd.Geodesic</code> coordinates</p>
 <p><a name="Gryd.Crs.transform"></a></p>
 <h4 id="transform_1">transform</h4>
 <pre><code class="language-python"> | transform(dst, xya)
