@@ -122,7 +122,8 @@
 <li>[X] Vote <code>arky</code> on <a href="https://explorer.ark.io">Ark blockchain</a> and <a href="http://dpos.arky-delegate.info/arky">earn &#1126; weekly</a></li>
 </ul>
 <h2 id="why-this-package">Why this package ?</h2>
-<p><code>Gryd</code> package provides efficient great circle computation and projection library.</p>
+<p><code>Gryd</code> package provides efficient great circle computation and projection library.
+It is light weight (less than 500Ko) and does not need any dependancy.</p>
 <h2 id="documentation">Documentation</h2>
 <p><a href="https://moustikitos.github.io/gryd/">The Gryd Project [WIP]</a></p>
 <h2 id="installation">Installation</h2>
@@ -151,6 +152,7 @@
 <ul>
 <li>documentation API change</li>
 <li>binary source released</li>
+<li>code improvement</li>
 <li>dump location api change</li>
 </ul>
 <pre><code class="language-python">&gt;&gt;&gt; import Gryd
@@ -161,7 +163,7 @@
 ...       &quot;%(width)dx%(height)d?access_token=%(token)s&quot;
 &gt;&gt;&gt; # see https://docs.mapbox.com/api/overview/#access-tokens-and-token-scopes
 &gt;&gt;&gt; token = &quot;pk.eyJ1IjoibW91c2lr[...]nJtcHlyejFrNXd4In0.JIyrV6sWjehsRHKVMBDFaw&quot;
-&gt;&gt;&gt; dublin.dump_location(&quot;test/dublin.png&quot;, url, zoom=15, width=600, height=400, token=token)
+&gt;&gt;&gt; dublin.dump_location(&quot;test/dublin.png&quot;, url, zoom=15, width=300, height=200, token=token)
 </code></pre>
 <p><img alt="Here is Dublin" src="https://raw.githubusercontent.com/Moustikitos/gryd/master/test/dublin.png" /></p>
 <ul>
@@ -348,5 +350,5 @@ Ellispoid epsg=7030 a=6378137.000000 1/f=298.25722356
 
 <!--
 MkDocs version : 1.1.2
-Build Date UTC : 2021-01-02 21:58:23.819458+00:00
+Build Date UTC : 2021-01-03 19:48:39.710124+00:00
 -->

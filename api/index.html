@@ -83,6 +83,10 @@
             
             <li class="nav-item" data-level="1"><a href="#gryd" class="nav-link">Gryd</a>
               <ul class="nav flex-column">
+            <li class="nav-item" data-level="2"><a href="#geodesic-object" class="nav-link">Geodesic object</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
             <li class="nav-item" data-level="2"><a href="#geocentric-objects" class="nav-link">Geocentric Objects</a>
               <ul class="nav flex-column">
               </ul>
@@ -141,7 +145,7 @@
 <p><a name="Gryd"></a></p>
 <h1 id="gryd">Gryd</h1>
 <p><strong>EPSG dataset</strong></p>
-<p>All epsg dataset linked to these projections are available through python API
+<p>All epsg crs linked to these projections are available through python API
 using epsg id or name:</p>
 <ul>
 <li>Mercator</li>
@@ -157,30 +161,23 @@ using epsg id or name:</p>
 <li>British National Grid</li>
 <li>Irish National Grid.</li>
 </ul>
-<p><strong>Image-map interpolation</strong></p>
-<p><code>Gryd.Crs</code> also provides functions for map coordinates interpolation using
-calibration <code>Points</code> (two minimum are required).</p>
-<p><strong>Quick view</strong></p>
-<pre><code class="language-python">&gt;&gt;&gt; import Gryd
-&gt;&gt;&gt; dublin = Gryd.Geodesic(-6.259437, 53.350765, 0.)
-&gt;&gt;&gt; dublin
-&lt;lon=-006°15'33.973&quot; lat=+053°21'2.754&quot; alt=0.000&gt;
-&gt;&gt;&gt; utm = Gryd.Crs(epsg=3395, projection=&quot;utm&quot;)
-&gt;&gt;&gt; utm(dublin)
-&lt;area=29U E=682406.211 N=5914792.531, alt=0.000&gt;
-&gt;&gt;&gt; mgrs = Gryd.Crs(epsg=3395, projection=&quot;mgrs&quot;)
-&gt;&gt;&gt; mgrs(dublin)
-&lt;area=29U PV E=82406.211 N=14792.531, alt=0.000&gt;
-&gt;&gt;&gt; bng = Gryd.Crs(projection=&quot;bng&quot;)
-&gt;&gt;&gt; bng(dublin)
-&lt;area=SG E=16572.029 N=92252.917, alt=0.000&gt;
-&gt;&gt;&gt; ing = Gryd.Crs(projection=&quot;ing&quot;)
-&gt;&gt;&gt; ing(dublin)
-&lt;area=O E=15890.887 N=34804.964, alt=0.000&gt;
+<p><strong>Raster map interpolation</strong></p>
+<p><code>Gryd.Crs</code> also provides functions for raster map coordinates interpolation
+using calibration <code>Points</code> (two minimum are required).</p>
+<h2 id="geodesic-object">Geodesic object</h2>
+<p><a href="../geodesy/">See <code>Gryd.geodesy</code> module</a></p>
+<p><a name="Gryd.names"></a></p>
+<h4 id="names">names</h4>
+<pre><code class="language-python">names(cls)
 </code></pre>
-<p><a name="Gryd.EPSG_CON"></a></p>
-<h4 id="epsg_con">EPSG_CON</h4>
-<p>Connection to epsg database</p>
+<p>Return list of tuples (name and epsg reference) available in the sqlite
+database.</p>
+<p><strong>Arguments</strong>:</p>
+<ul>
+<li><code>cls</code> <em>Gryd.Epsg</em> - Epsg instance</li>
+</ul>
+<p><strong>Returns</strong>:</p>
+<p>(<code>str</code>, <code>int</code>) list</p>
 <p><a name="Gryd.Geocentric"></a></p>
 <h2 id="geocentric-objects">Geocentric Objects</h2>
 <pre><code class="language-python">class Geocentric(ctypes.Structure)
@@ -254,10 +251,10 @@ returned by <code>Gryd.dms</code> function.</p>
 </code></pre>
 <p><strong>Attributes</strong>:</p>
 <ul>
-<li><code>sign</code> <em>int</em> - 0 if negative, 1 if positive</li>
+<li><code>sign</code> <em>int</em> - <code>1</code> if positive, <code>-1</code> if negative</li>
 <li><code>degree</code> <em>float</em> - integer parts of value</li>
-<li><code>minute</code> <em>float</em> - 1/60 fractions of value</li>
-<li><code>second</code> <em>float</em> - 1/3600 fractions of value</li>
+<li><code>minute</code> <em>float</em> - <code>1/60</code> fractions of value</li>
+<li><code>second</code> <em>float</em> - <code>1/3600</code> fractions of value</li>
 </ul>
 <p><a name="Gryd.Dmm"></a></p>
 <h2 id="dmm-objects">Dmm Objects</h2>
@@ -273,9 +270,9 @@ returned by <code>Gryd.dms</code> function.</p>
 </code></pre>
 <p><strong>Attributes</strong>:</p>
 <ul>
-<li><code>sign</code> <em>int</em> - 0 if negative, 1 if positive</li>
+<li><code>sign</code> <em>int</em> - <code>1</code> if positive, <code>-1</code> if negative</li>
 <li><code>degree</code> <em>float</em> - integer parts of value</li>
-<li><code>minute</code> <em>float</em> - 1/60 fractions of value</li>
+<li><code>minute</code> <em>float</em> - <code>1/60</code> fractions of value</li>
 </ul>
 <p><a name="Gryd.Epsg"></a></p>
 <h2 id="epsg-objects">Epsg Objects</h2>
@@ -478,7 +475,7 @@ to wgs84: 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0&gt;
 <h4 id="transform">transform</h4>
 <pre><code class="language-python"> | transform(dst, lla)
 </code></pre>
-<p>Transform a geodesic from datum to another one.</p>
+<p>Transform geodesic coordinates to another datum.</p>
 <pre><code class="language-python">&gt;&gt;&gt; airy = Gryd.Datum(epsg=4277)
 &gt;&gt;&gt; wgs84.transform(airy, london)
 &lt;lon=-000°07'31.431'' lat=+051°31'5.137'' alt=-46.118&gt;
@@ -494,6 +491,8 @@ to wgs84: 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0&gt;
 <h2 id="crs-objects">Crs Objects</h2>
 <pre><code class="language-python">class Crs(Epsg)
 </code></pre>
+<p>Coordinate reference system object allowing projection of geodesic
+coordinates to flat map (geographic coordinates).</p>
 <pre><code class="language-python">&gt;&gt;&gt; pvs = Gryd.Crs(epsg=3785)
 &gt;&gt;&gt; osgb36 = Gryd.Crs(epsg=27700)
 &gt;&gt;&gt; osgb36.datum.xyz(london)
@@ -549,37 +548,83 @@ Projection 'tmerc'&gt;
 <h4 id="transform_1">transform</h4>
 <pre><code class="language-python"> | transform(dst, xya)
 </code></pre>
-<pre><code class="language-python">&gt;&gt;&gt; osgb36.transform(pvs, osgb36(london))
+<p>Transform geographical coordinates to another coordinate reference
+system.</p>
+<pre><code class="language-python">&gt;&gt;&gt; london_pvs = osgb36.transform(pvs, osgb36(london))
+&gt;&gt;&gt; london_pvs
 &lt;X=-14317.072 Y=6680144.273s alt=-13015.770&gt;
-&gt;&gt;&gt; pvs.transform(osgb36, osgb36.transform(pvs, osgb36(london)))
+&gt;&gt;&gt; pvs.transform(osgb36, london_pvs)
 &lt;X=529939.101 Y=181680.963s alt=0.012&gt;
 &gt;&gt;&gt; osgb36(london)
 &lt;X=529939.106 Y=181680.962s alt=0.000&gt;
 </code></pre>
+<p><strong>Arguments</strong>:</p>
+<ul>
+<li><code>dst</code> <em>Gryd.Crs</em> - destination coordinate reference system</li>
+<li><code>xya</code> <em>Gryd.Geographic</em> - geographic coordinates to transform</li>
+</ul>
+<p><strong>Returns</strong>:</p>
+<p><code>Gryd.Geographic</code> coordinates</p>
 <p><a name="Gryd.Crs.add_map_point"></a></p>
 <h4 id="add_map_point">add_map_point</h4>
 <pre><code class="language-python"> | add_map_point(px, py, point)
 </code></pre>
-<pre><code class="language-python">&gt;&gt;&gt; pvs.add_map_point(0,0, Geodesic(-179.999, 85))
-&gt;&gt;&gt; pvs.add_map_point(512,512, Geodesic(179.999, -85))
+<p>Add a calibration point to coordinate reference system. Calibration
+points maps a specific pixel coordinates from a raster image (top left
+reference) to a geodesic coordinates and its associated geographic
+ones.</p>
+<pre><code class="language-python">&gt;&gt;&gt; # 512x512 pixel web map mercator
+&gt;&gt;&gt; pvs.add_map_point(0,0, Gryd.Geodesic(-179.999, 85))
+&gt;&gt;&gt; pvs.add_map_point(512,512, Gryd.Geodesic(179.999, -85))
+&gt;&gt;&gt; pvs.map_points
+[&lt;px=0 py=0
+&lt;lon=-179°59'56.400&quot; lat=+085°00'0.000&quot; alt=0.000&gt;
+&lt;X=-20037397.023 Y=19971868.880s alt=0.000&gt;
+&gt;, &lt;px=512 py=512
+&lt;lon=+179°59'56.400&quot; lat=-085°00'0.000&quot; alt=0.000&gt;
+&lt;X=20037397.023 Y=-19971868.880s alt=0.000&gt;
+&gt;]
 </code></pre>
+<p><strong>Arguments</strong>:</p>
+<ul>
+<li><code>px</code> <em>float</em> - pixel column position</li>
+<li><code>py</code> <em>float</em> - pixel row position</li>
+<li><code>point</code> <em>Gryd.Geodesic or Gryd.Geographic</em> - geodesic or geographic
+  coordinates</li>
+</ul>
 <p><a name="Gryd.Crs.map2crs"></a></p>
 <h4 id="map2crs">map2crs</h4>
 <pre><code class="language-python"> | map2crs(px, py, geographic=False)
 </code></pre>
+<p>Geodesic or geographic interpolation on raster image from pixel
+coordinates.</p>
 <pre><code class="language-python">&gt;&gt;&gt; pvs.map2crs(256+128, 256+128)
-&lt;lon=+089°59'58.20'' lat=-066°23'43.74'' alt=0.000&gt;
+&lt;lon=+089°59'58.20&quot; lat=-066°23'43.74&quot; alt=0.000&gt;
 &gt;&gt;&gt; pvs.map2crs(256-128, 256+128, geographic=True)
 &lt;point X=-10018698.512 Y=-9985934.440s alt=0.000&gt;
 </code></pre>
+<p><strong>Arguments</strong>:</p>
+<ul>
+<li><code>px</code> <em>float</em> - pixel column position</li>
+<li><code>py</code> <em>float</em> - pixel row position</li>
+<li><code>geographic</code> <em>bool</em> - determine coordinates type returned</li>
+</ul>
+<p><strong>Returns</strong>:</p>
+<p><code>Gryd.Geographic</code> if <code>geographic</code> is True else <code>Gryd.Geodesic</code></p>
 <p><a name="Gryd.Crs.crs2map"></a></p>
 <h4 id="crs2map">crs2map</h4>
 <pre><code class="language-python"> | crs2map(point)
 </code></pre>
-<pre><code class="language-python">&gt;&gt;&gt; pvs.crs2map(pvs.map2crs(256+128, 256+128))
-&lt;px=384 py=384
-- &lt;lon=+089°59'58.20'' lat=-066°23'43.74'' alt=0.000&gt;
-- &lt;X=10018698.512 Y=-9985934.440s alt=0.000&gt;
+<p>Pixel interpolation on raster image from geodesic point.</p>
+<pre><code class="language-python">&gt;&gt;&gt; pvs.crs2map(london)
+&lt;px=256 py=170
+&lt;lon=-000°07'37.218&quot; lat=+051°31'6.967&quot; alt=0.000&gt;
+&lt;X=-14138.132 Y=6713546.215s alt=0.000&gt;
+&gt;
+&gt;&gt;&gt; pvs.crs2map(dublin)
+&lt;px=247 py=166
+&lt;lon=-006°15'33.973&quot; lat=+053°21'2.754&quot; alt=0.000&gt;
+&lt;X=-696797.339 Y=7048145.354s alt=0.000&gt;
 &gt;
 </code></pre></div>
             </div>
