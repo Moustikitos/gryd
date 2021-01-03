@@ -35,8 +35,7 @@ EXPORT Dms dms(double value){
 	Dms result;
 	double degrees, minutes, seconds;
 
-	if (value < 0) result.sign = 0;
-	else result.sign = 1;
+	result.sign = (value > 0) - (value < 0);
 	value = fmod(fabs(value), 360);
 
 	degrees = floor(value);
@@ -44,8 +43,14 @@ EXPORT Dms dms(double value){
 	seconds = (minutes - floor(minutes)) * 60;
 	minutes = floor(minutes);
 
-	if (seconds >= (60. - EPS)){seconds = 0; minutes = minutes+1;}
-	if (minutes >= (60. - EPS)){minutes = 0; degrees = degrees+1;}
+	if (seconds >= (60. - EPS)){
+		seconds = 0;
+		minutes += 1;
+	}
+	if (minutes >= (60. - EPS)){
+		minutes = 0;
+		degrees += 1;
+	}
 
 	result.degree = degrees;
 	result.minute = minutes;
@@ -58,14 +63,16 @@ EXPORT Dmm dmm(double value){
 	Dmm result;
 	double degrees, minutes;
 
-	if (value < 0) result.sign = 0;
-	else result.sign = 1;
+	result.sign = (value > 0) - (value < 0);
 	value = fmod(fabs(value), 360);
 
 	degrees = floor(value);
 	minutes = (value - degrees) * 60;
 
-	if (minutes >= (60. - EPS)){minutes = 0; degrees = degrees+1;}
+	if (minutes >= (60. - EPS)){
+		minutes = 0;
+		degrees += 1;
+	}
 
 	result.degree = degrees;
 	result.minute = minutes;

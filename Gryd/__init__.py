@@ -48,7 +48,6 @@ calibration `Points` (two minimum are required).
 
 import os
 import sys
-import imp
 import math
 import ctypes
 import sqlite3
@@ -78,7 +77,8 @@ def main_is_frozen():
     return (
         hasattr(sys, "frozen") or     # new py2exe
         hasattr(sys, "importers") or  # old py2exe
-        imp.is_frozen("__main__")     # tools/freeze
+        ".zip" in __path__ or
+        ".egg" in __path__
     )
 
 
@@ -186,6 +186,19 @@ class Grid(ctypes.Structure):
         ("northing", ctypes.c_double),
         ("altitude", ctypes.c_double),
     ]
+
+    x = property(
+        lambda cls: cls.easting,
+        lambda cls, value: setattr(cls, "easting", value),
+        None,
+        ""
+    )
+    y = property(
+        lambda cls: cls.northing,
+        lambda cls, value: setattr(cls, "northing", value),
+        None,
+        ""
+    )
 
     def __repr__(self):
         return "<area=%s E=%.3f N=%.3f, alt=%.3f>" % (
@@ -298,13 +311,12 @@ class Dms(ctypes.Structure):
     ]
 
     def __repr__(self):
-        return "%s%03d°%02d'%00.3f\"" % (
-            "+" if self.sign > 0 else "-",
-            self.degree, self.minute, self.second
+        return "%0+4d°%02d'%00.3f\"" % (
+            self.sign * self.degree, self.minute, self.second
         )
 
     def __float__(self):
-        return (1 if self.sign > 0 else -1) * (
+        return self.sign * (
             ((self.second / 60.) + self.minute) / 60. + self.degree
         )
 
@@ -334,15 +346,10 @@ class Dmm(ctypes.Structure):
     ]
 
     def __repr__(self):
-        return "%s%03d°%00.6f'" % (
-            "+" if self.sign > 0 else "-",
-            self.degree, self.minute
-        )
+        return "%0+4d°%00.6f'" % (self.sign * self.degree, self.minute)
 
     def __float__(self):
-        return (1 if self.sign > 0 else -1) * (
-            self.minute / 60. + self.degree
-        )
+        return self.sign * (self.minute / 60. + self.degree)
 
 
 class Epsg(ctypes.Structure):
@@ -668,7 +675,7 @@ class Datum(Epsg):
         """
         lla.longitude += self.prime.longitude
         return geocentric(self.ellipsoid, lla)
-    geocentric = xyz
+    geographic = xyz
 
     def lla(self, xyz):
         """
@@ -693,7 +700,7 @@ class Datum(Epsg):
 
     def transform(self, dst, lla):
         """
-        Transform a geodesic from datum to another one.
+        Transform geodesic coordinates to another one.
 
         ```python
         >>> airy = Gryd.Datum(epsg=4277)
@@ -712,6 +719,9 @@ class Datum(Epsg):
 
 class Crs(Epsg):
     """
+    Coordinate reference system object allowing projection of geodesic
+    coordinates to flat map (geographic coordinates).
+
     ```python
     >>> pvs = Gryd.Crs(epsg=3785)
     >>> osgb36 = Gryd.Crs(epsg=27700)
@@ -784,11 +794,14 @@ class Crs(Epsg):
         elif attr == "unit" and not isinstance(value, Unit):
             value = Unit(value)
         elif attr == "projection":
-            record = Epsg.sqlite.execute(
-                "SELECT * from projection WHERE epsg=%r;" % value
-            ).fetchall()
-            if len(record) > 0:
-                value = record[0]["typeproj"]
+            if isinstance(value, int):
+                record = Epsg.sqlite.execute(
+                    "SELECT * from projection WHERE epsg=%r;" % value
+                ).fetchall()
+                if len(record) > 0:
+                    value = record[0]["typeproj"]
+                else:
+                    raise Exception("EPSG projection #%d unknown" % value)
             if value in __c_proj__:
                 Epsg.__setattr__(self, "forward", getattr(
                     sys.modules[__name__], value + "_forward"
@@ -841,37 +854,28 @@ class Crs(Epsg):
         Returns:
             `Gryd.Geographic` or `Gryd.Geodesic` coordinates
         """
-        try:
-            ratio = self.unit.ratio
-            if isinstance(element, Geodesic):
-                xya = self.forward(self, element)
-                if isinstance(xya, Grid):
-                    xya.easting /= ratio
-                    xya.northing /= ratio
-                elif isinstance(xya, Geographic):
-                    xya.x /= ratio
-                    xya.y /= ratio
-                return xya
-            elif isinstance(element, Grid):
-                element.easting *= ratio
-                element.northing *= ratio
-                return self.inverse(self, element)
-            elif isinstance(element, Geographic):
-                element.x *= ratio
-                element.y *= ratio
-                return self.inverse(self, element)
-            else:
-                pass
-        except AttributeError:
+        if not hasattr(self, "forward"):
             setattr(self, "projection", getattr(self, "projection", None))
-            return self(element)
+
+        ratio = self.unit.ratio
+        if isinstance(element, Geodesic):
+            xya = self.forward(self, element)
+            xya.x /= ratio
+            xya.y /= ratio
+            return xya
+        else:
+            element.x *= ratio
+            element.y *= ratio
+            return self.inverse(self, element)
 
     def transform(self, dst, xya):
         """
+
         ```python
-        >>> osgb36.transform(pvs, osgb36(london))
+        >>> london_pvs = osgb36.transform(pvs, osgb36(london))
+        >>> london_pvs
         <X=-14317.072 Y=6680144.273s alt=-13015.770>
-        >>> pvs.transform(osgb36, osgb36.transform(pvs, osgb36(london)))
+        >>> pvs.transform(osgb36, london_pvs)
         <X=529939.101 Y=181680.963s alt=0.012>
         >>> osgb36(london)
         <X=529939.106 Y=181680.962s alt=0.000>
@@ -881,9 +885,19 @@ class Crs(Epsg):
 
     def add_map_point(self, px, py, point):
         """
+
         ```python
-        >>> pvs.add_map_point(0,0, Geodesic(-179.999, 85))
-        >>> pvs.add_map_point(512,512, Geodesic(179.999, -85))
+        >>> # 512x512 pixel web map mercator
+        >>> pvs.add_map_point(0,0, Gryd.Geodesic(-179.999, 85))
+        >>> pvs.add_map_point(512,512, Gryd.Geodesic(179.999, -85))
+        >>> pvs._points
+        [<px=0 py=0
+        <lon=-179°59'56.400" lat=+085°00'0.000" alt=0.000>
+        <X=-20037397.023 Y=19971868.880s alt=0.000>
+        >, <px=512 py=512
+        <lon=+179°59'56.400" lat=-085°00'0.000" alt=0.000>
+        <X=20037397.023 Y=-19971868.880s alt=0.000>
+        >]
         ```
         """
         if px in [p.px for p in self._points]:
@@ -937,20 +951,26 @@ class Crs(Epsg):
     def crs2map(self, point):
         """
         ```python
-        >>> pvs.crs2map(pvs.map2crs(256+128, 256+128))
-        <px=384 py=384
-        - <lon=+089°59'58.20'' lat=-066°23'43.74'' alt=0.000>
-        - <X=10018698.512 Y=-9985934.440s alt=0.000>
+        >>> pvs.crs2map(london)
+        <px=256 py=170
+        <lon=-000°07'37.218" lat=+051°31'6.967" alt=0.000>
+        <X=-14138.132 Y=6713546.215s alt=0.000>
+        >
+        >>> pvs.crs2map(dublin)
+        <px=247 py=166
+        <lon=-006°15'33.973" lat=+053°21'2.754" alt=0.000>
+        <X=-696797.339 Y=7048145.354s alt=0.000>
         >
         ```
         """
         if isinstance(point, Geodesic):
+            geodesic_point = point
             point = self(point)
-        elif isinstance(point, Grid):
-            raise Exception(
-                "only works with Geographic or Geodesic points "
-                "(Grid points given instead)"
-            )
+        elif isinstance(point, (Grid, Geographic)):
+            geodesic_point = self(point)
+            point = point
+        else:
+            raise Exception("not a valid point")
 
         if len(self._points) >= 2:
             n = len(self._points)
@@ -971,7 +991,7 @@ class Crs(Epsg):
                     t_byref(ctypes.c_double, n, *[p.py for p in self._points]),
                     n
                 ),
-                self(point),
+                geodesic_point,
                 point
             )
         else:
