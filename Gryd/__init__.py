@@ -3,7 +3,7 @@
 """
 # EPSG dataset
 
-All epsg dataset linked to these projections are available through python API
+All epsg crs linked to these projections are available through python API
 using epsg id or name:
 
  + Mercator
@@ -20,30 +20,14 @@ Four main grids are available:
  + British National Grid
  + Irish National Grid.
 
-# Image-map interpolation
+# Raster map interpolation
 
-`Gryd.Crs` also provides functions for map coordinates interpolation using
-calibration `Points` (two minimum are required).
+`Gryd.Crs` also provides functions for raster map coordinates interpolation
+using calibration `Points` (two minimum are required).
 
-# Quick view
-```python
->>> import Gryd
->>> dublin = Gryd.Geodesic(-6.259437, 53.350765, 0.)
->>> dublin
-<lon=-006°15'33.973" lat=+053°21'2.754" alt=0.000>
->>> utm = Gryd.Crs(epsg=3395, projection="utm")
->>> utm(dublin)
-<area=29U E=682406.211 N=5914792.531, alt=0.000>
->>> mgrs = Gryd.Crs(epsg=3395, projection="mgrs")
->>> mgrs(dublin)
-<area=29U PV E=82406.211 N=14792.531, alt=0.000>
->>> bng = Gryd.Crs(projection="bng")
->>> bng(dublin)
-<area=SG E=16572.029 N=92252.917, alt=0.000>
->>> ing = Gryd.Crs(projection="ing")
->>> ing(dublin)
-<area=O E=15890.887 N=34804.964, alt=0.000>
-```
+## Geodesic object
+
+[See `Gryd.geodesy` module](geodesy.md)
 """
 
 import os
@@ -102,9 +86,28 @@ def t_byref(ctype, n, *args):
     return ctypes.cast((ctype * n)(*args), ctypes.POINTER(ctype))
 
 
-#: Connection to epsg database
+# Connection to epsg.sqlite database
 EPSG_CON = sqlite3.connect(get_data_file("db/epsg.sqlite"))
 EPSG_CON.row_factory = sqlite3.Row
+
+
+def names(cls):
+    """
+    Return list of tuples (name and epsg reference) available in the sqlite
+    database.
+
+    Arguments:
+        cls (Gryd.Epsg): Epsg instance
+    Returns:
+        (`str`, `int`) list
+    """
+    if not hasattr(cls, "_names"):
+        setattr(cls, "_names", [
+            (r["name"], r["epsg"]) for r in Epsg.sqlite.execute(
+                "SELECT * from %s" % cls.table,
+            ).fetchall()
+        ])
+    return getattr(cls, "_names")
 
 
 class Geocentric(ctypes.Structure):
@@ -227,6 +230,9 @@ class Point(ctypes.Structure):
         ("xya", Geographic)
     ]
 
+    # def __hash__(self):
+    #     return hash(self.px) ^ hash(self.py) ^ hash(self.lla) ^ hash()
+
     def __repr__(self):
         return "<px=%.0f py=%.0f\n%r\n%r\n>" % (
             self.px, self.py, self.lla, self.xya
@@ -298,10 +304,10 @@ class Dms(ctypes.Structure):
     ```
 
     Attributes:
-        sign (int): 0 if negative, 1 if positive
+        sign (int): `1` if positive, `-1` if negative
         degree (float): integer parts of value
-        minute (float): 1/60 fractions of value
-        second (float): 1/3600 fractions of value
+        minute (float): `1/60` fractions of value
+        second (float): `1/3600` fractions of value
     """
     _fields_ = [
         ("sign",   ctypes.c_short),
@@ -335,9 +341,9 @@ class Dmm(ctypes.Structure):
     ```
 
     Attributes:
-        sign (int): 0 if negative, 1 if positive
+        sign (int): `1` if positive, `-1` if negative
         degree (float): integer parts of value
-        minute (float): 1/60 fractions of value
+        minute (float): `1/60` fractions of value
     """
     _fields_ = [
         ("sign",   ctypes.c_short),
@@ -700,7 +706,7 @@ class Datum(Epsg):
 
     def transform(self, dst, lla):
         """
-        Transform geodesic coordinates to another one.
+        Transform geodesic coordinates to another datum.
 
         ```python
         >>> airy = Gryd.Datum(epsg=4277)
@@ -767,6 +773,13 @@ class Crs(Epsg):
         ("azimut",  ctypes.c_double)
     ]
 
+    proj = property(
+        lambda cls: getattr(cls, "projection"),
+        lambda cls, value: setattr(cls, "projection", value),
+        None,
+        ""
+    )
+
     def __reduce__(self):
         """
         special method that allows `Gryd.Crs` instance to be pickled
@@ -783,7 +796,7 @@ class Crs(Epsg):
         )
 
     def __init__(self, *args, **kwargs):
-        self._points = []
+        self.map_points = []
         self.projection = "latlong"
         Epsg.__init__(self, *args, **kwargs)
         self.unit = kwargs.pop("unit", 9001)
@@ -870,6 +883,8 @@ class Crs(Epsg):
 
     def transform(self, dst, xya):
         """
+        Transform geographical coordinates to another coordinate reference
+        system.
 
         ```python
         >>> london_pvs = osgb36.transform(pvs, osgb36(london))
@@ -880,17 +895,27 @@ class Crs(Epsg):
         >>> osgb36(london)
         <X=529939.106 Y=181680.962s alt=0.000>
         ```
+
+        Arguments:
+            dst (Gryd.Crs): destination coordinate reference system
+            xya (Gryd.Geographic): geographic coordinates to transform
+        Returns:
+            `Gryd.Geographic` coordinates
         """
         return dst(self.datum.transform(dst.datum, self(xya)))
 
     def add_map_point(self, px, py, point):
         """
+        Add a calibration point to coordinate reference system. Calibration
+        points maps a specific pixel coordinates from a raster image (top left
+        reference) to a geodesic coordinates and its associated geographic
+        ones.
 
         ```python
         >>> # 512x512 pixel web map mercator
         >>> pvs.add_map_point(0,0, Gryd.Geodesic(-179.999, 85))
         >>> pvs.add_map_point(512,512, Gryd.Geodesic(179.999, -85))
-        >>> pvs._points
+        >>> pvs.map_points
         [<px=0 py=0
         <lon=-179°59'56.400" lat=+085°00'0.000" alt=0.000>
         <X=-20037397.023 Y=19971868.880s alt=0.000>
@@ -899,46 +924,68 @@ class Crs(Epsg):
         <X=20037397.023 Y=-19971868.880s alt=0.000>
         >]
         ```
+
+        Arguments:
+            px (float): pixel column position
+            py (float): pixel row position
+            point (Gryd.Geodesic or Gryd.Geographic): geodesic or geographic
+                                                      coordinates
         """
-        if px in [p.px for p in self._points]:
-            return
-        if py in [p.py for p in self._points]:
-            return
+        if px in [p.px for p in self.map_points] or \
+           py in [p.py for p in self.map_points]:
+            raise Exception("pixel row or column already referenced")
         if isinstance(point, Geodesic):
-            self._points.append(Point(px, py, point, self(point)))
-        elif isinstance(point, Geographic):
-            self._points.append(Point(px, py, self(point), point))
+            geodesic = point
+            geographic = self(point)
+        else:
+            geodesic = self(point)
+            geographic = point
+        self.map_points.append(Point(px, py, geodesic, geographic))
 
     def delete_map_point(self, px=None, py=None, index=None):
         if px == py == index is None:
-            return [self._points.pop(0)]
+            return [self.map_points.pop(0)]
         elif px is not None and py is not None:
-            return [p for p in self._points if p.px == px and p.py == py]
+            return [
+                self.map_points.pop(p) for p in
+                [p for p in self.map_points if p.px == px and p.py == py]
+            ]
         elif isinstance(index, int):
-            return [self._points.pop(min(len(self._points) - 1, index))]
-        return []
+            return [self.map_points.pop(min(len(self.map_points) - 1, index))]
+        raise Exception("no calibration point de delete")
 
     def map2crs(self, px, py, geographic=False):
         """
+        Geodesic or geographic interpolation on raster image from pixel
+        coordinates.
+
         ```python
         >>> pvs.map2crs(256+128, 256+128)
-        <lon=+089°59'58.20'' lat=-066°23'43.74'' alt=0.000>
+        <lon=+089°59'58.20" lat=-066°23'43.74" alt=0.000>
         >>> pvs.map2crs(256-128, 256+128, geographic=True)
         <point X=-10018698.512 Y=-9985934.440s alt=0.000>
         ```
+
+        Arguments:
+            px (float): pixel column position
+            py (float): pixel row position
+            geographic (bool): determine coordinates type returned
+        Returns:
+            `Gryd.Geographic` if `geographic` is True else `Gryd.Geodesic`
         """
-        if len(self._points) >= 2:
-            n = len(self._points)
+        if len(self.map_points) >= 2:
+            geographics = [p.xya for p in self.map_points]
+            n = len(self.map_points)
             x = lagrange(
                 px,
-                t_byref(ctypes.c_double, n, *[p.px for p in self._points]),
-                t_byref(ctypes.c_double, n, *[p.xya.x for p in self._points]),
+                t_byref(ctypes.c_double, n, *[p.px for p in self.map_points]),
+                t_byref(ctypes.c_double, n, *[p.x for p in geographics]),
                 n
             )
             y = lagrange(
                 py,
-                t_byref(ctypes.c_double, n, *[p.py for p in self._points]),
-                t_byref(ctypes.c_double, n, *[p.xya.y for p in self._points]),
+                t_byref(ctypes.c_double, n, *[p.py for p in self.map_points]),
+                t_byref(ctypes.c_double, n, *[p.y for p in geographics]),
                 n
             )
             if geographic:
@@ -950,6 +997,8 @@ class Crs(Epsg):
 
     def crs2map(self, point):
         """
+        Pixel interpolation on raster image from geodesic point.
+
         ```python
         >>> pvs.crs2map(london)
         <px=256 py=170
@@ -972,23 +1021,28 @@ class Crs(Epsg):
         else:
             raise Exception("not a valid point")
 
-        if len(self._points) >= 2:
-            n = len(self._points)
+        if len(self.map_points) >= 2:
+            geographics = [p.xya for p in self.map_points]
+            n = len(self.map_points)
             return Point(
                 lagrange(
                     point.x,
                     t_byref(
-                        ctypes.c_double, n, *[p.xya.x for p in self._points]
+                        ctypes.c_double, n, *[p.x for p in geographics]
                     ),
-                    t_byref(ctypes.c_double, n, *[p.px for p in self._points]),
+                    t_byref(
+                        ctypes.c_double, n, *[p.px for p in self.map_points]
+                    ),
                     n
                 ),
                 lagrange(
                     point.y,
                     t_byref(
-                        ctypes.c_double, n, *[p.xya.y for p in self._points]
+                        ctypes.c_double, n, *[p.y for p in geographics]
                     ),
-                    t_byref(ctypes.c_double, n, *[p.py for p in self._points]),
+                    t_byref(
+                        ctypes.c_double, n, *[p.py for p in self.map_points]
+                    ),
                     n
                 ),
                 geodesic_point,
