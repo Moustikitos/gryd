@@ -49,6 +49,7 @@ Guidance words: keep it simple and solid!
 ### 2.0.0
  + documentation API change
  + binary source released
+ + code improvement
  + dump location api change
 
 ```python
@@ -60,7 +61,7 @@ Guidance words: keep it simple and solid!
 ...       "%(width)dx%(height)d?access_token=%(token)s"
 >>> # see https://docs.mapbox.com/api/overview/#access-tokens-and-token-scopes
 >>> token = "pk.eyJ1IjoibW91c2lr[...]nJtcHlyejFrNXd4In0.JIyrV6sWjehsRHKVMBDFaw"
->>> dublin.dump_location("test/dublin.png", url, zoom=15, width=600, height=400, token=token)
+>>> dublin.dump_location("test/dublin.png", url, zoom=15, width=300, height=200, token=token)
 ```
 
 ![Here is Dublin](https://raw.githubusercontent.com/Moustikitos/gryd/master/test/dublin.png)
