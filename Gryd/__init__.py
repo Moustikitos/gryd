@@ -257,7 +257,7 @@ class Vincenty_dist(ctypes.Structure):
     ]
 
     def __repr__(self):
-        return "<Distance %.3fkm initial bearing=%.1f° final bearing=%.1f°>" %\
+        return "<Dist %.3fkm initial bearing=%.1f° final bearing=%.1f°>" %\
             (
                 self.distance/1000,
                 math.degrees(self.initial_bearing),
@@ -283,7 +283,7 @@ class Vincenty_dest(ctypes.Structure):
     ]
 
     def __repr__(self):
-        return "<Destination lon=%r lat=%r end bearing=%.1f°>" % (
+        return "<Dest lon=%r lat=%r end bearing=%.1f°>" % (
             dms(math.degrees(self.longitude)),
             dms(math.degrees(self.latitude)),
             math.degrees(self.destination_bearing)
@@ -298,7 +298,7 @@ class Dms(ctypes.Structure):
     ```python
     >>> d = Gryd.dms(-60.42286847222222)
     >>> d
-    -060°25'22.326"
+    -060°25'22.326''
     >>> float(d)
     -60.42286847222222
     ```
@@ -317,7 +317,7 @@ class Dms(ctypes.Structure):
     ]
 
     def __repr__(self):
-        return "%0+4d°%02d'%00.3f\"" % (
+        return "%0+4d°%02d'%00.3f''" % (
             self.sign * self.degree, self.minute, self.second
         )
 
@@ -462,7 +462,7 @@ class Prime(Epsg):
     ```python
     >>> prime = Gryd.Prime(epsg=8902)
     >>> prime
-    <Prime meridian epsg=8902 longitude=-009°07'54.862">
+    <Prime meridian epsg=8902 longitude=-009°07'54.862''>
     >>> prime.name
     'Lisbon'
     ```
@@ -544,7 +544,7 @@ class Ellipsoid(Epsg):
         >>> london = Gryd.Geodesic(-0.127005, 51.518602, 0.)
         >>> dublin = Gryd.Geodesic(-6.259437, 53.350765, 0.)
         >>> wgs84.distance(dublin, london)
-        <Distance 464.025km initial bearing=113.6 final bearing=118.5>
+        <Dist 464.025km initial bearing=113.6 final bearing=118.5°>
         ```
 
         Arguments:
@@ -564,9 +564,9 @@ class Ellipsoid(Epsg):
         >>> wgs84.destination(
         ...     london, math.degrees(vdist.final_bearing) + 180, vdist.distance
         ... )
-        <Destination lon=-006°15'33.973" lat=+053°21'2.754" end bearing=-66.4°>
+        <Dest lon=-006°15'33.973'' lat=+053°21'2.754'' end bearing=-66.4°>
         >>> dublin
-        <lon=-006°15'33.973" lat=+053°21'2.754" alt=0.000>
+        <lon=-006°15'33.973'' lat=+053°21'2.754'' alt=0.000>
         ```
 
         Arguments:
@@ -588,12 +588,12 @@ class Ellipsoid(Epsg):
         ```python
         >>> for p in wgs84.npoints(dublin, londre, 4): print(p)
         ...
-        <Destination lon=-006°15'33.973" lat=+053°21'2.754" end bearing=113.6>
-        <Destination lon=-004°59'32.422" lat=+053°00'36.687" end bearing=114.6>
-        <Destination lon=-003°44'43.501" lat=+052°39'22.715" end bearing=115.6>
-        <Destination lon=-002°31'7.792" lat=+052°17'22.201" end bearing=116.6>
-        <Destination lon=-001°18'45.650" lat=+051°54'36.502" end bearing=117.5>
-        <Destination lon=-000°07'37.218" lat=+051°31'6.967" end bearing=118.5>
+        <Dest lon=-006°15'33.973'' lat=+053°21'2.754'' end bearing=113.6>
+        <Dest lon=-004°59'32.422'' lat=+053°00'36.687'' end bearing=114.6>
+        <Dest lon=-003°44'43.501'' lat=+052°39'22.715'' end bearing=115.6>
+        <Dest lon=-002°31'7.792'' lat=+052°17'22.201'' end bearing=116.6>
+        <Dest lon=-001°18'45.650'' lat=+051°54'36.502'' end bearing=117.5>
+        <Dest lon=-000°07'37.218'' lat=+051°31'6.967'' end bearing=118.5>
         ```
         Arguments:
             lla0 (Gryd.Geodesic): start point
@@ -689,9 +689,9 @@ class Datum(Epsg):
 
         ```python
         >>> wgs84.lla(wgs84.xyz(london))
-        <lon=-000°07'37.218" lat=+051°31'6.967" alt=0.000>
+        <lon=-000°07'37.218'' lat=+051°31'6.967'' alt=0.000>
         >>> london
-        <lon=-000°07'37.218" lat=+051°31'6.967" alt=0.000>
+        <lon=-000°07'37.218'' lat=+051°31'6.967'' alt=0.000>
         ```
 
         Arguments:
@@ -734,7 +734,7 @@ class Crs(Epsg):
     >>> osgb36.datum.xyz(london)
     <X=3976632.017 Y=-8814.837 Z=4969286.446>
     >>> osgb36.datum.ellipsoid.distance(dublin, london)
-    <Distance 463.981km initial bearing=113.6 final bearing=118.5>
+    <Dist 463.981km initial bearing=113.6° final bearing=118.5°>
     >>> osgb36
     <Crs epsg=27700:
     <Datum epsg=4277:
@@ -858,7 +858,7 @@ class Crs(Epsg):
         >>> osgb36(london)  # projection of Geodesic point
         <X=529939.106 Y=181680.962s alt=0.000>
         >>> osgb36(osgb36(london))  # deprojection of Geographic point
-        <lon=-000°07'37.218" lat=+051°31'6.967" alt=0.000>
+        <lon=-000°07'37.218'' lat=+051°31'6.967'' alt=0.000>
         ```
 
         Arguments:
@@ -926,10 +926,10 @@ class Crs(Epsg):
         >>> pvs.add_map_point(512,512, Gryd.Geodesic(179.999, -85))
         >>> pvs.map_points
         [<px=0 py=0
-        <lon=-179°59'56.400" lat=+085°00'0.000" alt=0.000>
+        <lon=-179°59'56.400'' lat=+085°00'0.000'' alt=0.000>
         <X=-20037397.023 Y=19971868.880s alt=0.000>
         >, <px=512 py=512
-        <lon=+179°59'56.400" lat=-085°00'0.000" alt=0.000>
+        <lon=+179°59'56.400'' lat=-085°00'0.000'' alt=0.000>
         <X=20037397.023 Y=-19971868.880s alt=0.000>
         >]
         ```
@@ -960,12 +960,12 @@ class Crs(Epsg):
         ```python
         pvs.delete_map_point(0)
         [<px=512 py=512
-        <lon=+179°59'56.400" lat=-085°00'0.000" alt=0.000>
+        <lon=+179°59'56.400'' lat=-085°00'0.000'' alt=0.000>
         <X=20037397.023 Y=-19971868.880s alt=0.000>
         >]
         >>> pvs.delete_map_point(pvs.map_points[0])
         [<px=0 py=0
-        <lon=-179°59'56.400" lat=+085°00'0.000" alt=0.000>
+        <lon=-179°59'56.400'' lat=+085°00'0.000'' alt=0.000>
         <X=-20037397.023 Y=19971868.880s alt=0.000>
         >]
         >>> pvs.map_points
@@ -998,7 +998,7 @@ class Crs(Epsg):
 
         ```python
         >>> pvs.map2crs(256+128, 256+128)
-        <lon=+089°59'58.20" lat=-066°23'43.74" alt=0.000>
+        <lon=+089°59'58.20'' lat=-066°23'43.74'' alt=0.000>
         >>> pvs.map2crs(256-128, 256+128, geographic=True)
         <point X=-10018698.512 Y=-9985934.440s alt=0.000>
         ```
@@ -1028,12 +1028,12 @@ class Crs(Epsg):
         ```python
         >>> pvs.crs2map(london)
         <px=256 py=170
-        <lon=-000°07'37.218" lat=+051°31'6.967" alt=0.000>
+        <lon=-000°07'37.218'' lat=+051°31'6.967'' alt=0.000>
         <X=-14138.132 Y=6713546.215s alt=0.000>
         >
         >>> pvs.crs2map(dublin)
         <px=247 py=166
-        <lon=-006°15'33.973" lat=+053°21'2.754" alt=0.000>
+        <lon=-006°15'33.973'' lat=+053°21'2.754'' alt=0.000>
         <X=-696797.339 Y=7048145.354s alt=0.000>
         >
         ```
