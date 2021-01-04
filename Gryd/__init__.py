@@ -904,6 +904,15 @@ class Crs(Epsg):
         """
         return dst(self.datum.transform(dst.datum, self(xya)))
 
+    def _xiyi(self):
+        points = self.map_points
+        geographics = [p.xya for p in self.map_points]
+        n = len(points)
+        self._pxi = t_byref(ctypes.c_double, n, *[p.px for p in points])
+        self._pyi = t_byref(ctypes.c_double, n, *[p.py for p in points])
+        self._Xi = t_byref(ctypes.c_double, n, *[p.x for p in geographics])
+        self._Yi = t_byref(ctypes.c_double, n, *[p.y for p in geographics])
+
     def add_map_point(self, px, py, point):
         """
         Add a calibration point to coordinate reference system. Calibration
@@ -941,18 +950,22 @@ class Crs(Epsg):
             geodesic = self(point)
             geographic = point
         self.map_points.append(Point(px, py, geodesic, geographic))
+        self._xiyi()
 
-    def delete_map_point(self, px=None, py=None, index=None):
-        if px == py == index is None:
-            return [self.map_points.pop(0)]
-        elif px is not None and py is not None:
-            return [
-                self.map_points.pop(p) for p in
-                [p for p in self.map_points if p.px == px and p.py == py]
-            ]
-        elif isinstance(index, int):
-            return [self.map_points.pop(min(len(self.map_points) - 1, index))]
-        raise Exception("no calibration point de delete")
+    def delete_map_point(self, *points_or_indexes):
+        result = []
+        for point_or_index in points_or_indexes:
+            if isinstance(point_or_index, int) and \
+               point_or_index <= len(self.map_points):
+                result.append(self.map_points.pop(point_or_index - 1))
+            elif point_or_index in self.map_points:
+                result.append(
+                    self.map_points.pop(
+                        self.map_points.index(point_or_index)
+                    )
+                )
+        self._xiyi()
+        return result
 
     def map2crs(self, px, py, geographic=False):
         """
@@ -973,21 +986,10 @@ class Crs(Epsg):
         Returns:
             `Gryd.Geographic` if `geographic` is True else `Gryd.Geodesic`
         """
-        if len(self.map_points) >= 2:
-            geographics = [p.xya for p in self.map_points]
-            n = len(self.map_points)
-            x = lagrange(
-                px,
-                t_byref(ctypes.c_double, n, *[p.px for p in self.map_points]),
-                t_byref(ctypes.c_double, n, *[p.x for p in geographics]),
-                n
-            )
-            y = lagrange(
-                py,
-                t_byref(ctypes.c_double, n, *[p.py for p in self.map_points]),
-                t_byref(ctypes.c_double, n, *[p.y for p in geographics]),
-                n
-            )
+        n = len(self.map_points)
+        if n >= 2:
+            x = lagrange(px, self._pxi, self._Xi, n)
+            y = lagrange(py, self._pyi, self._Yi, n)
             if geographic:
                 return Geographic(x, y, 0)
             else:
@@ -1021,30 +1023,11 @@ class Crs(Epsg):
         else:
             raise Exception("not a valid point")
 
-        if len(self.map_points) >= 2:
-            geographics = [p.xya for p in self.map_points]
-            n = len(self.map_points)
+        n = len(self.map_points)
+        if n >= 2:
             return Point(
-                lagrange(
-                    point.x,
-                    t_byref(
-                        ctypes.c_double, n, *[p.x for p in geographics]
-                    ),
-                    t_byref(
-                        ctypes.c_double, n, *[p.px for p in self.map_points]
-                    ),
-                    n
-                ),
-                lagrange(
-                    point.y,
-                    t_byref(
-                        ctypes.c_double, n, *[p.y for p in geographics]
-                    ),
-                    t_byref(
-                        ctypes.c_double, n, *[p.py for p in self.map_points]
-                    ),
-                    n
-                ),
+                lagrange(point.x, self._Xi, self._pxi, n),
+                lagrange(point.y, self._Yi, self._pyi, n),
                 geodesic_point,
                 point
             )
