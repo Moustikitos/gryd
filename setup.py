@@ -1,6 +1,9 @@
 # -*- coding:utf-8 -*-
 import sys
-from distutils.core import setup, Extension
+try:
+    from setuptools import Wheel, Extension
+except ImportError:
+    from distutils.core import setup, Extension
 from distutils.command.build_ext import build_ext
 
 

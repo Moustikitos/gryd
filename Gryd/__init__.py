@@ -1,19 +1,20 @@
 # -*- coding: utf-8 -*-
 
 """
-# EPSG dataset
-
-All epsg crs linked to these projections are available through python API
-using epsg id or name:
+# Most used projections implemented
 
  + Mercator
  + Transverse Mercator
  + Lambert Conformal Conic.
  + Miller
+ + Eqc
 
-# Grids
+# CRS
 
-Four main grids are available:
+Coordinates reference systems (crs) linked to these projections are available
+within python API using epsg id or name.
+
+# Four main grids are available:
 
  + Universal Transverse Mercator
  + Military Grid Reference System
@@ -22,8 +23,8 @@ Four main grids are available:
 
 # Raster map interpolation
 
-`Gryd.Crs` also provides functions for raster map coordinates interpolation
-using calibration `Points` (two minimum are required).
+`Gryd.Crs` provides functions for raster map coordinates interpolation using
+calibration `Points` (two minimum are required).
 
 ## Geodesic object
 
@@ -141,8 +142,9 @@ class Geocentric(ctypes.Structure):
 
 class Geographic(ctypes.Structure):
     """
-    `ctypes` structure for geographic coordinates. 2D coordinates on flattened
-    earth (using a projection system) with elevation as third dimension.
+    `ctypes` structure for geographic coordinates ie 2D coordinates on
+    flattened earth (using a projection system) with elevation as third
+    dimension.
 
     Attributes:
         x (float): X-projection-axis value
@@ -212,8 +214,7 @@ class Grid(ctypes.Structure):
 class Point(ctypes.Structure):
     """
     `ctypes` structure for calibration point. It is used for coordinates
-    interpolation on a referenced raster image. Two points minimum are
-    required.
+    interpolation on a raster image. Two points minimum are required.
 
     Attributes:
         px (float): pixel column position
@@ -229,9 +230,6 @@ class Point(ctypes.Structure):
         ("lla", Geodesic),
         ("xya", Geographic)
     ]
-
-    # def __hash__(self):
-    #     return hash(self.px) ^ hash(self.py) ^ hash(self.lla) ^ hash()
 
     def __repr__(self):
         return "<px=%.0f py=%.0f\n%r\n%r\n>" % (
@@ -463,8 +461,6 @@ class Prime(Epsg):
     >>> prime = Gryd.Prime(epsg=8902)
     >>> prime
     <Prime meridian epsg=8902 longitude=-009°07'54.862''>
-    >>> prime.name
-    'Lisbon'
     ```
 
     Attributes:
@@ -558,7 +554,7 @@ class Ellipsoid(Epsg):
     def destination(self, lla, bearing, distance):
         """
         Return Vincenty destination from geodesic start point following
-        specific bearing for a determined distance.
+        specific bearing with a determined distance.
 
         ```python
         >>> wgs84.destination(
@@ -600,7 +596,7 @@ class Ellipsoid(Epsg):
             lla1 (Gryd.Geodesic): end point
             n (int): number uf intermediary points
         Returns:
-            list of `Gryd.Vincenty_dest`
+            list of `Gryd.Vincenty_dest` (start, *intermediaries, end)
         """
         result = ()
         pts = npoints(self, lla0, lla1, n)

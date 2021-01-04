@@ -1,21 +1,23 @@
 <a name="Gryd"></a>
 # Gryd
 
-__EPSG dataset__
+__Most used projections implemented__
 
-
-All epsg crs linked to these projections are available through python API
-using epsg id or name:
 
  + Mercator
  + Transverse Mercator
  + Lambert Conformal Conic.
  + Miller
+ + Eqc
 
-__Grids__
+__CRS__
 
 
-Four main grids are available:
+Coordinates reference systems (crs) linked to these projections are available
+within python API using epsg id or name.
+
+__Four main grids are available:__
+
 
  + Universal Transverse Mercator
  + Military Grid Reference System
@@ -25,8 +27,8 @@ Four main grids are available:
 __Raster map interpolation__
 
 
-`Gryd.Crs` also provides functions for raster map coordinates interpolation
-using calibration `Points` (two minimum are required).
+`Gryd.Crs` provides functions for raster map coordinates interpolation using
+calibration `Points` (two minimum are required).
 
 ## Geodesic object
 
@@ -81,8 +83,7 @@ class Point(ctypes.Structure)
 ```
 
 `ctypes` structure for calibration point. It is used for coordinates
-interpolation on a referenced raster image. Two points minimum are
-required.
+interpolation on a raster image. Two points minimum are required.
 
 **Attributes**:
 
@@ -259,8 +260,6 @@ Prime meridian.
 >>> prime = Gryd.Prime(epsg=8902)
 >>> prime
 <Prime meridian epsg=8902 longitude=-009°07'54.862''>
->>> prime.name
-'Lisbon'
 ```
 
 **Attributes**:
@@ -327,7 +326,7 @@ Return Vincenty distance between two geodesic points.
 ```
 
 Return Vincenty destination from geodesic start point following
-specific bearing for a determined distance.
+specific bearing with a determined distance.
 
 
 ```python
@@ -378,7 +377,7 @@ points using Vincenty formulae.
 
 **Returns**:
 
-  list of `Gryd.Vincenty_dest`
+  list of `Gryd.Vincenty_dest` (start, *intermediaries, end)
 
 <a name="Gryd.Datum"></a>
 ## Datum Objects
