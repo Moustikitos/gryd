@@ -15,7 +15,7 @@
 
 ## Why this package ?
 `Gryd` package provides efficient great circle computation and projection library.
-It is light weight (less than 500Ko) and does not need any dependancy.
+It is light weight (less than 500Ko) and does not need any dependency.
 
 ## Documentation
 [The Gryd Project [WIP]](https://moustikitos.github.io/gryd/)
