@@ -592,6 +592,32 @@ ones.</p>
 <li><code>point</code> <em>Gryd.Geodesic or Gryd.Geographic</em> - geodesic or geographic
   coordinates</li>
 </ul>
+<p><a name="Gryd.Crs.delete_map_point"></a></p>
+<h4 id="delete_map_point">delete_map_point</h4>
+<pre><code class="language-python"> | delete_map_point(*points_or_indexes)
+</code></pre>
+<p>Delete multiple calibration points using index (starting with 1) or
+<code>Gryd.Point</code> reference.</p>
+<pre><code class="language-python">pvs.delete_map_point(0)
+[&lt;px=512 py=512
+&lt;lon=+179°59'56.400&quot; lat=-085°00'0.000&quot; alt=0.000&gt;
+&lt;X=20037397.023 Y=-19971868.880s alt=0.000&gt;
+&gt;]
+&gt;&gt;&gt; pvs.delete_map_point(pvs.map_points[0])
+[&lt;px=0 py=0
+&lt;lon=-179°59'56.400&quot; lat=+085°00'0.000&quot; alt=0.000&gt;
+&lt;X=-20037397.023 Y=19971868.880s alt=0.000&gt;
+&gt;]
+&gt;&gt;&gt; pvs.map_points
+[]
+</code></pre>
+<p><strong>Arguments</strong>:</p>
+<ul>
+<li><code>*points_or_indexes</code> <em>int or Gryd.Point</em> - index (starting with 1)
+  or point reference</li>
+</ul>
+<p><strong>Returns</strong>:</p>
+<p><code>list</code> of deleted <code>Gryd.Point</code></p>
 <p><a name="Gryd.Crs.map2crs"></a></p>
 <h4 id="map2crs">map2crs</h4>
 <pre><code class="language-python"> | map2crs(px, py, geographic=False)
@@ -626,7 +652,14 @@ coordinates.</p>
 &lt;lon=-006°15'33.973&quot; lat=+053°21'2.754&quot; alt=0.000&gt;
 &lt;X=-696797.339 Y=7048145.354s alt=0.000&gt;
 &gt;
-</code></pre></div>
+</code></pre>
+<p><strong>Arguments</strong>:</p>
+<ul>
+<li><code>point</code> <em>Gryd.Geodesic or Gryd.Geographic</em> - geodesic or geographic
+  coordinates</li>
+</ul>
+<p><strong>Returns</strong>:</p>
+<p><code>Gryd.Point</code></p></div>
             </div>
         </div>
 
