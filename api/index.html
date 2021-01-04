@@ -245,7 +245,7 @@ function.</p>
 returned by <code>Gryd.dms</code> function.</p>
 <pre><code class="language-python">&gt;&gt;&gt; d = Gryd.dms(-60.42286847222222)
 &gt;&gt;&gt; d
--060°25'22.326&quot;
+-060°25'22.326''
 &gt;&gt;&gt; float(d)
 -60.42286847222222
 </code></pre>
@@ -328,7 +328,7 @@ python part of the class, not the <code>ctypes</code> structure.</p>
 <p>Prime meridian.</p>
 <pre><code class="language-python">&gt;&gt;&gt; prime = Gryd.Prime(epsg=8902)
 &gt;&gt;&gt; prime
-&lt;Prime meridian epsg=8902 longitude=-009°07'54.862&quot;&gt;
+&lt;Prime meridian epsg=8902 longitude=-009°07'54.862''&gt;
 &gt;&gt;&gt; prime.name
 'Lisbon'
 </code></pre>
@@ -363,7 +363,7 @@ python part of the class, not the <code>ctypes</code> structure.</p>
 <pre><code>&gt;&gt;&gt; london = Gryd.Geodesic(-0.127005, 51.518602, 0.)
 &gt;&gt;&gt; dublin = Gryd.Geodesic(-6.259437, 53.350765, 0.)
 &gt;&gt;&gt; wgs84.distance(dublin, london)
-&lt;Distance 464.025km initial bearing=113.6 final bearing=118.5&gt;
+&lt;Dist 464.025km initial bearing=113.6 final bearing=118.5°&gt;
 </code></pre>
 <p><strong>Arguments</strong>:</p>
 <ul>
@@ -381,9 +381,9 @@ specific bearing for a determined distance.</p>
 <pre><code class="language-python">&gt;&gt;&gt; wgs84.destination(
 ...     london, math.degrees(vdist.final_bearing) + 180, vdist.distance
 ... )
-&lt;Destination lon=-006°15'33.973&quot; lat=+053°21'2.754&quot; end bearing=-66.4°&gt;
+&lt;Dest lon=-006°15'33.973'' lat=+053°21'2.754'' end bearing=-66.4°&gt;
 &gt;&gt;&gt; dublin
-&lt;lon=-006°15'33.973&quot; lat=+053°21'2.754&quot; alt=0.000&gt;
+&lt;lon=-006°15'33.973'' lat=+053°21'2.754'' alt=0.000&gt;
 </code></pre>
 <p><strong>Arguments</strong>:</p>
 <ul>
@@ -401,12 +401,12 @@ specific bearing for a determined distance.</p>
 points using Vincenty formulae.</p>
 <pre><code class="language-python">&gt;&gt;&gt; for p in wgs84.npoints(dublin, londre, 4): print(p)
 ...
-&lt;Destination lon=-006°15'33.973&quot; lat=+053°21'2.754&quot; end bearing=113.6&gt;
-&lt;Destination lon=-004°59'32.422&quot; lat=+053°00'36.687&quot; end bearing=114.6&gt;
-&lt;Destination lon=-003°44'43.501&quot; lat=+052°39'22.715&quot; end bearing=115.6&gt;
-&lt;Destination lon=-002°31'7.792&quot; lat=+052°17'22.201&quot; end bearing=116.6&gt;
-&lt;Destination lon=-001°18'45.650&quot; lat=+051°54'36.502&quot; end bearing=117.5&gt;
-&lt;Destination lon=-000°07'37.218&quot; lat=+051°31'6.967&quot; end bearing=118.5&gt;
+&lt;Dest lon=-006°15'33.973'' lat=+053°21'2.754'' end bearing=113.6&gt;
+&lt;Dest lon=-004°59'32.422'' lat=+053°00'36.687'' end bearing=114.6&gt;
+&lt;Dest lon=-003°44'43.501'' lat=+052°39'22.715'' end bearing=115.6&gt;
+&lt;Dest lon=-002°31'7.792'' lat=+052°17'22.201'' end bearing=116.6&gt;
+&lt;Dest lon=-001°18'45.650'' lat=+051°54'36.502'' end bearing=117.5&gt;
+&lt;Dest lon=-000°07'37.218'' lat=+051°31'6.967'' end bearing=118.5&gt;
 </code></pre>
 <p><strong>Arguments</strong>:</p>
 <ul>
@@ -461,9 +461,9 @@ to wgs84: 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0&gt;
 </code></pre>
 <p>Convert geocentric coordinates to geodesic coordinates.</p>
 <pre><code class="language-python">&gt;&gt;&gt; wgs84.lla(wgs84.xyz(london))
-&lt;lon=-000°07'37.218&quot; lat=+051°31'6.967&quot; alt=0.000&gt;
+&lt;lon=-000°07'37.218'' lat=+051°31'6.967'' alt=0.000&gt;
 &gt;&gt;&gt; london
-&lt;lon=-000°07'37.218&quot; lat=+051°31'6.967&quot; alt=0.000&gt;
+&lt;lon=-000°07'37.218'' lat=+051°31'6.967'' alt=0.000&gt;
 </code></pre>
 <p><strong>Arguments</strong>:</p>
 <ul>
@@ -498,7 +498,7 @@ coordinates to flat map (geographic coordinates).</p>
 &gt;&gt;&gt; osgb36.datum.xyz(london)
 &lt;X=3976632.017 Y=-8814.837 Z=4969286.446&gt;
 &gt;&gt;&gt; osgb36.datum.ellipsoid.distance(dublin, london)
-&lt;Distance 463.981km initial bearing=113.6 final bearing=118.5&gt;
+&lt;Dist 463.981km initial bearing=113.6° final bearing=118.5°&gt;
 &gt;&gt;&gt; osgb36
 &lt;Crs epsg=27700:
 &lt;Datum epsg=4277:
@@ -535,7 +535,7 @@ Projection 'tmerc'&gt;
 <pre><code class="language-python">&gt;&gt;&gt; osgb36(london)  # projection of Geodesic point
 &lt;X=529939.106 Y=181680.962s alt=0.000&gt;
 &gt;&gt;&gt; osgb36(osgb36(london))  # deprojection of Geographic point
-&lt;lon=-000°07'37.218&quot; lat=+051°31'6.967&quot; alt=0.000&gt;
+&lt;lon=-000°07'37.218'' lat=+051°31'6.967'' alt=0.000&gt;
 </code></pre>
 <p><strong>Arguments</strong>:</p>
 <ul>
@@ -578,10 +578,10 @@ ones.</p>
 &gt;&gt;&gt; pvs.add_map_point(512,512, Gryd.Geodesic(179.999, -85))
 &gt;&gt;&gt; pvs.map_points
 [&lt;px=0 py=0
-&lt;lon=-179°59'56.400&quot; lat=+085°00'0.000&quot; alt=0.000&gt;
+&lt;lon=-179°59'56.400'' lat=+085°00'0.000'' alt=0.000&gt;
 &lt;X=-20037397.023 Y=19971868.880s alt=0.000&gt;
 &gt;, &lt;px=512 py=512
-&lt;lon=+179°59'56.400&quot; lat=-085°00'0.000&quot; alt=0.000&gt;
+&lt;lon=+179°59'56.400'' lat=-085°00'0.000'' alt=0.000&gt;
 &lt;X=20037397.023 Y=-19971868.880s alt=0.000&gt;
 &gt;]
 </code></pre>
@@ -600,12 +600,12 @@ ones.</p>
 <code>Gryd.Point</code> reference.</p>
 <pre><code class="language-python">pvs.delete_map_point(0)
 [&lt;px=512 py=512
-&lt;lon=+179°59'56.400&quot; lat=-085°00'0.000&quot; alt=0.000&gt;
+&lt;lon=+179°59'56.400'' lat=-085°00'0.000'' alt=0.000&gt;
 &lt;X=20037397.023 Y=-19971868.880s alt=0.000&gt;
 &gt;]
 &gt;&gt;&gt; pvs.delete_map_point(pvs.map_points[0])
 [&lt;px=0 py=0
-&lt;lon=-179°59'56.400&quot; lat=+085°00'0.000&quot; alt=0.000&gt;
+&lt;lon=-179°59'56.400'' lat=+085°00'0.000'' alt=0.000&gt;
 &lt;X=-20037397.023 Y=19971868.880s alt=0.000&gt;
 &gt;]
 &gt;&gt;&gt; pvs.map_points
@@ -625,7 +625,7 @@ ones.</p>
 <p>Geodesic or geographic interpolation on raster image from pixel
 coordinates.</p>
 <pre><code class="language-python">&gt;&gt;&gt; pvs.map2crs(256+128, 256+128)
-&lt;lon=+089°59'58.20&quot; lat=-066°23'43.74&quot; alt=0.000&gt;
+&lt;lon=+089°59'58.20'' lat=-066°23'43.74'' alt=0.000&gt;
 &gt;&gt;&gt; pvs.map2crs(256-128, 256+128, geographic=True)
 &lt;point X=-10018698.512 Y=-9985934.440s alt=0.000&gt;
 </code></pre>
@@ -644,12 +644,12 @@ coordinates.</p>
 <p>Pixel interpolation on raster image from geodesic point.</p>
 <pre><code class="language-python">&gt;&gt;&gt; pvs.crs2map(london)
 &lt;px=256 py=170
-&lt;lon=-000°07'37.218&quot; lat=+051°31'6.967&quot; alt=0.000&gt;
+&lt;lon=-000°07'37.218'' lat=+051°31'6.967'' alt=0.000&gt;
 &lt;X=-14138.132 Y=6713546.215s alt=0.000&gt;
 &gt;
 &gt;&gt;&gt; pvs.crs2map(dublin)
 &lt;px=247 py=166
-&lt;lon=-006°15'33.973&quot; lat=+053°21'2.754&quot; alt=0.000&gt;
+&lt;lon=-006°15'33.973'' lat=+053°21'2.754'' alt=0.000&gt;
 &lt;X=-696797.339 Y=7048145.354s alt=0.000&gt;
 &gt;
 </code></pre>
