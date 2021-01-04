@@ -144,17 +144,18 @@
 
 <p><a name="Gryd"></a></p>
 <h1 id="gryd">Gryd</h1>
-<p><strong>EPSG dataset</strong></p>
-<p>All epsg crs linked to these projections are available through python API
-using epsg id or name:</p>
+<p><strong>Most used projections implemented</strong></p>
 <ul>
 <li>Mercator</li>
 <li>Transverse Mercator</li>
 <li>Lambert Conformal Conic.</li>
 <li>Miller</li>
+<li>Eqc</li>
 </ul>
-<p><strong>Grids</strong></p>
-<p>Four main grids are available:</p>
+<p><strong>CRS</strong></p>
+<p>Coordinates reference systems (crs) linked to these projections are available
+within python API using epsg id or name.</p>
+<p><strong>Four main grids are available:</strong></p>
 <ul>
 <li>Universal Transverse Mercator</li>
 <li>Military Grid Reference System</li>
@@ -162,8 +163,8 @@ using epsg id or name:</p>
 <li>Irish National Grid.</li>
 </ul>
 <p><strong>Raster map interpolation</strong></p>
-<p><code>Gryd.Crs</code> also provides functions for raster map coordinates interpolation
-using calibration <code>Points</code> (two minimum are required).</p>
+<p><code>Gryd.Crs</code> provides functions for raster map coordinates interpolation using
+calibration <code>Points</code> (two minimum are required).</p>
 <h2 id="geodesic-object">Geodesic object</h2>
 <p><a href="../geodesy/">See <code>Gryd.geodesy</code> module</a></p>
 <p><a name="Gryd.names"></a></p>
@@ -200,8 +201,7 @@ used as a transition for datum conversion.</p>
 <pre><code class="language-python">class Point(ctypes.Structure)
 </code></pre>
 <p><code>ctypes</code> structure for calibration point. It is used for coordinates
-interpolation on a referenced raster image. Two points minimum are
-required.</p>
+interpolation on a raster image. Two points minimum are required.</p>
 <p><strong>Attributes</strong>:</p>
 <ul>
 <li><code>px</code> <em>float</em> - pixel column position</li>
@@ -329,8 +329,6 @@ python part of the class, not the <code>ctypes</code> structure.</p>
 <pre><code class="language-python">&gt;&gt;&gt; prime = Gryd.Prime(epsg=8902)
 &gt;&gt;&gt; prime
 &lt;Prime meridian epsg=8902 longitude=-009°07'54.862''&gt;
-&gt;&gt;&gt; prime.name
-'Lisbon'
 </code></pre>
 <p><strong>Attributes</strong>:</p>
 <ul>
@@ -377,7 +375,7 @@ python part of the class, not the <code>ctypes</code> structure.</p>
 <pre><code class="language-python"> | destination(lla, bearing, distance)
 </code></pre>
 <p>Return Vincenty destination from geodesic start point following
-specific bearing for a determined distance.</p>
+specific bearing with a determined distance.</p>
 <pre><code class="language-python">&gt;&gt;&gt; wgs84.destination(
 ...     london, math.degrees(vdist.final_bearing) + 180, vdist.distance
 ... )
@@ -415,7 +413,7 @@ points using Vincenty formulae.</p>
 <li><code>n</code> <em>int</em> - number uf intermediary points</li>
 </ul>
 <p><strong>Returns</strong>:</p>
-<p>list of <code>Gryd.Vincenty_dest</code></p>
+<p>list of <code>Gryd.Vincenty_dest</code> (start, *intermediaries, end)</p>
 <p><a name="Gryd.Datum"></a></p>
 <h2 id="datum-objects">Datum Objects</h2>
 <pre><code class="language-python">class Datum(Epsg)
