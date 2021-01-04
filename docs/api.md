@@ -626,6 +626,40 @@ ones.
 - `point` _Gryd.Geodesic or Gryd.Geographic_ - geodesic or geographic
   coordinates
 
+<a name="Gryd.Crs.delete_map_point"></a>
+#### delete\_map\_point
+
+```python
+ | delete_map_point(*points_or_indexes)
+```
+
+Delete multiple calibration points using index (starting with 1) or
+`Gryd.Point` reference.
+
+```python
+pvs.delete_map_point(0)
+[<px=512 py=512
+<lon=+179°59'56.400" lat=-085°00'0.000" alt=0.000>
+<X=20037397.023 Y=-19971868.880s alt=0.000>
+>]
+>>> pvs.delete_map_point(pvs.map_points[0])
+[<px=0 py=0
+<lon=-179°59'56.400" lat=+085°00'0.000" alt=0.000>
+<X=-20037397.023 Y=19971868.880s alt=0.000>
+>]
+>>> pvs.map_points
+[]
+```
+
+**Arguments**:
+
+- `*points_or_indexes` _int or Gryd.Point_ - index (starting with 1)
+  or point reference
+
+**Returns**:
+
+  `list` of deleted `Gryd.Point`
+
 <a name="Gryd.Crs.map2crs"></a>
 #### map2crs
 
@@ -663,6 +697,7 @@ coordinates.
 
 Pixel interpolation on raster image from geodesic point.
 
+
 ```python
 >>> pvs.crs2map(london)
 <px=256 py=170
@@ -675,4 +710,13 @@ Pixel interpolation on raster image from geodesic point.
 <X=-696797.339 Y=7048145.354s alt=0.000>
 >
 ```
+
+**Arguments**:
+
+- `point` _Gryd.Geodesic or Gryd.Geographic_ - geodesic or geographic
+  coordinates
+
+**Returns**:
+
+  `Gryd.Point`
 

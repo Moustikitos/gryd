@@ -953,6 +953,30 @@ class Crs(Epsg):
         self._xiyi()
 
     def delete_map_point(self, *points_or_indexes):
+        """
+        Delete multiple calibration points using index (starting with 1) or
+        `Gryd.Point` reference.
+
+        ```python
+        pvs.delete_map_point(0)
+        [<px=512 py=512
+        <lon=+179°59'56.400" lat=-085°00'0.000" alt=0.000>
+        <X=20037397.023 Y=-19971868.880s alt=0.000>
+        >]
+        >>> pvs.delete_map_point(pvs.map_points[0])
+        [<px=0 py=0
+        <lon=-179°59'56.400" lat=+085°00'0.000" alt=0.000>
+        <X=-20037397.023 Y=19971868.880s alt=0.000>
+        >]
+        >>> pvs.map_points
+        []
+        ```
+        Arguments:
+            *points_or_indexes (int or Gryd.Point): index (starting with 1)
+                                                      or point reference
+        Returns:
+            `list` of deleted `Gryd.Point`
+        """
         result = []
         for point_or_index in points_or_indexes:
             if isinstance(point_or_index, int) and \
@@ -1013,6 +1037,12 @@ class Crs(Epsg):
         <X=-696797.339 Y=7048145.354s alt=0.000>
         >
         ```
+
+        Arguments:
+            point (Gryd.Geodesic or Gryd.Geographic): geodesic or geographic
+                                                      coordinates
+        Returns:
+            `Gryd.Point`
         """
         if isinstance(point, Geodesic):
             geodesic_point = point
