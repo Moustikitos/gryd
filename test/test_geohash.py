@@ -33,3 +33,10 @@ class Test(unittest.TestCase):
         base = "".join(base)
         test = Gryd.geohash.as_int(Gryd.geohash.as_str(dublin, base), base)
         self.assertEqual(dublin, test)
+
+    def test_split_join(self):
+        dublin = Gryd.geohash.geoh(-6.272877, 53.344606, bits=115)
+        self.assertEqual(
+            dublin,
+            Gryd.geohash.join(*Gryd.geohash.split(dublin))
+        )

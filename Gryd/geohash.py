@@ -33,6 +33,12 @@ Geohash can be encoded with a custom 32-element-sized base.
 
 import math
 
+# for python 2 set builtin int as builtin long
+try:
+    int = long
+except Exception:
+    pass
+
 
 #: Popular Visualisation Spheroid radius (epsg #7059 ellipsoid)
 EARTH_RADIUS = 6378137.0
@@ -182,7 +188,7 @@ def as_str(value, base="0123456789bcdefghjkmnpqrstuvwxyz"):
         geoh.append(base[value & 0b11111])
         value >>= 5
 
-    geoh = reversed(geoh)
+    geoh = geoh[::-1]
     return bytes(geoh) if isinstance(base, bytes) else "".join(geoh)
 
 

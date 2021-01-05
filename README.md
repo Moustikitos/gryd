@@ -1,10 +1,10 @@
 # Gryd
 
-[![pypi](https://img.shields.io/pypi/l/Gryd.svg?style=flat-square)](https://htmlpreview.github.io/?https://github.com/Moustikitos/gryd/blob/master/gryd.html)
+[![pypi](https://img.shields.io/pypi/l/Gryd.svg)](https://htmlpreview.github.io/?https://github.com/Moustikitos/gryd/blob/master/gryd.html)
 
-[![pypi](https://img.shields.io/pypi/pyversions/Gryd.svg?style=flat-square)](https://pypi.python.org/pypi/Gryd)
-[![pypi](https://img.shields.io/pypi/v/Gryd.svg?style=flat-square)](https://pypi.python.org/pypi/Gryd)
-[![pypi](https://img.shields.io/pypi/dm/Gryd.svg?style=flat-square)](https://pypi.python.org/pypi/Gryd)
+[![pypi](https://img.shields.io/pypi/pyversions/Gryd.svg)](https://pypi.python.org/pypi/Gryd)
+[![pypi](https://img.shields.io/pypi/v/Gryd.svg)](https://pypi.python.org/pypi/Gryd)
+[![Downloads](https://pepy.tech/badge/gryd/week)](https://pepy.tech/project/gryd)
 
 ### Support this project
 

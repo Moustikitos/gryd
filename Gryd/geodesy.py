@@ -2,8 +2,9 @@
 
 import io
 import math
-import hashlib
+import struct
 import ctypes
+import hashlib
 
 try:
     from urllib.request import urlopen
@@ -25,7 +26,7 @@ def base32(secret):
     secret = secret if isinstance(secret, bytes) else secret.encode("utf-8")
     base = bytearray(b"0123456789bcdefghjkmnpqrstuvwxyz")
     h = bytearray(hashlib.sha256(secret).digest())
-    newbase = bytearray([b for b in h if h.count(b) == 1])
+    newbase = bytearray([b for b in h if h.count(struct.pack("B", b)) == 1])
     newbase.extend(bytearray(b for b in base if b not in newbase))
     return bytes(newbase[:32])
 
