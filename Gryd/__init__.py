@@ -539,7 +539,8 @@ class Ellipsoid(Epsg):
         ```
         >>> london = Gryd.Geodesic(-0.127005, 51.518602, 0.)
         >>> dublin = Gryd.Geodesic(-6.259437, 53.350765, 0.)
-        >>> wgs84.distance(dublin, london)
+        >>> vdist = wgs84.distance(dublin, london)
+        >>> vdist
         <Dist 464.025km initial bearing=113.6 final bearing=118.5°>
         ```
 
