@@ -33,7 +33,8 @@ def forward(crs, lla):
 
 
 def inverse(crs, grid):
-    if crs.datum.ellipsoid.a == 0: crs.datum = "WGS 84"
+    if crs.datum.ellipsoid.a == 0:
+        crs.datum = "WGS 84"
     crs.lambda0 = radians((int(grid.area[:-1]) - 1) * 6 - 180 + 3)
     crs.phi0 = 0.
     crs.y0 = 10000000.0 if grid.area[-1] < 'N' else 0.

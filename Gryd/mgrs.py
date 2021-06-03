@@ -34,12 +34,13 @@ def forward(crs, lla):
 
 
 def inverse(crs, grid):
+    if crs.datum.ellipsoid.a == 0:
+        crs.datum = "WGS 84"
+
     fuseau, area = grid.area.split()
     fuseau, zone = int(fuseau[:-1]), fuseau[-1]
 
     ellipsoid = crs.datum.ellipsoid
-    k0 = crs.k0
-
     col = E_letter[fuseau % 3].index(area[0])+1
     row = (
         N_shifted_letter
@@ -47,7 +48,8 @@ def inverse(crs, grid):
         else N_letter
     )[fuseau % 2].index(area[-1])
 
-    northing = k0 * MD(
+    # k0 = 0.9996
+    northing = 0.9996 * MD(
         ellipsoid.a, ellipsoid.e, radians(float(UTM_letter[zone]))
     )
     grid.easting += col * 100000.
